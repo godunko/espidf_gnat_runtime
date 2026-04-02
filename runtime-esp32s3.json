@@ -49,7 +49,7 @@
       "s-secsta.ads": { "crate": "espidf_runtime", "path": "source/gcc-15/libgnat/s-secsta.ads" },
       "s-soflin.adb": { "crate": "espidf_runtime", "path": "source/s-soflin.adb" },
       "s-soflin.ads": { "crate": "espidf_runtime", "path": "source/s-soflin.ads" },
-      "s-soliin.adb": { "crate": "espidf_runtime", "path": "source/gcc-15/libgnat/s-soliin.adb" },
+      "s-soliin.adb": { "crate": "espidf_runtime", "path": "source/s-soliin.adb" },
       "s-soliin.ads": { "crate": "espidf_runtime", "path": "source/gcc-15/libgnat/s-soliin.ads" },
       "s-solita.adb": { "crate": "espidf_runtime", "path": "source/s-solita.adb" },
       "s-solita.ads": { "crate": "espidf_runtime", "path": "source/gcc-15/libgnarl/s-solita.ads" },
