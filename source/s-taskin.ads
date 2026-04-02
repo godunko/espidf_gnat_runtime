@@ -427,19 +427,19 @@ package System.Tasking is
 --   --    call to Create_Task. Hence, at this point, we may need to update the
 --   --    number of tasks associated to the processor, but we do not want to
 --   --    force a dependency from this package on Dispatching_Domains.
---
---   ------------------------------------
---   -- Task related other definitions --
---   ------------------------------------
---
---   type Activation_Chain is limited private;
---   --  Linked list of to-be-activated tasks, linked through
---   --  Activation_Link. The order of tasks on the list is irrelevant, because
---   --  the priority rules will ensure that they actually start activating in
---   --  priority order.
---
---   type Activation_Chain_Access is access all Activation_Chain;
---
+
+   ------------------------------------
+   -- Task related other definitions --
+   ------------------------------------
+
+   type Activation_Chain is limited private;
+   --  Linked list of to-be-activated tasks, linked through
+   --  Activation_Link. The order of tasks on the list is irrelevant, because
+   --  the priority rules will ensure that they actually start activating in
+   --  priority order.
+
+   type Activation_Chain_Access is access all Activation_Chain;
+
 --   type Task_Procedure_Access is access procedure (Arg : System.Address);
 --
 --   type Access_Boolean is access all Boolean;
@@ -1217,10 +1217,11 @@ package System.Tasking is
 private
 
 --   Null_Task : constant Task_Id := null;
---
---   type Activation_Chain is limited record
+
+   type Activation_Chain is limited record
 --      T_ID : Task_Id;
---   end record;
+      null;
+   end record;
 
    --  Activation_Chain is an in-out parameter of initialization procedures and
    --  it must be passed by reference because the init proc may terminate
