@@ -140,10 +140,10 @@ package System.Soft_Links is
                return      String;
    pragma Favor_Top_Level (Traceback_Decorator_Wrapper_Call);
 
---   --  Declarations for the no tasking versions of the required routines
---
---   procedure Abort_Defer_NT;
---   --  Defer task abort (non-tasking case, does nothing)
+   --  Declarations for the no tasking versions of the required routines
+
+   procedure Abort_Defer_NT;
+   --  Defer task abort (non-tasking case, does nothing)
 
    procedure Abort_Undefer_NT;
    --  Undefer task abort (non-tasking case, does nothing)
@@ -169,9 +169,9 @@ package System.Soft_Links is
    procedure Adafinal_NT;
    --  Shuts down the runtime system (non-tasking case)
 
---   Abort_Defer : No_Param_Proc := Abort_Defer_NT'Access;
---   pragma Suppress (Access_Check, Abort_Defer);
---   --  Defer task abort (task/non-task case as appropriate)
+   Abort_Defer : No_Param_Proc := Abort_Defer_NT'Access;
+   pragma Suppress (Access_Check, Abort_Defer);
+   --  Defer task abort (task/non-task case as appropriate)
 
    Abort_Undefer : No_Param_Proc := Abort_Undefer_NT'Access;
    pragma Suppress (Access_Check, Abort_Undefer);

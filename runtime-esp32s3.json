@@ -33,6 +33,7 @@
       "a-calclo.adb": { "crate": "espidf_runtime", "path": "source/a-calclo.adb" },
       "a-reatim.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-reatim.adb" },
       "a-reatim.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-reatim.ads" },
+      "s-crtl.ads": { "crate": "espidf_runtime", "path": "source/gcc-15/libgnat/s-crtl.ads" },
       "s-excmac.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/zcx-dw2/s-excmac.adb" },
       "s-excmac.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/zcx-dw2/s-excmac.ads" },
       "s-freert.ads": { "crate": "espidf_runtime", "path": "source/s-freert.ads" },
@@ -40,6 +41,7 @@
       "s-inifin.ads": { "crate": "espidf_runtime", "path": "source/s-inifin.ads" },
       "s-init.adb": {},
       "s-init.ads": {},
+      "s-memory.adb": { "crate": "espidf_runtime", "path": "source/gcc-15/libgnat/s-memory.adb" },
 //      "s-multip.adb": { "crate": "espidf_runtime", "path": "source/s-multip.adb" },
 //      "s-multip.ads": { "crate": "espidf_runtime", "path": "source/s-multip.ads" },
 //////      "s-osinte.adb": { "crate": "espidf_runtime", "path": "source/s-osinte.adb" },
@@ -58,6 +60,8 @@
       "s-taprop.ads": { "crate": "espidf_runtime", "path": "source/s-taprop.ads" },
 ////      "s-tasinf.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-tasinf.adb" },
 ////      "s-tasinf.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-tasinf.ads" },
+      "s-tasini.adb": { "crate": "espidf_runtime", "path": "source/s-tasini.adb" },
+      "s-tasini.ads": { "crate": "espidf_runtime", "path": "source/s-tasini.ads" },
       "s-taskin.adb": { "crate": "espidf_runtime", "path": "source/s-taskin.adb" },
       "s-taskin.ads": { "crate": "espidf_runtime", "path": "source/s-taskin.ads" },
       "s-taspri.ads": { "crate": "espidf_runtime", "path": "source/s-taspri.ads" },
@@ -68,8 +72,6 @@
 ////      "raise-gcc.c": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/raise-gcc.c" },
 ////      "unwind-pe.h": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/gcc/unwind-pe.h" },
 ////
-////      "s-memory.adb": { "crate": "espidf_runtime", "path": "source/s-memory.adb" },
-////      "s-crtl.ads": { "crate": "espidf_runtime", "path": "source/s-crtl.ads" },
 ////      "s-tpoaal.adb": { "crate": "espidf_runtime", "path": "source/gcc-15/s-tpoaal.adb" },
     }
   },

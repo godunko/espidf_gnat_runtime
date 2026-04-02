@@ -150,20 +150,20 @@ package System.Parameters is
 --   --  In the following sections, constant parameters are defined to
 --   --  allow some optimizations and fine tuning within the tasking run time
 --   --  based on restrictions on the tasking features.
---
---   -------------------
---   -- Task Abortion --
---   -------------------
---
---   No_Abort : constant Boolean := False;
---   --  This constant indicates whether abort statements and asynchronous
---   --  transfer of control (ATC) are disallowed. If set to True, it is
---   --  assumed that neither construct is used, and the run time does not
---   --  need to defer/undefer abort and check for pending actions at
---   --  completion points. A value of True for No_Abort corresponds to:
---   --  pragma Restrictions (No_Abort_Statements);
---   --  pragma Restrictions (Max_Asynchronous_Select_Nesting => 0);
---
+
+   -------------------
+   -- Task Abortion --
+   -------------------
+
+   No_Abort : constant Boolean := True;
+   --  This constant indicates whether abort statements and asynchronous
+   --  transfer of control (ATC) are disallowed. If set to True, it is
+   --  assumed that neither construct is used, and the run time does not
+   --  need to defer/undefer abort and check for pending actions at
+   --  completion points. A value of True for No_Abort corresponds to:
+   --  pragma Restrictions (No_Abort_Statements);
+   --  pragma Restrictions (Max_Asynchronous_Select_Nesting => 0);
+
 --   ---------------------
 --   -- Task Attributes --
 --   ---------------------

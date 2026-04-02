@@ -66,13 +66,13 @@ package body System.Soft_Links.Tasking is
    -----------------------------------------------------------------
 
 --   function  Get_Jmpbuf_Address return  Address;
---   procedure Set_Jmpbuf_Address (Addr : Address);
---   --  Get/Set Jmpbuf_Address for current task
+   procedure Set_Jmpbuf_Address (Addr : Address);
+   --  Get/Set Jmpbuf_Address for current task
 
    function  Get_Sec_Stack return SST.SS_Stack_Ptr;
---   procedure Set_Sec_Stack (Stack : SST.SS_Stack_Ptr);
---   --  Get/Set location of current task's secondary stack
---
+   procedure Set_Sec_Stack (Stack : SST.SS_Stack_Ptr);
+   --  Get/Set location of current task's secondary stack
+
 --   procedure Timed_Delay_T (Time : Duration; Mode : Integer);
 --   --  Task-safe version of SSL.Timed_Delay
 
@@ -104,21 +104,21 @@ package body System.Soft_Links.Tasking is
 --   begin
 --      return STPO.Self.Common.Compiler_Data.Pri_Stack_Info'Access;
 --   end Get_Stack_Info;
---
---   --------------------------
---   -- Soft-Link Set Bodies --
---   --------------------------
---
---   procedure Set_Jmpbuf_Address (Addr : Address) is
---   begin
---      STPO.Self.Common.Compiler_Data.Jmpbuf_Address := Addr;
---   end Set_Jmpbuf_Address;
---
---   procedure Set_Sec_Stack (Stack : SST.SS_Stack_Ptr) is
---   begin
---      STPO.Self.Common.Compiler_Data.Sec_Stack_Ptr := Stack;
---   end Set_Sec_Stack;
---
+
+   --------------------------
+   -- Soft-Link Set Bodies --
+   --------------------------
+
+   procedure Set_Jmpbuf_Address (Addr : Address) is
+   begin
+      STPO.Self.Common.Compiler_Data.Jmpbuf_Address := Addr;
+   end Set_Jmpbuf_Address;
+
+   procedure Set_Sec_Stack (Stack : SST.SS_Stack_Ptr) is
+   begin
+      STPO.Self.Common.Compiler_Data.Sec_Stack_Ptr := Stack;
+   end Set_Sec_Stack;
+
 --   -------------------
 --   -- Timed_Delay_T --
 --   -------------------
@@ -218,10 +218,10 @@ package body System.Soft_Links.Tasking is
          --  version of the following soft links need to be used.
 
 --         SSL.Get_Jmpbuf_Address       := Get_Jmpbuf_Address'Access;
---         SSL.Set_Jmpbuf_Address       := Set_Jmpbuf_Address'Access;
+         SSL.Set_Jmpbuf_Address       := Set_Jmpbuf_Address'Access;
          SSL.Get_Sec_Stack            := Get_Sec_Stack'Access;
 --         SSL.Get_Stack_Info           := Get_Stack_Info'Access;
---         SSL.Set_Sec_Stack            := Set_Sec_Stack'Access;
+         SSL.Set_Sec_Stack            := Set_Sec_Stack'Access;
 --         SSL.Timed_Delay              := Timed_Delay_T'Access;
          SSL.Task_Termination_Handler := Task_Termination_Handler_T'Access;
 
