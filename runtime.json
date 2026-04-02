@@ -1,0 +1,95 @@
+{
+  "dt:&cpu0:compatible": "espressif,xtensa-lx7",
+  "dt:&cpu0:clock-frequency": "240_000_000",
+
+  "runtime":
+  {
+    "languages": ["ada", "c"],
+    "common_required_switches": ["-mlongcalls"],
+    "linker_required_switches": ["-nostartfiles", "-nolibc"],
+    "system":
+    {
+      "parameters":
+      {
+        "Suppress_Standard_Library": false
+      },
+      "restrictions":
+      {
+        "No_Finalization": false,
+        "No_Exception_Propagation": false,
+        "No_Implicit_Dynamic_Code": false
+      }
+    },
+    "files":
+    {
+      "a-textio.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/system_io/a-textio.adb" },
+      "s-atopri.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/atomics/32/s-atopri.ads" },
+      "s-macres.adb": { "crate": "espidf_runtime", "path": "source/s-macres.adb" },
+      "s-textio.adb": { "crate": "espidf_runtime", "path": "source/s-textio.adb" },
+
+      //  Files below are necessary for "embedded"
+      "a-calclo.adb": { "crate": "espidf_runtime", "path": "source/a-calclo.adb" },
+      "a-nllefu.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/math/long_long_64bit/a-nllefu.ads" },
+      "a-reatim.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-reatim.adb" },
+      "a-reatim.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-reatim.ads" },
+      "s-excmac.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/zcx-dw2/s-excmac.adb" },
+      "s-excmac.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/zcx-dw2/s-excmac.ads" },
+      "s-init.adb": { "crate": "espidf_runtime", "path": "source/s-init.adb" },
+      "s-multip.ads": { "crate": "espidf_runtime", "path": "source/s-multip.ads" },
+      "s-osinte.adb": { "crate": "espidf_runtime", "path": "source/s-osinte.adb" },
+      "s-osinte.ads": { "crate": "espidf_runtime", "path": "source/s-osinte.ads" },
+      "s-soflin.adb": { "crate": "espidf_runtime", "path": "source/s-soflin.adb" },
+      "s-soflin.ads": { "crate": "espidf_runtime", "path": "source/s-soflin.ads" },
+      "s-taprop.adb": { "crate": "espidf_runtime", "path": "source/s-taprop.adb" },
+      "s-taprop.ads": { "crate": "espidf_runtime", "path": "source/s-taprop.ads" },
+      "s-tasinf.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-tasinf.adb" },
+      "s-tasinf.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-tasinf.ads" },
+      "s-taskin.adb": { "crate": "espidf_runtime", "path": "source/s-taskin.adb" },
+      "s-taskin.ads": { "crate": "espidf_runtime", "path": "source/s-taskin.ads" },
+      "s-taspri.ads": { "crate": "espidf_runtime", "path": "source/s-taspri.ads" },
+      "s-traceb.adb": { "crate": "espidf_runtime", "path": "source/s-traceb.adb" },
+      "raise-gcc.c": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/raise-gcc.c" },
+      "unwind-pe.h": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/gcc/unwind-pe.h" },
+    }
+  },
+
+  "tasking":
+  {
+    "kernel": "custom",
+    "files":
+    {
+    }
+  },
+
+  "scenarios":
+  {
+    "RTS_Profile": "embedded",
+//    "Target_Word_Size": "32",
+//    "Has_Compare_And_Swap": "yes",
+//    "Has_CHERI": "no",
+//    "Certifiable_Packages": "yes",
+//    "Has_libc": "yes",
+    "Memory_Profile": "large",
+//    "Text_IO": "serial",
+
+    //  Scenarios below must be specified for "embedded"
+//    "Has_FMA": "yes",  //  It is not clear what to set
+    "Compiler_Backend": "gcc",
+    "Add_Arith64": "yes",
+    "Add_Case_Util": "yes",
+    "Add_Complex_Type_Support": "yes",
+    "Add_Exponent_Float": "yes",
+    "Add_Exponent_Int": "yes",
+    "Add_Exponent_LL_Int": "yes",
+    "Add_Float_Util": "yes",
+    "Add_Image_Char": "yes",
+    "Add_IO_Exceptions": "yes",
+    "Add_Math_Lib": "hardfloat",
+    "Add_Streams": "yes",
+    "Add_Value_Int": "yes",
+    "Add_Value_LL_Int": "yes",
+    "Add_Value_LL_Spec": "yes",
+    "Add_Value_Spec": "yes",
+    "Add_Value_Utils": "yes"
+  }
+}

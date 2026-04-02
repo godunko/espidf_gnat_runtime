@@ -1,0 +1,4 @@
+
+abstract project Dummy is
+
+end Dummy;
