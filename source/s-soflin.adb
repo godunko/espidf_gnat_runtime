@@ -29,33 +29,137 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This is a Ravenscar bare board version of this body. Tasking version of
---  these functions are always used.
-
-with System.Tasking;
-with System.Task_Primitives.Operations;
+pragma Warnings (Off);
+--  Disable warnings as System.Soft_Links.Initialize is not Preelaborate. It is
+--  safe to with this unit as its elaboration routine will only be initializing
+--  NT_TSD, which is part of this package spec.
+--  with System.Soft_Links.Initialize;
+pragma Warnings (On);
 
 package body System.Soft_Links is
 
-   use System.Task_Primitives.Operations;
---   use type System.Tasking.Termination_Handler;
+--   Stack_Limit : aliased System.Address := System.Null_Address;
+--   pragma Export (C, Stack_Limit, "__gnat_stack_limit");
+--   --  Needed for Vx6Cert (Vx653mc) GOS cert and ravenscar-cert runtimes,
+--   --  VxMILS cert, ravenscar-cert and full runtimes, Vx 5 default runtime
 --
---   ----------------
---   -- Local data --
---   ----------------
+--   --------------------
+--   -- Abort_Defer_NT --
+--   --------------------
 --
---   Caller_Priority : Any_Priority;
-   --  Task's active priority when the global lock is seized. This priority is
---   --  restored when the task releases the global lock.
+--   procedure Abort_Defer_NT is
+--   begin
+--      null;
+--   end Abort_Defer_NT;
+--
+--   ----------------------
+--   -- Abort_Handler_NT --
+--   ----------------------
+--
+--   procedure Abort_Handler_NT is
+--   begin
+--      null;
+--   end Abort_Handler_NT;
 
-   ----------------------------
-   -- Get_Current_Excep_Soft --
-   ----------------------------
+   ----------------------
+   -- Abort_Undefer_NT --
+   ----------------------
 
-   function Get_Current_Excep_Soft return EOA is
+   procedure Abort_Undefer_NT is
    begin
-      return Self.Common.Compiler_Data.Current_Excep'Access;
-   end Get_Current_Excep_Soft;
+      null;
+   end Abort_Undefer_NT;
+
+   -----------------
+   -- Adafinal_NT --
+   -----------------
+
+   procedure Adafinal_NT is
+   begin
+      --  Handle normal task termination by the environment task, but only
+      --  for the normal task termination. In the case of Abnormal and
+      --  Unhandled_Exception they must have been handled before, and the
+      --  task termination soft link must have been changed so the task
+      --  termination routine is not executed twice.
+
+      Task_Termination_Handler.all (Ada.Exceptions.Null_Occurrence);
+
+      --  Finalize all library-level controlled objects if needed
+
+      if Finalize_Library_Objects /= null then
+         Finalize_Library_Objects.all;
+      end if;
+   end Adafinal_NT;
+
+--   ---------------------------
+--   -- Check_Abort_Status_NT --
+--   ---------------------------
+--
+--   function Check_Abort_Status_NT return Integer is
+--   begin
+--      return Boolean'Pos (False);
+--   end Check_Abort_Status_NT;
+--
+--   ------------------------
+--   -- Complete_Master_NT --
+--   ------------------------
+--
+--   procedure Complete_Master_NT is
+--   begin
+--      null;
+--   end Complete_Master_NT;
+--
+--   ----------------
+--   -- Create_TSD --
+--   ----------------
+--
+--   procedure Create_TSD
+--     (New_TSD        : in out TSD;
+--      Sec_Stack      : SST.SS_Stack_Ptr;
+--      Sec_Stack_Size : System.Parameters.Size_Type)
+--   is
+--   begin
+--      New_TSD.Jmpbuf_Address := Null_Address;
+--
+--      New_TSD.Sec_Stack_Ptr := Sec_Stack;
+--      SST.SS_Init (New_TSD.Sec_Stack_Ptr, Sec_Stack_Size);
+--   end Create_TSD;
+--
+--   -----------------------
+--   -- Current_Master_NT --
+--   -----------------------
+--
+--   function Current_Master_NT return Integer is
+--   begin
+--      return 0;
+--   end Current_Master_NT;
+--
+--   -----------------
+--   -- Destroy_TSD --
+--   -----------------
+--
+--   procedure Destroy_TSD (Old_TSD : in out TSD) is
+--   begin
+--      SST.SS_Free (Old_TSD.Sec_Stack_Ptr);
+--   end Destroy_TSD;
+--
+--   ---------------------
+--   -- Enter_Master_NT --
+--   ---------------------
+--
+--   procedure Enter_Master_NT is
+--   begin
+--      null;
+--   end Enter_Master_NT;
+
+   --------------------------
+   -- Get_Current_Excep_NT --
+   --------------------------
+
+   function Get_Current_Excep_NT return EOA is
+   begin
+      return NT_TSD.Current_Excep'Access;
+   end Get_Current_Excep_NT;
 
 --   ------------------------
 --   -- Get_GNAT_Exception --
@@ -65,6 +169,51 @@ package body System.Soft_Links is
 --   begin
 --      return Ada.Exceptions.Exception_Identity (Get_Current_Excep.all.all);
 --   end Get_GNAT_Exception;
+--
+--   ---------------------------
+--   -- Get_Jmpbuf_Address_NT --
+--   ---------------------------
+--
+--   function Get_Jmpbuf_Address_NT return  Address is
+--   begin
+--      return NT_TSD.Jmpbuf_Address;
+--   end Get_Jmpbuf_Address_NT;
+--
+--   -----------------------------
+--   -- Get_Jmpbuf_Address_Soft --
+--   -----------------------------
+--
+--   function Get_Jmpbuf_Address_Soft return  Address is
+--   begin
+--      return Get_Jmpbuf_Address.all;
+--   end Get_Jmpbuf_Address_Soft;
+--
+--   ----------------------
+--   -- Get_Sec_Stack_NT --
+--   ----------------------
+--
+--   function Get_Sec_Stack_NT return SST.SS_Stack_Ptr is
+--   begin
+--      return NT_TSD.Sec_Stack_Ptr;
+--   end Get_Sec_Stack_NT;
+--
+--   -----------------------------
+--   -- Get_Sec_Stack_Soft --
+--   -----------------------------
+--
+--   function Get_Sec_Stack_Soft return SST.SS_Stack_Ptr is
+--   begin
+--      return Get_Sec_Stack.all;
+--   end Get_Sec_Stack_Soft;
+--
+--   -----------------------
+--   -- Get_Stack_Info_NT --
+--   -----------------------
+--
+--   function Get_Stack_Info_NT return Stack_Checking.Stack_Access is
+--   begin
+--      return NT_TSD.Pri_Stack_Info'Access;
+--   end Get_Stack_Info_NT;
 
    -----------------------------
    -- Save_Library_Occurrence --
@@ -82,134 +231,72 @@ package body System.Soft_Links is
 --      end if;
    end Save_Library_Occurrence;
 
-   -------------------
-   -- Adafinal_Soft --
-   -------------------
-
-   procedure Adafinal_Soft is
-   begin
-      raise Program_Error;
-      --  Handle normal task termination by the environment task, but only for
-      --  the normal task termination. Abnormal termination is not supported by
-      --  this run time, and in the case of Unhandled_Exception the last chance
-      --  handler is invoked (which does not return).
+--   ---------------------------
+--   -- Set_Jmpbuf_Address_NT --
+--   ---------------------------
 --
---      Task_Termination_Handler.all (Ada.Exceptions.Null_Occurrence);
+--   procedure Set_Jmpbuf_Address_NT (Addr : Address) is
+--   begin
+--      NT_TSD.Jmpbuf_Address := Addr;
+--   end Set_Jmpbuf_Address_NT;
 --
---      --  Here we should typically finalize all library-level controlled
-      --  objects. However, in Ravenscar tasks (including the environment task)
---      --  are non-terminating, so we avoid finalization.
+--   procedure Set_Jmpbuf_Address_Soft (Addr : Address) is
+--   begin
+--      Set_Jmpbuf_Address (Addr);
+--   end Set_Jmpbuf_Address_Soft;
 --
-      --  We used to raise a Program_Error here to signal the task termination
---      --  event in order to avoid silent task death. It has been removed
---      --  because the Ada.Task_Termination functionality serves the same
---      --  purpose in a more flexible (and standard) way. In addition, this
---      --  exception triggered a second execution of the termination handler
---      --  (if any was installed).
+--   ----------------------
+--   -- Set_Sec_Stack_NT --
+--   ----------------------
+--
+--   procedure Set_Sec_Stack_NT (Stack : SST.SS_Stack_Ptr) is
+--   begin
+--      NT_TSD.Sec_Stack_Ptr := Stack;
+--   end Set_Sec_Stack_NT;
+--
+--   ------------------------
+--   -- Set_Sec_Stack_Soft --
+--   ------------------------
+--
+--   procedure Set_Sec_Stack_Soft (Stack : SST.SS_Stack_Ptr) is
+--   begin
+--      Set_Sec_Stack (Stack);
+--   end Set_Sec_Stack_Soft;
 
-   end Adafinal_Soft;
+   ------------------
+   -- Task_Lock_NT --
+   ------------------
 
-   ----------------------
-   -- Acquire_RTS_Lock --
-   ----------------------
-
-   procedure Acquire_RTS_Lock_Soft (Addr : Address) is
---      pragma Unreferenced (Addr);
+   procedure Task_Lock_NT is
    begin
-      raise Program_Error;
---      Task_Lock_Soft;
-   end Acquire_RTS_Lock_Soft;
+      null;
+   end Task_Lock_NT;
 
-   ----------------------
-   -- Release_RTS_Lock --
-   ----------------------
+--   ------------------
+--   -- Task_Name_NT --
+--   -------------------
+--
+--   function Task_Name_NT return String is
+--   begin
+--      return "main_task";
+--   end Task_Name_NT;
 
-   procedure Release_RTS_Lock_Soft (Addr : Address) is
---      pragma Unreferenced (Addr);
+   -------------------------
+   -- Task_Termination_NT --
+   -------------------------
+
+   procedure Task_Termination_NT (Excep : EO) is
+      pragma Unreferenced (Excep);
    begin
-      pragma Unreferenced (Addr);
---      Task_Unlock_Soft;
-   end Release_RTS_Lock_Soft;
+      null;
+   end Task_Termination_NT;
 
    --------------------
-   -- Task_Lock_Soft --
+   -- Task_Unlock_NT --
    --------------------
 
-   procedure Task_Lock_Soft is
-      Self_Id : constant System.Tasking.Task_Id := Self;
-
+   procedure Task_Unlock_NT is
    begin
-      Self_Id.Common.Global_Task_Lock_Nesting :=
-        Self_Id.Common.Global_Task_Lock_Nesting + 1;
-
-      if Self_Id.Common.Global_Task_Lock_Nesting = 1 then
-         null;
---         declare
---            Prio : constant System.Any_Priority := Get_Priority (Self_Id);
---
---         begin
---            --  Increase priority
---
---            Set_Priority (Self_Id, System.Any_Priority'Last);
---
-            --  Store caller's active priority so that it can be later restored
---            --  when releasing the global lock.
---
---            Caller_Priority := Prio;
---         end;
-      end if;
-   end Task_Lock_Soft;
-
-   ---------------------------
-   -- Task_Termination_Soft --
-   ---------------------------
-
-   procedure Task_Termination_Soft (Except : EO) is
---      pragma Unreferenced (Except);
---
---      Self_Id : constant System.Tasking.Task_Id := Self;
---      TH      : System.Tasking.Termination_Handler := null;
-
-   begin
-      raise Program_Error;
---      --  Raise the priority to prevent race conditions when using
---      --  System.Tasking.Fall_Back_Handler.
---
---      Set_Priority (Self_Id, Any_Priority'Last);
---
---      TH := System.Tasking.Fall_Back_Handler;
---
---      --  Restore original priority after retrieving shared data
---
---      Set_Priority (Self_Id, Self_Id.Common.Base_Priority);
---
---      --  Execute the task termination handler if we found it
---
---      if TH /= null then
---         TH.all (Self_Id);
---      end if;
-   end Task_Termination_Soft;
-
-   ----------------------
-   -- Task_Unlock_Soft --
-   ----------------------
-
-   procedure Task_Unlock_Soft is
-      Self_Id : constant System.Tasking.Task_Id := Self;
-
-   begin
-      pragma Assert (Self_Id.Common.Global_Task_Lock_Nesting > 0);
-
-      Self_Id.Common.Global_Task_Lock_Nesting :=
-        Self_Id.Common.Global_Task_Lock_Nesting - 1;
-
-      if Self_Id.Common.Global_Task_Lock_Nesting = 0 then
-         null;
-
---         --  Restore the task's active priority
---
---         Set_Priority (Self_Id, Caller_Priority);
-      end if;
-   end Task_Unlock_Soft;
-
+      null;
+   end Task_Unlock_NT;
 end System.Soft_Links;
