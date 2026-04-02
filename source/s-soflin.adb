@@ -33,7 +33,7 @@ pragma Warnings (Off);
 --  Disable warnings as System.Soft_Links.Initialize is not Preelaborate. It is
 --  safe to with this unit as its elaboration routine will only be initializing
 --  NT_TSD, which is part of this package spec.
---  with System.Soft_Links.Initialize;
+with System.Soft_Links.Initialize;
 pragma Warnings (On);
 
 package body System.Soft_Links is

@@ -346,7 +346,7 @@ package System.Soft_Links is
       --  must be initialized to the tasks requested stack size before the task
       --  can do its first stack check.
 
---      Jmpbuf_Address : System.Address;
+      Jmpbuf_Address : System.Address;
       --  Address of jump buffer used to store the address of the current
       --  longjmp/setjmp buffer for exception management. These buffers are
       --  threaded into a stack, and the address here is the top of the stack.
