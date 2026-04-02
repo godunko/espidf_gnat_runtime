@@ -35,7 +35,10 @@
       "a-reatim.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-reatim.ads" },
       "s-excmac.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/zcx-dw2/s-excmac.adb" },
       "s-excmac.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/zcx-dw2/s-excmac.ads" },
-////      "s-init.adb": { "crate": "espidf_runtime", "path": "source/s-init.adb" },
+      "s-inifin.adb": { "crate": "espidf_runtime", "path": "source/s-inifin.adb" },
+      "s-inifin.ads": { "crate": "espidf_runtime", "path": "source/s-inifin.ads" },
+      "s-init.adb": {},
+      "s-init.ads": {},
 //      "s-multip.adb": { "crate": "espidf_runtime", "path": "source/s-multip.adb" },
 //      "s-multip.ads": { "crate": "espidf_runtime", "path": "source/s-multip.ads" },
 //////      "s-osinte.adb": { "crate": "espidf_runtime", "path": "source/s-osinte.adb" },
@@ -63,8 +66,6 @@
 ////      "s-memory.adb": { "crate": "espidf_runtime", "path": "source/s-memory.adb" },
 ////      "s-crtl.ads": { "crate": "espidf_runtime", "path": "source/s-crtl.ads" },
 ////      "s-tpoaal.adb": { "crate": "espidf_runtime", "path": "source/gcc-15/s-tpoaal.adb" },
-        "s-init.adb": {},
-        "s-init.ads": {},
     }
   },
 
