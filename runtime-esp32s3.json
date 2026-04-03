@@ -81,6 +81,7 @@
     "kernel": "custom",
     "files":
     {
+      "s-libgna.ads": { "crate": "espidf_runtime", "path": "source/s-libgna.ads" }
     }
   },
 
