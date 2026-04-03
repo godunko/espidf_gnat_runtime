@@ -29,17 +29,17 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  with System.Task_Primitives.Operations;
+with System.Task_Primitives.Operations;
 --  with System.Storage_Elements;
 
 package body System.Tasking is
 
---   package STPO renames System.Task_Primitives.Operations;
---
---   ---------------------
---   -- Detect_Blocking --
---   ---------------------
---
+   package STPO renames System.Task_Primitives.Operations;
+
+   ---------------------
+   -- Detect_Blocking --
+   ---------------------
+
 --   function Detect_Blocking return Boolean is
 --      GL_Detect_Blocking : Integer;
 --      pragma Import (C, GL_Detect_Blocking, "__gl_detect_blocking");
@@ -76,40 +76,40 @@ package body System.Tasking is
 --         System.Parameters.Size_Type
 --           (T.Common.Compiler_Data.Pri_Stack_Info.Size);
 --   end Storage_Size;
---
---   ---------------------
---   -- Initialize_ATCB --
---   ---------------------
---
---   procedure Initialize_ATCB
---     (Self_ID          : Task_Id;
---      Task_Entry_Point : Task_Procedure_Access;
---      Task_Arg         : System.Address;
---      Parent           : Task_Id;
---      Elaborated       : Access_Boolean;
---      Base_Priority    : System.Any_Priority;
---      Base_CPU         : System.Multiprocessors.CPU_Range;
---      CPU_Is_Explicit  : Boolean;
---      Domain           : Dispatching_Domain_Access;
---      Task_Info        : System.Task_Info.Task_Info_Type;
---      Stack_Size       : System.Parameters.Size_Type;
---      T                : Task_Id;
---      Success          : out Boolean) is
---   begin
+
+   ---------------------
+   -- Initialize_ATCB --
+   ---------------------
+
+   procedure Initialize_ATCB
+     (Self_ID          : Task_Id with Unreferenced;
+      Task_Entry_Point : Task_Procedure_Access with Unreferenced;
+      Task_Arg         : System.Address with Unreferenced;
+      Parent           : Task_Id with Unreferenced;
+      Elaborated       : Access_Boolean with Unreferenced;
+      Base_Priority    : System.Any_Priority with Unreferenced;
+      Base_CPU         : System.Multiprocessors.CPU_Range with Unreferenced;
+      CPU_Is_Explicit  : Boolean with Unreferenced;
+      Domain           : Dispatching_Domain_Access with Unreferenced;
+      Task_Info        : System.Task_Info.Task_Info_Type with Unreferenced;
+      Stack_Size       : System.Parameters.Size_Type with Unreferenced;
+      T                : Task_Id;
+      Success          : out Boolean) is
+   begin
 --      T.Common.State := Unactivated;
---
---      --  Initialize T.Common.LL
---
---      STPO.Initialize_TCB (T, Success);
---
---      if not Success then
---         return;
---      end if;
---
---      --  Note that use of an aggregate here for this assignment
---      --  would be illegal, because Common_ATCB is limited because
---      --  Task_Primitives.Private_Data is limited.
---
+
+      --  Initialize T.Common.LL
+
+      STPO.Initialize_TCB (T, Success);
+
+      if not Success then
+         return;
+      end if;
+
+      --  Note that use of an aggregate here for this assignment
+      --  would be illegal, because Common_ATCB is limited because
+      --  Task_Primitives.Private_Data is limited.
+
 --      T.Common.Parent := Parent;
 --      T.Common.Base_Priority := Base_Priority;
 --      T.Common.CPU_Is_Explicit := CPU_Is_Explicit;
@@ -165,7 +165,7 @@ package body System.Tasking is
 --
 --      T.Common.All_Tasks_Link := All_Tasks_List;
 --      All_Tasks_List := T;
---   end Initialize_ATCB;
+   end Initialize_ATCB;
 
    ----------------
    -- Initialize --

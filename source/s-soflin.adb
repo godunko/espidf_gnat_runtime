@@ -108,23 +108,23 @@ package body System.Soft_Links is
 --   begin
 --      null;
 --   end Complete_Master_NT;
---
---   ----------------
---   -- Create_TSD --
---   ----------------
---
---   procedure Create_TSD
---     (New_TSD        : in out TSD;
---      Sec_Stack      : SST.SS_Stack_Ptr;
---      Sec_Stack_Size : System.Parameters.Size_Type)
---   is
---   begin
---      New_TSD.Jmpbuf_Address := Null_Address;
---
---      New_TSD.Sec_Stack_Ptr := Sec_Stack;
---      SST.SS_Init (New_TSD.Sec_Stack_Ptr, Sec_Stack_Size);
---   end Create_TSD;
---
+
+   ----------------
+   -- Create_TSD --
+   ----------------
+
+   procedure Create_TSD
+     (New_TSD        : in out TSD;
+      Sec_Stack      : SST.SS_Stack_Ptr;
+      Sec_Stack_Size : System.Parameters.Size_Type)
+   is
+   begin
+      New_TSD.Jmpbuf_Address := Null_Address;
+
+      New_TSD.Sec_Stack_Ptr := Sec_Stack;
+      SST.SS_Init (New_TSD.Sec_Stack_Ptr, Sec_Stack_Size);
+   end Create_TSD;
+
 --   -----------------------
 --   -- Current_Master_NT --
 --   -----------------------

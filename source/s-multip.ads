@@ -13,8 +13,6 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  with System.BB.Parameters;
-
 package System.Multiprocessors is
    pragma Preelaborate (Multiprocessors);
 
@@ -22,10 +20,10 @@ package System.Multiprocessors is
 
    subtype CPU is CPU_Range range 1 .. CPU_Range'Last;
 
---   Not_A_Specific_CPU : constant CPU_Range := 0;
---
---   function Number_Of_CPUs return CPU;
---   pragma Inline (Number_Of_CPUs);
---   --  Number of available CPUs
+   Not_A_Specific_CPU : constant CPU_Range := 0;
+
+   function Number_Of_CPUs return CPU;
+   pragma Inline (Number_Of_CPUs);
+   --  Number of available CPUs
 
 end System.Multiprocessors;

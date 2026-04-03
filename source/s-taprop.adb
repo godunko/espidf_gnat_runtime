@@ -25,6 +25,9 @@ package body System.Task_Primitives.Operations is
    --  Environment_Task_Id : Task_Id with Unreferenced;
    --  A variable to hold Task_Id for the environment task
 
+   Foreign_Task_Elaborated : aliased Boolean := True;
+   --  Used to identified fake tasks (i.e., non-Ada Threads)
+
    --------------------
    -- Local Packages --
    --------------------
@@ -83,6 +86,43 @@ package body System.Task_Primitives.Operations is
       raise Program_Error;
       return 0.0;
    end Monotonic_Clock;
+
+   --------------------
+   -- Initialize_TCB --
+   --------------------
+
+   procedure Initialize_TCB (Self_ID : Task_Id; Succeeded : out Boolean) is
+   begin
+      null;
+      --  Self_ID.Common.LL.CV := semBCreate (SEM_Q_PRIORITY, SEM_EMPTY);
+      --  Self_ID.Common.LL.Thread := Null_Thread_Id;
+      --
+      --  if Self_ID.Common.LL.CV = 0 then
+      --     Succeeded := False;
+      --
+      --  else
+      --     Succeeded := True;
+      --     Initialize_Lock (Self_ID.Common.LL.L'Access, ATCB_Level);
+      --  end if;
+   end Initialize_TCB;
+
+   --  --------------
+   --  -- Lock_RTS --
+   --  --------------
+   --
+   --  procedure Lock_RTS is
+   --  begin
+   --     Write_Lock (Single_RTS_Lock'Access);
+   --  end Lock_RTS;
+   --
+   --  ----------------
+   --  -- Unlock_RTS --
+   --  ----------------
+   --
+   --  procedure Unlock_RTS is
+   --  begin
+   --     Unlock (Single_RTS_Lock'Access);
+   --  end Unlock_RTS;
 
    ----------------
    -- Initialize --
@@ -167,6 +207,39 @@ package body System.Task_Primitives.Operations is
       --     Abort_Handler_Installed := True;
       --  end if;
    end Initialize;
+
+   ----------------
+   -- Enter_Task --
+   ----------------
+
+   procedure Enter_Task (Self_ID : Task_Id) is
+   begin
+--      --  Store the user-level task id in the Thread field (to be used
+--      --  internally by the run-time system) and the kernel-level task id in
+--      --  the LWP field (to be used by the debugger).
+--
+--      Self_ID.Common.LL.Thread := taskIdSelf;
+--      Self_ID.Common.LL.LWP := getpid;
+
+      Specific.Set (Self_ID);
+
+--      --  Properly initializes the FPU for PPC/MIPS systems
+--
+--      System.Float_Control.Reset;
+--
+--      --  Install the signal handlers
+--
+--      --  This is called for each task since there is no signal inheritance
+--      --  between VxWorks tasks.
+--
+--      Install_Signal_Handlers;
+--
+--      --  If stack checking is enabled, set the stack limit for this task
+--
+--      if Set_Stack_Limit_Hook /= null then
+--         Set_Stack_Limit_Hook.all;
+--      end if;
+   end Enter_Task;
 
    -------------------
    -- Is_Valid_Task --

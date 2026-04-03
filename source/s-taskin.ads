@@ -37,11 +37,11 @@
 --  with Ada.Exceptions;
 --  with Ada.Unchecked_Conversion;
 
---  with System.Multiprocessors;
---  with System.Parameters;
+with System.Multiprocessors;
+with System.Parameters;
 with System.Soft_Links;
 --  with System.Stack_Usage;
---  with System.Task_Info;
+with System.Task_Info;
 with System.Task_Primitives;
 
 package System.Tasking is
@@ -109,8 +109,8 @@ package System.Tasking is
    type Task_Id is access all Ada_Task_Control_Block;
    for Task_Id'Size use System.Task_Primitives.Task_Address_Size;
 
---   Null_Task : constant Task_Id;
---
+   Null_Task : constant Task_Id;
+
 --   type Task_List is array (Positive range <>) of Task_Id;
 --
 --   function Self return Task_Id;
@@ -367,17 +367,17 @@ package System.Tasking is
 --      X     : Ada.Exceptions.Exception_Occurrence);
 --   --  Used to represent protected procedures to be executed when task
 --   --  terminates.
---
---   ------------------------------------
---   -- Dispatching domain definitions --
---   ------------------------------------
---
---   --  We need to redefine here these types (already defined in
---   --  System.Multiprocessor.Dispatching_Domains) for avoiding circular
---   --  dependencies.
---
---   type Dispatching_Domain is
---     array (System.Multiprocessors.CPU range <>) of Boolean;
+
+   ------------------------------------
+   -- Dispatching domain definitions --
+   ------------------------------------
+
+   --  We need to redefine here these types (already defined in
+   --  System.Multiprocessor.Dispatching_Domains) for avoiding circular
+   --  dependencies.
+
+   type Dispatching_Domain is
+     array (System.Multiprocessors.CPU range <>) of Boolean;
    --  A dispatching domain needs to contain the set of processors belonging
    --  to it. This is a processor mask where a True indicates that the
    --  processor belongs to the dispatching domain.
@@ -385,8 +385,8 @@ package System.Tasking is
    --  long array. This way we can use the exact range of processors available
    --  in the system.
 
---   type Dispatching_Domain_Access is access Dispatching_Domain;
---
+   type Dispatching_Domain_Access is access Dispatching_Domain;
+
 --   System_Domain : Dispatching_Domain_Access;
    --  All processors belong to default system dispatching domain at start up.
    --  We use a pointer which creates the actual variable for the reasons
@@ -440,10 +440,10 @@ package System.Tasking is
 
    type Activation_Chain_Access is access all Activation_Chain;
 
---   type Task_Procedure_Access is access procedure (Arg : System.Address);
---
---   type Access_Boolean is access all Boolean;
---
+   type Task_Procedure_Access is access procedure (Arg : System.Address);
+
+   type Access_Boolean is access all Boolean;
+
 --   function Detect_Blocking return Boolean;
 --   pragma Inline (Detect_Blocking);
 --   --  Return whether the Detect_Blocking pragma is enabled
@@ -1194,28 +1194,28 @@ package System.Tasking is
    --  optimized PO and the restricted run time) since one cannot rely on
    --  System.Tasking.Initialization being present, as was done before.
 
---   procedure Initialize_ATCB
---     (Self_ID          : Task_Id;
---      Task_Entry_Point : Task_Procedure_Access;
---      Task_Arg         : System.Address;
---      Parent           : Task_Id;
---      Elaborated       : Access_Boolean;
---      Base_Priority    : System.Any_Priority;
---      Base_CPU         : System.Multiprocessors.CPU_Range;
---      CPU_Is_Explicit  : Boolean;
---      Domain           : Dispatching_Domain_Access;
---      Task_Info        : System.Task_Info.Task_Info_Type;
---      Stack_Size       : System.Parameters.Size_Type;
---      T                : Task_Id;
---      Success          : out Boolean);
---   --  Initialize fields of the TCB for task T, and link into global TCB
---   --  structures. Call this only with abort deferred and holding RTS_Lock.
---   --  Self_ID is the calling task (normally the activator of T). Success is
---   --  set to indicate whether the TCB was successfully initialized.
+   procedure Initialize_ATCB
+     (Self_ID          : Task_Id;
+      Task_Entry_Point : Task_Procedure_Access;
+      Task_Arg         : System.Address;
+      Parent           : Task_Id;
+      Elaborated       : Access_Boolean;
+      Base_Priority    : System.Any_Priority;
+      Base_CPU         : System.Multiprocessors.CPU_Range;
+      CPU_Is_Explicit  : Boolean;
+      Domain           : Dispatching_Domain_Access;
+      Task_Info        : System.Task_Info.Task_Info_Type;
+      Stack_Size       : System.Parameters.Size_Type;
+      T                : Task_Id;
+      Success          : out Boolean);
+   --  Initialize fields of the TCB for task T, and link into global TCB
+   --  structures. Call this only with abort deferred and holding RTS_Lock.
+   --  Self_ID is the calling task (normally the activator of T). Success is
+   --  set to indicate whether the TCB was successfully initialized.
 
 private
 
---   Null_Task : constant Task_Id := null;
+   Null_Task : constant Task_Id := null;
 
    type Activation_Chain is limited record
 --      T_ID : Task_Id;

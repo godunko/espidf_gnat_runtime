@@ -251,7 +251,7 @@ package body System.Tasking.Initialization is
 --      pragma Import (Ada, Lock);
 
    begin
-      raise Program_Error;
+      null;
 --      Initialize_Lock (Lock'Unchecked_Access, PO_Level);
    end Initialize_RTS_Lock;
 

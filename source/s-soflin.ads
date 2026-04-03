@@ -38,7 +38,7 @@
 --  initialized, they are set to the real tasking versions.
 
 with Ada.Exceptions;
---  with System.Parameters;
+with System.Parameters;
 with System.Secondary_Stack;
 --  with System.Stack_Checking;
 
@@ -365,14 +365,14 @@ package System.Soft_Links is
       --  exception mechanism, organized as a stack with the most recent first.
    end record;
 
---   procedure Create_TSD
---     (New_TSD        : in out TSD;
---      Sec_Stack      : SST.SS_Stack_Ptr;
---      Sec_Stack_Size : System.Parameters.Size_Type);
---   pragma Inline (Create_TSD);
---   --  Called from s-tassta when a new thread is created to perform
---   --  any required initialization of the TSD.
---
+   procedure Create_TSD
+     (New_TSD        : in out TSD;
+      Sec_Stack      : SST.SS_Stack_Ptr;
+      Sec_Stack_Size : System.Parameters.Size_Type);
+   pragma Inline (Create_TSD);
+   --  Called from s-tassta when a new thread is created to perform
+   --  any required initialization of the TSD.
+
 --   procedure Destroy_TSD (Old_TSD : in out TSD);
 --   pragma Inline (Destroy_TSD);
 --   --  Called from s-tassta just before a thread is destroyed to perform

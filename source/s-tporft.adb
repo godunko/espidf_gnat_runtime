@@ -29,9 +29,9 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  with System.Multiprocessors;
---  with System.Soft_Links;
---  with System.Task_Info;
+with System.Multiprocessors;
+with System.Soft_Links;
+with System.Task_Info;
 
 separate (System.Task_Primitives.Operations)
 function Register_Foreign_Thread
@@ -41,7 +41,7 @@ function Register_Foreign_Thread
 is
    Local_ATCB : aliased Ada_Task_Control_Block (0);
    Self_Id    : Task_Id;
---   Succeeded  : Boolean;
+   Succeeded  : Boolean;
 
 begin
    --  This section is tricky. We must not call anything that might require
@@ -63,15 +63,14 @@ begin
    --  Finish initialization
 
 --   Lock_RTS;
---   System.Tasking.Initialize_ATCB
---     (Self_Id, null, Null_Address, Null_Task,
---      Foreign_Task_Elaborated'Access,
---      System.Priority'First, System.Multiprocessors
---   .Not_A_Specific_CPU, False,
---      null, Task_Info.Unspecified_Task_Info, 0, Self_Id, Succeeded);
+   System.Tasking.Initialize_ATCB
+     (Self_Id, null, Null_Address, Null_Task,
+      Foreign_Task_Elaborated'Access,
+      System.Priority'First, System.Multiprocessors.Not_A_Specific_CPU, False,
+      null, Task_Info.Unspecified_Task_Info, 0, Self_Id, Succeeded);
 --   Unlock_RTS;
---   pragma Assert (Succeeded);
---
+   pragma Assert (Succeeded);
+
 --   Self_Id.Master_Of_Task := 0;
 --   Self_Id.Master_Within := Self_Id.Master_Of_Task + 1;
 --
@@ -93,14 +92,14 @@ begin
 --   --  We do not provide an alternate stack for foreign threads
 --
 --   Self_Id.Common.Task_Alternate_Stack := Null_Address;
---
---   --  Create the TSD for the task
---
---   System.Soft_Links.Create_TSD
---     (Self_Id.Common.Compiler_Data, null, Sec_Stack_Size);
---
+
+   --  Create the TSD for the task
+
+   System.Soft_Links.Create_TSD
+     (Self_Id.Common.Compiler_Data, null, Sec_Stack_Size);
+
 --   Self_Id.Common.LL.Thread := Thread;
---   Enter_Task (Self_Id);
+   Enter_Task (Self_Id);
 
    return Self_Id;
 end Register_Foreign_Thread;

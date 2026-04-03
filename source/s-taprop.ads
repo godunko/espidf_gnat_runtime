@@ -73,8 +73,8 @@ package System.Task_Primitives.Operations is
    --  Succeeded is set to true unless creation of the task failed,
    --  as it may if there are insufficient resources to create another task.
 
---   procedure Enter_Task (Self_ID : ST.Task_Id);
---   pragma Inline (Enter_Task);
+   procedure Enter_Task (Self_ID : ST.Task_Id);
+   pragma Inline (Enter_Task);
    --  Initialize data structures specific to the calling task. Self must be
    --  the ID of the calling task. It must be called (once) by the task
    --  immediately after creation, while abort is still deferred. The effects
@@ -105,11 +105,11 @@ package System.Task_Primitives.Operations is
 --
 --   function New_ATCB (Entry_Num : ST.Task_Entry_Index) return ST.Task_Id
 --     renames ATCB_Allocation.New_ATCB;
---
---   procedure Initialize_TCB (Self_ID : ST.Task_Id; Succeeded : out Boolean);
---   pragma Inline (Initialize_TCB);
---   --  Initialize all fields of the TCB
---
+
+   procedure Initialize_TCB (Self_ID : ST.Task_Id; Succeeded : out Boolean);
+   pragma Inline (Initialize_TCB);
+   --  Initialize all fields of the TCB
+
 --   procedure Finalize_TCB (T : ST.Task_Id);
 --   pragma Inline (Finalize_TCB);
    --  Finalizes Private_Data of ATCB, and then deallocates it. This is also
@@ -415,22 +415,22 @@ package System.Task_Primitives.Operations is
    function Register_Foreign_Thread return ST.Task_Id;
    --  Allocate and initialize a new ATCB for the current thread
 
---   -----------------------
---   -- RTS Entrance/Exit --
---   -----------------------
---
---   --  Following two routines are used for possible operations needed to be
---   --  setup/cleared upon entrance/exit of RTS while maintaining a single
---   --  thread of control in the RTS.
---   --
---   --  These routines also replace the functions Lock/Unlock_All_Tasks_List
---
+   -----------------------
+   -- RTS Entrance/Exit --
+   -----------------------
+
+   --  Following two routines are used for possible operations needed to be
+   --  setup/cleared upon entrance/exit of RTS while maintaining a single
+   --  thread of control in the RTS.
+   --
+   --  These routines also replace the functions Lock/Unlock_All_Tasks_List
+
 --   procedure Lock_RTS;
 --   --  Take the global RTS lock
 --
 --   procedure Unlock_RTS;
 --   --  Release the global RTS lock
---
+
 --   --------------------
 --   -- Stack Checking --
 --   --------------------
