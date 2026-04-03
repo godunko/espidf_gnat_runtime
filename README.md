@@ -9,6 +9,7 @@ It doesn't support Ada tasks and protected objects yet, however, most of other i
  * exceptions
  * secondary stack (static allocation)
  * controlled objects
+
 Rich set of standard packages are supported:
  * `Ada.Containers.*`
  * `Ada.Exceptions`
