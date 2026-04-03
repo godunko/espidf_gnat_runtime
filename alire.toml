@@ -1,5 +1,5 @@
-name = "espidf_runtime"
-description = "A0B: Runtime for ESP-IDF"
+name = "espidf_gnat_runtime"
+description = "A0B: GNAT Runtime for ESP-IDF"
 version = "0.1.0-dev"
 
 authors = ["Vadim Godunko"]
@@ -9,7 +9,7 @@ licenses = "Apache-2.0 WITH LLVM-exception"
 tags = ["embedded", "esp32", "espidf", "runtime"]
 
 auto-gpr-with=false
-project-files = ["dummy.gpr"]
+project-files = ["runtime/build_runtime.gpr"]
 
 [configuration]
 generate_ada = false
@@ -20,11 +20,15 @@ generate_gpr = false
 A0B_TOOLS_SVD.set = "${CRATE_ROOT}/svd/esp32s3.svd"
 A0B_TOOLS_RUNTIME_DESCRIPTION.set = "${CRATE_ROOT}/runtime-esp32s3.json"
 
+[[actions]]
+type = "pre-build"
+command = ["a0b-runtime", "--bb-runtimes=../../../bb-runtimes-15/", "--no-startup"]
+
 [[depends-on]]
 a0b_tools = "*"
 gnat_xtensa_esp32_elf = "^15"
 xtensa_dynconfig = "*"
 
 [[pins]]
-a0b_tools = { path='../a0b-tools' }
-xtensa_dynconfig = { path='../xtensa-dynconfig' }
+a0b_tools = { path='../../../a0b-tools' }
+xtensa_dynconfig = { path='../../../xtensa-dynconfig' }

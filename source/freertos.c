@@ -1,4 +1,4 @@
-#include <FreeRTOS.h>
+#include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
 
 SemaphoreHandle_t __gnat_xSemaphoreCreateBinary()
