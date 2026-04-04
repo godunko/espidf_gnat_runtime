@@ -33,11 +33,11 @@ pragma Style_Checks (All_Checks);
 --  Turn off subprogram alpha ordering check, since we group soft link bodies
 --  and dummy soft link bodies together separately in this unit.
 
---  with System.OS_Locks;
---  with System.Soft_Links;
---  with System.Soft_Links.Tasking;
+with System.OS_Locks;
+with System.Soft_Links;
+with System.Soft_Links.Tasking;
 --  with System.Task_Primitives;
---  with System.Task_Primitives.Operations;
+with System.Task_Primitives.Operations;
 --  with System.Tasking.Debug;
 --  with System.Tasking.Task_Attributes;
 --
@@ -49,13 +49,13 @@ pragma Style_Checks (All_Checks);
 
 package body System.Tasking.Initialization is
 
---   package SOL  renames System.OS_Locks;
+   package SOL  renames System.OS_Locks;
    package SSL  renames System.Soft_Links;
 --   package STPO renames System.Task_Primitives.Operations;
 --
 --   use Parameters;
---   use Task_Primitives.Operations;
---
+   use Task_Primitives.Operations;
+
 --   Global_Task_Lock : aliased SOL.RTS_Lock;
 --   --  This is a global lock; it is used to execute in mutual exclusion from
 --   --  all other tasks. It is only used by Task_Lock, Task_Unlock, and
@@ -246,13 +246,12 @@ package body System.Tasking.Initialization is
    -------------------------
 
    procedure Initialize_RTS_Lock (Addr : Address) is
---      Lock : aliased SOL.RTS_Lock;
---      for Lock'Address use Addr;
---      pragma Import (Ada, Lock);
+      Lock : aliased SOL.RTS_Lock;
+      for Lock'Address use Addr;
+      pragma Import (Ada, Lock);
 
    begin
-      null;
---      Initialize_Lock (Lock'Unchecked_Access, PO_Level);
+      Initialize_Lock (Lock'Unchecked_Access, PO_Level);
    end Initialize_RTS_Lock;
 
 --   -----------------------
@@ -273,13 +272,12 @@ package body System.Tasking.Initialization is
    ----------------------
 
    procedure Acquire_RTS_Lock (Addr : Address) is
---      Lock : aliased SOL.RTS_Lock;
---      for Lock'Address use Addr;
---      pragma Import (Ada, Lock);
+      Lock : aliased SOL.RTS_Lock;
+      for Lock'Address use Addr;
+      pragma Import (Ada, Lock);
 
    begin
-      raise Program_Error;
---      Write_Lock (Lock'Unchecked_Access);
+      Write_Lock (Lock'Unchecked_Access);
    end Acquire_RTS_Lock;
 
    ----------------------
@@ -287,13 +285,12 @@ package body System.Tasking.Initialization is
    ----------------------
 
    procedure Release_RTS_Lock (Addr : Address) is
---      Lock : aliased SOL.RTS_Lock;
---      for Lock'Address use Addr;
---      pragma Import (Ada, Lock);
+      Lock : aliased SOL.RTS_Lock;
+      for Lock'Address use Addr;
+      pragma Import (Ada, Lock);
 
    begin
-      raise Program_Error;
---      Unlock (Lock'Unchecked_Access);
+      Unlock (Lock'Unchecked_Access);
    end Release_RTS_Lock;
 
 --   -----------------------
@@ -382,9 +379,8 @@ package body System.Tasking.Initialization is
    procedure Init_RTS is
 --      Self_Id : Task_Id;
    begin
-      raise Program_Error;
---      Tasking.Initialize;
---
+      Tasking.Initialize;
+
 --      --  Terminate run time (regular vs restricted) specific initialization
 --      --  of the environment task.
 --
@@ -431,8 +427,8 @@ package body System.Tasking.Initialization is
 --
 --      --  Initialize the tasking soft links (if not done yet) that are common
 --      --  to the full and the restricted run times.
---
---      SSL.Tasking.Init_Tasking_Soft_Links;
+
+      SSL.Tasking.Init_Tasking_Soft_Links;
 
       --  Abort is deferred in a new ATCB, so we need to undefer abort at this
       --  stage to make the environment task abortable.
