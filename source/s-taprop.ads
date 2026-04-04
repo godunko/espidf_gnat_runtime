@@ -183,7 +183,7 @@ package System.Task_Primitives.Operations is
 --     (L                 : not null access Lock;
 --      Ceiling_Violation : out Boolean);
    procedure Write_Lock (L : not null access System.OS_Locks.RTS_Lock);
---   procedure Write_Lock (T : ST.Task_Id);
+   procedure Write_Lock (T : ST.Task_Id);
    pragma Inline (Write_Lock);
    --  Lock a lock object for write access. After this operation returns,
    --  the calling task holds write permission for the lock object. No other
@@ -231,7 +231,7 @@ package System.Task_Primitives.Operations is
 --   procedure Unlock
 --     (L : not null access Lock);
    procedure Unlock (L : not null access System.OS_Locks.RTS_Lock);
---   procedure Unlock (T : ST.Task_Id);
+   procedure Unlock (T : ST.Task_Id);
    pragma Inline (Unlock);
    --  Unlock a locked lock object
    --

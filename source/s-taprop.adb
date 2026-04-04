@@ -114,7 +114,7 @@ package body System.Task_Primitives.Operations is
       --
       --  else
          Succeeded := True;
-      --     Initialize_Lock (Self_ID.Common.LL.L'Access, ATCB_Level);
+         Initialize_Lock (Self_ID.Common.LL.L'Access, ATCB_Level);
       --  end if;
    end Initialize_TCB;
 
@@ -253,6 +253,13 @@ package body System.Task_Primitives.Operations is
       pragma Assert (Result = pdTRUE);
    end Write_Lock;
 
+   procedure Write_Lock (T : Task_Id) is
+      Result : BaseType_t;
+   begin
+      Result := xSemaphoreTake (T.Common.LL.L.Mutex, portMAX_DELAY);
+      pragma Assert (Result = pdTRUE);
+   end Write_Lock;
+
    ------------
    -- Unlock --
    ------------
@@ -261,6 +268,13 @@ package body System.Task_Primitives.Operations is
       Result : BaseType_t;
    begin
       Result := xSemaphoreGive (L.Mutex);
+      pragma Assert (Result = pdTRUE);
+   end Unlock;
+
+   procedure Unlock (T : Task_Id) is
+      Result : BaseType_t;
+   begin
+      Result := xSemaphoreGive (T.Common.LL.L.Mutex);
       pragma Assert (Result = pdTRUE);
    end Unlock;
 

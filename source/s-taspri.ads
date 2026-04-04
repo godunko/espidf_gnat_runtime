@@ -6,6 +6,7 @@
 --  are in ``Task_Primitives.Operations``.
 
 with System.OS_Interface;
+with System.OS_Locks;
 
 package System.Task_Primitives is
    pragma Preelaborate;
@@ -38,7 +39,7 @@ private
 --      CV : aliased System.OS_Interface.SEM_ID;
       --  Condition variable used to queue threads until condition is signaled
 
---      L  : aliased System.OS_Locks.RTS_Lock;
+      L  : aliased System.OS_Locks.RTS_Lock;
       --  Protection for all components is lock L
    end record;
 
