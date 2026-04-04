@@ -22,7 +22,7 @@ A0B_TOOLS_RUNTIME_DESCRIPTION.set = "${CRATE_ROOT}/runtime-esp32s3.json"
 
 [[actions]]
 type = "pre-build"
-command = ["a0b-runtime", "--bb-runtimes=../../../bb-runtimes-15/", "--no-startup"]
+command = ["a0b-runtime", "--bb-runtimes=../../crates/bb-runtimes/", "--no-startup"]
 
 [[depends-on]]
 a0b_tools = "*"
@@ -30,5 +30,5 @@ gnat_xtensa_esp32_elf = "^15"
 xtensa_dynconfig = "*"
 
 [[pins]]
-a0b_tools = { path='../../a0b-tools' }
-xtensa_dynconfig = { path='../../xtensa-dynconfig' }
+a0b_tools = { path='../../crates/a0b-tools' }
+xtensa_dynconfig = { path='../../crates/xtensa-dynconfig' }
