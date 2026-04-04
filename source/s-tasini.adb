@@ -61,15 +61,15 @@ package body System.Tasking.Initialization is
    --  all other tasks. It is only used by Task_Lock, Task_Unlock, and
    --  Final_Task_Unlock.
 
---   ----------------------------------------------------------------------
---   -- Tasking versions of some services needed by non-tasking programs --
---   ----------------------------------------------------------------------
---
---   procedure Abort_Defer;
---   --  NON-INLINE versions without Self_ID for soft links
---
---   procedure Abort_Undefer;
---   --  NON-INLINE versions without Self_ID for soft links
+   ----------------------------------------------------------------------
+   -- Tasking versions of some services needed by non-tasking programs --
+   ----------------------------------------------------------------------
+
+   procedure Abort_Defer;
+   --  NON-INLINE versions without Self_ID for soft links
+
+   procedure Abort_Undefer;
+   --  NON-INLINE versions without Self_ID for soft links
 
    procedure Task_Lock;
    --  Locks out other tasks. Preceding a section of code by Task_Lock and
@@ -217,20 +217,20 @@ package body System.Tasking.Initialization is
       Self_ID.Deferral_Level := Self_ID.Deferral_Level + 1;
    end Defer_Abort_Nestable;
 
---   -----------------
---   -- Abort_Defer --
---   -----------------
---
---   procedure Abort_Defer is
---      Self_ID : Task_Id;
---   begin
---      if No_Abort then
---         return;
---      end if;
---
---      Self_ID := STPO.Self;
---      Self_ID.Deferral_Level := Self_ID.Deferral_Level + 1;
---   end Abort_Defer;
+   -----------------
+   -- Abort_Defer --
+   -----------------
+
+   procedure Abort_Defer is
+      Self_ID : Task_Id;
+   begin
+      if No_Abort then
+         return;
+      end if;
+
+      Self_ID := STPO.Self;
+      Self_ID.Deferral_Level := Self_ID.Deferral_Level + 1;
+   end Abort_Defer;
 
    -----------------------
    -- Get_Current_Excep --
@@ -411,13 +411,13 @@ package body System.Tasking.Initialization is
 
       Initialize_Lock (Global_Task_Lock'Access, STPO.Global_Task_Level);
 
---      --  Notify that the tasking run time has been elaborated so that
---      --  the tasking version of the soft links can be used.
---
---      if not No_Abort then
---         SSL.Abort_Defer   := Abort_Defer'Access;
---         SSL.Abort_Undefer := Abort_Undefer'Access;
---      end if;
+      --  Notify that the tasking run time has been elaborated so that
+      --  the tasking version of the soft links can be used.
+
+      if not No_Abort then
+         SSL.Abort_Defer   := Abort_Defer'Access;
+         SSL.Abort_Undefer := Abort_Undefer'Access;
+      end if;
 
       SSL.Lock_Task          := Task_Lock'Access;
       SSL.Unlock_Task        := Task_Unlock'Access;
@@ -744,44 +744,44 @@ package body System.Tasking.Initialization is
       end if;
    end Undefer_Abort_Nestable;
 
---   -------------------
---   -- Abort_Undefer --
---   -------------------
---
---   procedure Abort_Undefer is
---      Self_ID : Task_Id;
---   begin
---      if No_Abort then
---         return;
---      end if;
---
---      Self_ID := STPO.Self;
---
---      if Self_ID.Deferral_Level = 0 then
---
---         --  In case there are different views on whether Abort is supported
---         --  between the expander and the run time, we may end up with
---         --  Self_ID.Deferral_Level being equal to zero, when called from
---         --  the procedure created by the expander that corresponds to a
---         --  task body. In this case, there's nothing to be done.
---
---         --  See related code in System.Tasking.Stages.Create_Task resetting
---         --  Deferral_Level when System.Restrictions.Abort_Allowed is False.
---
---         return;
---      end if;
---
---      pragma Assert (Self_ID.Deferral_Level > 0);
---      Self_ID.Deferral_Level := Self_ID.Deferral_Level - 1;
---
---      if Self_ID.Deferral_Level = 0 then
---         pragma Assert (Check_No_Locks (Self_ID));
---
---         if Self_ID.Pending_Action then
---            Do_Pending_Action (Self_ID);
---         end if;
---      end if;
---   end Abort_Undefer;
+   -------------------
+   -- Abort_Undefer --
+   -------------------
+
+   procedure Abort_Undefer is
+      Self_ID : Task_Id;
+   begin
+      if No_Abort then
+         return;
+      end if;
+
+      Self_ID := STPO.Self;
+
+      if Self_ID.Deferral_Level = 0 then
+
+         --  In case there are different views on whether Abort is supported
+         --  between the expander and the run time, we may end up with
+         --  Self_ID.Deferral_Level being equal to zero, when called from
+         --  the procedure created by the expander that corresponds to a
+         --  task body. In this case, there's nothing to be done.
+
+         --  See related code in System.Tasking.Stages.Create_Task resetting
+         --  Deferral_Level when System.Restrictions.Abort_Allowed is False.
+
+         return;
+      end if;
+
+      pragma Assert (Self_ID.Deferral_Level > 0);
+      Self_ID.Deferral_Level := Self_ID.Deferral_Level - 1;
+
+      if Self_ID.Deferral_Level = 0 then
+         pragma Assert (Check_No_Locks (Self_ID));
+
+         if Self_ID.Pending_Action then
+            Do_Pending_Action (Self_ID);
+         end if;
+      end if;
+   end Abort_Undefer;
 
    --------------------------
    -- Wakeup_Entry_Caller --
