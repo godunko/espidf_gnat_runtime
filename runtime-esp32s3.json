@@ -44,7 +44,7 @@
       "s-multip.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-multip.adb" },
       "s-multip.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-multip.ads" },
       "s-osinte.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-osinte.ads" },
-      "s-oslock.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-oslock.ads" },
+      "s-oslock.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-oslock__freertos.ads" },
       "s-parame.adb": { },
       "s-parame.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-parame.ads" },
       "s-secsta.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnat/s-secsta.adb" },
