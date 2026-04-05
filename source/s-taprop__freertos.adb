@@ -35,6 +35,11 @@ package body System.Task_Primitives.Operations is
    Foreign_Task_Elaborated : aliased Boolean := True;
    --  Used to identified fake tasks (i.e., non-Ada Threads)
 
+   Locking_Policy : constant Character;
+   pragma Import (C, Locking_Policy, "__gl_locking_policy");
+
+   Mutex_Protocol : Priority_Type;
+
    Single_RTS_Lock : aliased RTS_Lock;
    --  This is a lock to allow only one thread of control in the RTS at a
    --  time; it is used to execute in mutual exclusion from all other tasks.
@@ -198,6 +203,14 @@ package body System.Task_Primitives.Operations is
       --     end if;
       --  end loop;
 
+      if Locking_Policy = 'C' then
+         Mutex_Protocol := Prio_Protect;
+      elsif Locking_Policy = 'I' then
+         Mutex_Protocol := Prio_Inherit;
+      else
+         Mutex_Protocol := Prio_None;
+      end if;
+
       --  Initialize the lock used to synchronize chain of all ATCBs
 
       Initialize_Lock (Single_RTS_Lock'Access, RTS_Lock_Level);
@@ -240,7 +253,7 @@ package body System.Task_Primitives.Operations is
    ---------------------
 
    procedure Initialize_Lock
-     (Prio : System.Any_Priority with Unreferenced;
+     (Prio : System.Any_Priority;
       L    : not null access Lock)
    is
       Success : BaseType_t;
@@ -248,8 +261,8 @@ package body System.Task_Primitives.Operations is
    begin
       L.Mutex := xSemaphoreCreateBinary;
       pragma Assert (L.Mutex /= Null_SemaphoreHandle_t);
-      --  L.Prio_Ceiling := int (Prio);
-      --  L.Protocol := Mutex_Protocol;
+      L.Prio_Ceiling := int (Prio);
+      L.Protocol := Mutex_Protocol;
 
       Success := xSemaphoreGive (L.Mutex);
       pragma Assert (Success = pdTRUE);
@@ -266,7 +279,8 @@ package body System.Task_Primitives.Operations is
    begin
       L.Mutex := xSemaphoreCreateBinary;
       pragma Assert (L.Mutex /= Null_SemaphoreHandle_t);
-      --  L.Prio_Ceiling := int (System.Any_Priority'Last);
+      L.Prio_Ceiling := int (System.Any_Priority'Last);
+      L.Protocol := Mutex_Protocol;
 
       Success := xSemaphoreGive (L.Mutex);
       pragma Assert (Success = pdTRUE);
@@ -367,11 +381,11 @@ package body System.Task_Primitives.Operations is
 
    procedure Enter_Task (Self_ID : Task_Id) is
    begin
---      --  Store the user-level task id in the Thread field (to be used
---      --  internally by the run-time system) and the kernel-level task id in
---      --  the LWP field (to be used by the debugger).
+      --  Store the user-level task id in the Thread field (to be used
+      --  internally by the run-time system) and the kernel-level task id in
+      --  the LWP field (to be used by the debugger).
 
---      Self_ID.Common.LL.Thread := taskIdSelf;
+      Self_ID.Common.LL.Thread := xTaskGetCurrentTaskHandle;
 --      Self_ID.Common.LL.LWP := getpid;
 
       Specific.Set (Self_ID);

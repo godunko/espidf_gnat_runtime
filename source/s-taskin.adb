@@ -129,7 +129,7 @@ package body System.Tasking is
 --      pragma Assert (T.Common.Domain /= null);
 
       T.Common.Current_Priority         := Priority'First;
---      T.Common.Protected_Action_Nesting := 0;
+      T.Common.Protected_Action_Nesting := 0;
 --      T.Common.Call                     := null;
 --      T.Common.Task_Arg                 := Task_Arg;
 --      T.Common.Task_Entry_Point         := Task_Entry_Point;
