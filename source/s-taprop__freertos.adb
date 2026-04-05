@@ -335,6 +335,17 @@ package body System.Task_Primitives.Operations is
       pragma Assert (Result = pdTRUE);
    end Write_Lock;
 
+   ---------------
+   -- Read_Lock --
+   ---------------
+
+   procedure Read_Lock
+     (L                 : not null access Lock;
+      Ceiling_Violation : out Boolean) is
+   begin
+      Write_Lock (L, Ceiling_Violation);
+   end Read_Lock;
+
    ------------
    -- Unlock --
    ------------

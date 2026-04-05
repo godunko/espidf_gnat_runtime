@@ -204,10 +204,10 @@ package System.Task_Primitives.Operations is
    --  holds T's lock, or has interrupt-level priority. Finalization of the
    --  per-task lock is implicit in Exit_Task.
 
---   procedure Read_Lock
---     (L                 : not null access Lock;
---      Ceiling_Violation : out Boolean);
---   pragma Inline (Read_Lock);
+   procedure Read_Lock
+     (L                 : not null access Lock;
+      Ceiling_Violation : out Boolean);
+   pragma Inline (Read_Lock);
    --  Lock a lock object for read access. After this operation returns,
    --  the calling task has non-exclusive read permission for the logical
    --  resources that are protected by the lock. No other Write_Lock operation
