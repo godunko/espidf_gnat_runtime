@@ -802,30 +802,30 @@ package System.Tasking is
    Unspecified_CPU : constant := -1;
    --  No affinity specified
 
---   ------------------------------------
---   -- Rendezvous related definitions --
---   ------------------------------------
---
---   No_Rendezvous : constant := 0;
---
---   Max_Select : constant Integer := Integer'Last;
---   --  RTS-defined
---
---   subtype Select_Index is Integer range No_Rendezvous .. Max_Select;
---   --   type Select_Index is range No_Rendezvous .. Max_Select;
---
---   subtype Positive_Select_Index is
---     Select_Index range 1 .. Select_Index'Last;
---
---   type Accept_Alternative is record
---      Null_Body : Boolean;
---      S         : Task_Entry_Index;
---   end record;
---
---   type Accept_List is
---     array (Positive_Select_Index range <>) of Accept_Alternative;
---
---   type Accept_List_Access is access constant Accept_List;
+   ------------------------------------
+   -- Rendezvous related definitions --
+   ------------------------------------
+
+   No_Rendezvous : constant := 0;
+
+   Max_Select : constant Integer := Integer'Last;
+   --  RTS-defined
+
+   subtype Select_Index is Integer range No_Rendezvous .. Max_Select;
+   --   type Select_Index is range No_Rendezvous .. Max_Select;
+
+   subtype Positive_Select_Index is
+     Select_Index range 1 .. Select_Index'Last;
+
+   type Accept_Alternative is record
+      Null_Body : Boolean;
+      S         : Task_Entry_Index;
+   end record;
+
+   type Accept_List is
+     array (Positive_Select_Index range <>) of Accept_Alternative;
+
+   type Accept_List_Access is access constant Accept_List;
 
    -----------------------------------
    -- ATC_Level related definitions --
@@ -1000,13 +1000,13 @@ package System.Tasking is
       --
       --  Protection: Self.L
 
---      Open_Accepts : Accept_List_Access;
---      --  This points to the Open_Accepts array of accept alternatives passed
---      --  to the RTS by the compiler-generated code to Selective_Wait. It is
---      --  non-null iff this task is ready to accept an entry call.
---      --
---      --  Protection: Self.L
---
+      Open_Accepts : Accept_List_Access;
+      --  This points to the Open_Accepts array of accept alternatives passed
+      --  to the RTS by the compiler-generated code to Selective_Wait. It is
+      --  non-null iff this task is ready to accept an entry call.
+      --
+      --  Protection: Self.L
+
 --      Chosen_Index : Select_Index;
       --  The index in Open_Accepts of the entry call accepted by a selective
       --  wait executed by this task.
