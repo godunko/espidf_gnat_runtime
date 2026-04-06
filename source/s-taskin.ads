@@ -1072,9 +1072,9 @@ package System.Tasking is
       --  For the longer term, this should be done via code in the
       --  handler itself.
 
---      Callable : Boolean := True;
---      --  It is OK to call entries of this task
---
+      Callable : Boolean := True;
+      --  It is OK to call entries of this task
+
 --      Dependents_Aborted : Boolean := False;
 --      --  This is set to True by whichever task takes responsibility for
 --      --  aborting the dependents of this task.
