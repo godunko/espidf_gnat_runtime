@@ -82,8 +82,8 @@
     {
       "s-taprob.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-taprob.adb" },
       "s-taprob.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-taprob.ads" },
-      "s-tpoben.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-tpoben.adb" },
-      "s-tpoben.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-tpoben.ads" },
+//      "s-tpoben.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-tpoben.adb" },
+//      "s-tpoben.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-tpoben.ads" },
     }
   },
 

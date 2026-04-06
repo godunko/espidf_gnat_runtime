@@ -399,13 +399,13 @@ package System.Task_Primitives.Operations is
 --   --  Wake up task T if it is waiting on a Sleep call (of ordinary
 --   --  or timed variety), making it ready for execution once again.
 --   --  If the task T is not waiting on a Sleep, the operation has no effect.
---
---   function Environment_Task return ST.Task_Id;
---   pragma Inline (Environment_Task);
---   --  Return the task ID of the environment task
---   --  Consider putting this into a variable visible directly
---   --  by the rest of the runtime system. ???
---
+
+   function Environment_Task return ST.Task_Id;
+   pragma Inline (Environment_Task);
+   --  Return the task ID of the environment task
+   --  Consider putting this into a variable visible directly
+   --  by the rest of the runtime system. ???
+
 --   function Get_Thread_Id (T : ST.Task_Id) return OSI.Thread_Id;
 --   --  Return the thread id of the specified task
 

@@ -29,7 +29,7 @@ package body System.Task_Primitives.Operations is
    --  The followings are logically constants, but need to be initialized at
    --  run time.
 
-   --  Environment_Task_Id : Task_Id with Unreferenced;
+   Environment_Task_Id : Task_Id;
    --  A variable to hold Task_Id for the environment task
 
    Foreign_Task_Elaborated : aliased Boolean := True;
@@ -140,6 +140,15 @@ package body System.Task_Primitives.Operations is
       return True;
    end Check_No_Locks;
 
+   ----------------------
+   -- Environment_Task --
+   ----------------------
+
+   function Environment_Task return Task_Id is
+   begin
+      return Environment_Task_Id;
+   end Environment_Task;
+
    --------------
    -- Lock_RTS --
    --------------
@@ -183,7 +192,7 @@ package body System.Task_Primitives.Operations is
       --  --           system handler)
 
    begin
-      --  Environment_Task_Id := Environment_Task;
+      Environment_Task_Id := Environment_Task;
 
       Specific.Initialize (Environment_Task);
 

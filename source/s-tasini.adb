@@ -377,14 +377,14 @@ package body System.Tasking.Initialization is
    --------------
 
    procedure Init_RTS is
---      Self_Id : Task_Id;
+      Self_Id : Task_Id;
    begin
       Tasking.Initialize;
 
---      --  Terminate run time (regular vs restricted) specific initialization
---      --  of the environment task.
---
---      Self_Id := Environment_Task;
+      --  Terminate run time (regular vs restricted) specific initialization
+      --  of the environment task.
+
+      Self_Id := Environment_Task;
 --      Self_Id.Master_Of_Task := Environment_Task_Level;
 --      Self_Id.Master_Within := Self_Id.Master_Of_Task + 1;
 
