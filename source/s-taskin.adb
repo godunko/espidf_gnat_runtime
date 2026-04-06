@@ -111,7 +111,7 @@ package body System.Tasking is
       --  Task_Primitives.Private_Data is limited.
 
 --      T.Common.Parent := Parent;
---      T.Common.Base_Priority := Base_Priority;
+      T.Common.Base_Priority := Base_Priority;
 --      T.Common.CPU_Is_Explicit := CPU_Is_Explicit;
 --      T.Common.Base_CPU := Base_CPU;
 
@@ -245,7 +245,7 @@ package body System.Tasking is
       pragma Assert (Success);
 
       STPO.Initialize (T);
---      STPO.Set_Priority (T, T.Common.Base_Priority);
+      STPO.Set_Priority (T, T.Common.Base_Priority);
 --      T.Common.State := Runnable;
 --      T.Common.Task_Image_Len := Main_Task_Image'Length;
 --      T.Common.Task_Image (Main_Task_Image'Range) := Main_Task_Image;

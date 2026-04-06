@@ -511,14 +511,14 @@ package System.Tasking is
 --      Parent : Task_Id;
 --      --  The task on which this task depends.
 --      --  See also Master_Level and Master_Within.
---
---      Base_Priority : System.Any_Priority;
---      --  Base priority, not changed during entry calls, only changed
---      --  via dynamic priorities package.
---      --
---      --  Protection: Only written by Self, accessed by anyone
---
---      CPU_Is_Explicit : Boolean;
+
+      Base_Priority : System.Any_Priority;
+      --  Base priority, not changed during entry calls, only changed
+      --  via dynamic priorities package.
+      --
+      --  Protection: Only written by Self, accessed by anyone
+
+      CPU_Is_Explicit : Boolean;
       --  True if the task is either assigned to a CPU or explicitly not
       --  assigned to a CPU through Not_A_Specific_CPU being used with the CPU
       --  Aspect a subprogram in System.Multiprocessors.Dispatching_Domains.
@@ -995,11 +995,11 @@ package System.Tasking is
       --  associated with protected objects or task entries, and are protected
       --  by the protected object lock or Acceptor.L, respectively.
 
---      New_Base_Priority : System.Any_Priority;
---      --  New value for Base_Priority (for dynamic priorities package)
---      --
---      --  Protection: Self.L
---
+      New_Base_Priority : System.Any_Priority;
+      --  New value for Base_Priority (for dynamic priorities package)
+      --
+      --  Protection: Self.L
+
 --      Open_Accepts : Accept_List_Access;
 --      --  This points to the Open_Accepts array of accept alternatives passed
 --      --  to the RTS by the compiler-generated code to Selective_Wait. It is

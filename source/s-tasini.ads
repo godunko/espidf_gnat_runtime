@@ -117,14 +117,14 @@ package System.Tasking.Initialization is
 --   function Check_Abort_Status return Integer;
 --   --  Returns Boolean'Pos (True) iff abort signal should raise
 --   --  Standard'Abort_Signal. Only used by RTEMS currently.
---
---   --------------------------
---   -- Change Base Priority --
---   --------------------------
---
---   procedure Change_Base_Priority (T : Task_Id);
---   --  Change the base priority of T. Has to be called with the affected
---   --  task's ATCB write-locked. May temporarily release the lock.
+
+   --------------------------
+   -- Change Base Priority --
+   --------------------------
+
+   procedure Change_Base_Priority (T : Task_Id);
+   --  Change the base priority of T. Has to be called with the affected
+   --  task's ATCB write-locked. May temporarily release the lock.
 
    ----------------------
    -- Task Lock/Unlock --

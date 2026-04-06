@@ -123,20 +123,20 @@ package body System.Tasking.Initialization is
    --  the initialization of RTS_Lock objects, which means that it must only
    --  contain code to which pragma Restrictions (No_Elaboration_Code) applies.
 
---   --------------------------
---   -- Change_Base_Priority --
---   --------------------------
---
---   --  Call only with abort deferred and holding Self_ID locked
---
---   procedure Change_Base_Priority (T : Task_Id) is
---   begin
---      if T.Common.Base_Priority /= T.New_Base_Priority then
---         T.Common.Base_Priority := T.New_Base_Priority;
---         Set_Priority (T, T.Common.Base_Priority);
---      end if;
---   end Change_Base_Priority;
---
+   --------------------------
+   -- Change_Base_Priority --
+   --------------------------
+
+   --  Call only with abort deferred and holding Self_ID locked
+
+   procedure Change_Base_Priority (T : Task_Id) is
+   begin
+      if T.Common.Base_Priority /= T.New_Base_Priority then
+         T.Common.Base_Priority := T.New_Base_Priority;
+         Set_Priority (T, T.Common.Base_Priority);
+      end if;
+   end Change_Base_Priority;
+
 --   ------------------------
 --   -- Check_Abort_Status --
 --   ------------------------
