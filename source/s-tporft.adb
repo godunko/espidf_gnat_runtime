@@ -78,8 +78,8 @@ begin
 --      Self_Id.Entry_Calls (L).Self := Self_Id;
 --      Self_Id.Entry_Calls (L).Level := L;
 --   end loop;
---
---   Self_Id.Common.State := Runnable;
+
+   Self_Id.Common.State := Runnable;
 --   Self_Id.Awake_Count := 1;
 --
 --   Self_Id.Common.Task_Image (1 .. 14) := "foreign thread";

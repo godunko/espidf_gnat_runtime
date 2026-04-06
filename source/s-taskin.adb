@@ -96,7 +96,7 @@ package body System.Tasking is
       T                : Task_Id;
       Success          : out Boolean) is
    begin
---      T.Common.State := Unactivated;
+      T.Common.State := Unactivated;
 
       --  Initialize T.Common.LL
 
@@ -246,7 +246,7 @@ package body System.Tasking is
 
       STPO.Initialize (T);
       STPO.Set_Priority (T, T.Common.Base_Priority);
---      T.Common.State := Runnable;
+      T.Common.State := Runnable;
 --      T.Common.Task_Image_Len := Main_Task_Image'Length;
 --      T.Common.Task_Image (Main_Task_Image'Range) := Main_Task_Image;
 --

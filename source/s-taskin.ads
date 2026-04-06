@@ -124,91 +124,91 @@ package System.Tasking is
 --   function To_Address is
 --     new Ada.Unchecked_Conversion
 --       (Task_Id, System.Task_Primitives.Task_Address);
---
---   -----------------------
---   -- Enumeration types --
---   -----------------------
---
---   type Task_States is
---     (Unactivated,
---      --  TCB initialized but not task has not been created.
---      --  It cannot be executing.
---
---  --    Activating,
---  --    --  ??? Temporarily at end of list for GDB compatibility
---  --    --  Task has been created and is being made Runnable.
---
---      --  Active states
---      --  For all states from here down, the task has been activated.
---      --  For all states from here down, except for Terminated, the task
---      --  may be executing.
---      --  Activator = null iff it has not yet completed activating.
---
---      Runnable,
---      --  Task is not blocked for any reason known to Ada.
---      --  (It may be waiting for a mutex, though.)
---      --  It is conceptually "executing" in normal mode.
---
---      Terminated,
---      --  The task is terminated, in the sense of ARM 9.3 (5).
---      --  Any dependents that were waiting on terminate
---      --  alternatives have been awakened and have terminated themselves.
---
---      Activator_Sleep,
---      --  Task is waiting for created tasks to complete activation
---
---      Acceptor_Sleep,
---      --  Task is waiting on an accept or select with terminate
---
---  --    Acceptor_Delay_Sleep,
---  --    --  ??? Temporarily at end of list for GDB compatibility
---  --    --  Task is waiting on an selective wait statement
---
---      Entry_Caller_Sleep,
---      --  Task is waiting on an entry call
---
---      Async_Select_Sleep,
---      --  Task is waiting to start the abortable part of an
---      --  asynchronous select statement.
---
---      Delay_Sleep,
---      --  Task is waiting on a select statement with only a delay
---      --  alternative open.
---
---      Master_Completion_Sleep,
---      --  Master completion has two phases.
---      --  In Phase 1 the task is sleeping in Complete_Master
---      --  having completed a master within itself,
---      --  and is waiting for the tasks dependent on that master to become
---      --  terminated or waiting on a terminate Phase.
---
---      Master_Phase_2_Sleep,
---      --  In Phase 2 the task is sleeping in Complete_Master
---      --  waiting for tasks on terminate alternatives to finish
---      --  terminating.
---
---      --  The following are special uses of sleep, for server tasks
---      --  within the run-time system.
---
---      Interrupt_Server_Idle_Sleep,
---      Interrupt_Server_Blocked_Interrupt_Sleep,
---      Timer_Server_Sleep,
---      AST_Server_Sleep,
---
---      Asynchronous_Hold,
---      --  The task has been held by Asynchronous_Task_Control.Hold_Task
---
---      Interrupt_Server_Blocked_On_Event_Flag,
---      --  The task has been blocked on a system call waiting for a
---      --  completion event/signal to occur.
---
---      Activating,
---      --  Task has been created and is being made Runnable
---
---      Acceptor_Delay_Sleep
---      --  Task is waiting on an selective wait statement
---     );
---
+
+   -----------------------
+   -- Enumeration types --
+   -----------------------
+
+   type Task_States is
+     (Unactivated,
+      --  TCB initialized but not task has not been created.
+      --  It cannot be executing.
+
+--    Activating,
+--    --  ??? Temporarily at end of list for GDB compatibility
+--    --  Task has been created and is being made Runnable.
+
+      --  Active states
+      --  For all states from here down, the task has been activated.
+      --  For all states from here down, except for Terminated, the task
+      --  may be executing.
+      --  Activator = null iff it has not yet completed activating.
+
+      Runnable,
+      --  Task is not blocked for any reason known to Ada.
+      --  (It may be waiting for a mutex, though.)
+      --  It is conceptually "executing" in normal mode.
+
+      Terminated,
+      --  The task is terminated, in the sense of ARM 9.3 (5).
+      --  Any dependents that were waiting on terminate
+      --  alternatives have been awakened and have terminated themselves.
+
+      Activator_Sleep,
+      --  Task is waiting for created tasks to complete activation
+
+      Acceptor_Sleep,
+      --  Task is waiting on an accept or select with terminate
+
+--    Acceptor_Delay_Sleep,
+--    --  ??? Temporarily at end of list for GDB compatibility
+--    --  Task is waiting on an selective wait statement
+
+      Entry_Caller_Sleep,
+      --  Task is waiting on an entry call
+
+      Async_Select_Sleep,
+      --  Task is waiting to start the abortable part of an
+      --  asynchronous select statement.
+
+      Delay_Sleep,
+      --  Task is waiting on a select statement with only a delay
+      --  alternative open.
+
+      Master_Completion_Sleep,
+      --  Master completion has two phases.
+      --  In Phase 1 the task is sleeping in Complete_Master
+      --  having completed a master within itself,
+      --  and is waiting for the tasks dependent on that master to become
+      --  terminated or waiting on a terminate Phase.
+
+      Master_Phase_2_Sleep,
+      --  In Phase 2 the task is sleeping in Complete_Master
+      --  waiting for tasks on terminate alternatives to finish
+      --  terminating.
+
+      --  The following are special uses of sleep, for server tasks
+      --  within the run-time system.
+
+      Interrupt_Server_Idle_Sleep,
+      Interrupt_Server_Blocked_Interrupt_Sleep,
+      Timer_Server_Sleep,
+      AST_Server_Sleep,
+
+      Asynchronous_Hold,
+      --  The task has been held by Asynchronous_Task_Control.Hold_Task
+
+      Interrupt_Server_Blocked_On_Event_Flag,
+      --  The task has been blocked on a system call waiting for a
+      --  completion event/signal to occur.
+
+      Activating,
+      --  Task has been created and is being made Runnable
+
+      Acceptor_Delay_Sleep
+      --  Task is waiting on an selective wait statement
+     );
+
 --   type Call_Modes is
 --     (Simple_Call, Conditional_Call, Asynchronous_Call, Timed_Call);
 --
@@ -500,14 +500,14 @@ package System.Tasking is
    --  Section used by all GNARL implementations (regular and restricted)
 
    type Common_ATCB is limited record
---      State : Task_States;
---      pragma Atomic (State);
---      --  Encodes some basic information about the state of a task,
---      --  including whether it has been activated, whether it is sleeping,
---      --  and whether it is terminated.
---      --
---      --  Protection: Self.L
---
+      State : Task_States;
+      pragma Atomic (State);
+      --  Encodes some basic information about the state of a task,
+      --  including whether it has been activated, whether it is sleeping,
+      --  and whether it is terminated.
+      --
+      --  Protection: Self.L
+
 --      Parent : Task_Id;
 --      --  The task on which this task depends.
 --      --  See also Master_Level and Master_Within.
