@@ -237,8 +237,8 @@ package System.Tasking is
    type Task_Entry_Index is new Entry_Index
      range Null_Task_Entry .. Max_Task_Entry;
 
---   type Entry_Call_Record;
---
+   type Entry_Call_Record;
+
 --   type Entry_Call_Link is access all Entry_Call_Record;
 --
 --   type Entry_Queue is record
@@ -854,19 +854,19 @@ package System.Tasking is
      Level_No_ATC_Occurring .. Level_No_Pending_Abort - 1;
    --  Nested ATC_Levels valid during the execution of a task
 
---   subtype ATC_Level_Index is ATC_Level range
---     Level_No_ATC_Occurring + 1 .. ATC_Level'Last;
+   subtype ATC_Level_Index is ATC_Level range
+     Level_No_ATC_Occurring + 1 .. ATC_Level'Last;
    --  ATC_Levels valid when a task is executing an entry call or asynchronous
    --  task control statements.
 
---   ----------------------------------
---   -- Entry_Call_Record definition --
---   ----------------------------------
---
---   type Entry_Call_Record is record
---      Self  : Task_Id;
---      --  ID of the caller
---
+   ----------------------------------
+   -- Entry_Call_Record definition --
+   ----------------------------------
+
+   type Entry_Call_Record is record
+      Self  : Task_Id;
+      --  ID of the caller
+
 --      Mode : Call_Modes;
 --
 --      State : Entry_Call_State;
@@ -892,8 +892,8 @@ package System.Tasking is
 --      Prev : Entry_Call_Link;
 --
 --      Next : Entry_Call_Link;
---
---      Level : ATC_Level;
+
+      Level : ATC_Level;
       --  One of Self and Level are redundant in this implementation, since
       --  each Entry_Call_Record is at Self.Entry_Calls (Level). Since we must
       --  have access to the entry call record to be reading this, we could
@@ -947,8 +947,8 @@ package System.Tasking is
 --      Needs_Requeue : Boolean := False;
 --      --  Temporary to tell acceptor of task entry call that
 --      --  Exceptional_Complete_Rendezvous needs to do requeue.
---   end record;
---
+   end record;
+
 --   ------------------------------------
 --   -- Task related other definitions --
 --   ------------------------------------
@@ -961,14 +961,14 @@ package System.Tasking is
 --   --  This type is used in contexts where aliasing may be an issue (see
 --   --  for example s-tataat.adb), so we avoid any incorrect aliasing
 --   --  assumptions.
---
---   ----------------------------------------------
---   -- Ada_Task_Control_Block (ATCB) definition --
---   ----------------------------------------------
---
---   type Entry_Call_Array is array (ATC_Level_Index) of
---     aliased Entry_Call_Record;
---
+
+   ----------------------------------------------
+   -- Ada_Task_Control_Block (ATCB) definition --
+   ----------------------------------------------
+
+   type Entry_Call_Array is array (ATC_Level_Index) of
+     aliased Entry_Call_Record;
+
 --   type Attribute_Array is
 --     array (1 .. Parameters.Max_Attribute_Count) of System.Address;
 --   pragma Atomic_Components (Attribute_Array);
@@ -988,7 +988,7 @@ package System.Tasking is
       Common : Common_ATCB;
       --  The common part between various tasking implementations
 
---      Entry_Calls : Entry_Call_Array;
+      Entry_Calls : Entry_Call_Array;
       --  An array of entry calls
       --
       --  Protection: The elements of this array are on entry call queues

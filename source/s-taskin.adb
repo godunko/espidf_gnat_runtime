@@ -264,13 +264,13 @@ package body System.Tasking is
 --         Dispatching_Domain_Tasks (Base_CPU) :=
 --           Dispatching_Domain_Tasks (Base_CPU) + 1;
 --      end if;
---
---      --  The full initialization of the environment task's Entry_Calls array
---      --  is deferred to Init_RTS because only the first element of the array
---      --  is used by the restricted Ravenscar runtime.
---
---      T.Entry_Calls (T.Entry_Calls'First).Self := T;
---      T.Entry_Calls (T.Entry_Calls'First).Level := T.Entry_Calls'First;
+
+      --  The full initialization of the environment task's Entry_Calls array
+      --  is deferred to Init_RTS because only the first element of the array
+      --  is used by the restricted Ravenscar runtime.
+
+      T.Entry_Calls (T.Entry_Calls'First).Self := T;
+      T.Entry_Calls (T.Entry_Calls'First).Level := T.Entry_Calls'First;
 
    end Initialize;
 end System.Tasking;

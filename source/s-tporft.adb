@@ -73,11 +73,11 @@ begin
 
 --   Self_Id.Master_Of_Task := 0;
 --   Self_Id.Master_Within := Self_Id.Master_Of_Task + 1;
---
---   for L in Self_Id.Entry_Calls'Range loop
---      Self_Id.Entry_Calls (L).Self := Self_Id;
---      Self_Id.Entry_Calls (L).Level := L;
---   end loop;
+
+   for L in Self_Id.Entry_Calls'Range loop
+      Self_Id.Entry_Calls (L).Self := Self_Id;
+      Self_Id.Entry_Calls (L).Level := L;
+   end loop;
 
    Self_Id.Common.State := Runnable;
 --   Self_Id.Awake_Count := 1;

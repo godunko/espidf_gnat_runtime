@@ -387,12 +387,12 @@ package body System.Tasking.Initialization is
 --      Self_Id := Environment_Task;
 --      Self_Id.Master_Of_Task := Environment_Task_Level;
 --      Self_Id.Master_Within := Self_Id.Master_Of_Task + 1;
---
---      for L in Self_Id.Entry_Calls'Range loop
---         Self_Id.Entry_Calls (L).Self := Self_Id;
---         Self_Id.Entry_Calls (L).Level := L;
---      end loop;
---
+
+      for L in Self_Id.Entry_Calls'Range loop
+         Self_Id.Entry_Calls (L).Self := Self_Id;
+         Self_Id.Entry_Calls (L).Level := L;
+      end loop;
+
 --      Self_Id.Awake_Count := 1;
 --      Self_Id.Alive_Count := 1;
 --
