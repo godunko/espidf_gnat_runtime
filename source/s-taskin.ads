@@ -209,9 +209,9 @@ package System.Tasking is
       --  Task is waiting on an selective wait statement
      );
 
---   type Call_Modes is
---     (Simple_Call, Conditional_Call, Asynchronous_Call, Timed_Call);
---
+   type Call_Modes is
+     (Simple_Call, Conditional_Call, Asynchronous_Call, Timed_Call);
+
 --   type Select_Modes is (Simple_Mode, Else_Mode, Terminate_Mode, Delay_Mode);
 --
 --   subtype Delay_Modes is Integer;
@@ -239,13 +239,13 @@ package System.Tasking is
 
    type Entry_Call_Record;
 
---   type Entry_Call_Link is access all Entry_Call_Record;
---
---   type Entry_Queue is record
---      Head : Entry_Call_Link;
---      Tail : Entry_Call_Link;
---   end record;
---
+   type Entry_Call_Link is access all Entry_Call_Record;
+
+   type Entry_Queue is record
+      Head : Entry_Call_Link;
+      Tail : Entry_Call_Link;
+   end record;
+
 --   type Task_Entry_Queue_Array is
 --     array (Task_Entry_Index range <>) of Entry_Queue;
 --
@@ -253,31 +253,31 @@ package System.Tasking is
 --   --  family members.
 --
 --   type String_Access is access all String;
---
---   ----------------------------------
---   -- Entry_Call_Record definition --
---   ----------------------------------
---
---   type Entry_Call_State is
---     (Never_Abortable,
---      --  the call is not abortable, and never can be
---
---      Not_Yet_Abortable,
---      --  the call is not abortable, but may become so
---
---      Was_Abortable,
---      --  the call is not abortable, but once was
---
---      Now_Abortable,
---      --  the call is abortable
---
---      Done,
---      --  the call has been completed
---
---      Cancelled
---      --  the call was asynchronous, and was cancelled
---     );
---   pragma Ordered (Entry_Call_State);
+
+   ----------------------------------
+   -- Entry_Call_Record definition --
+   ----------------------------------
+
+   type Entry_Call_State is
+     (Never_Abortable,
+      --  the call is not abortable, and never can be
+
+      Not_Yet_Abortable,
+      --  the call is not abortable, but may become so
+
+      Was_Abortable,
+      --  the call is not abortable, but once was
+
+      Now_Abortable,
+      --  the call is abortable
+
+      Done,
+      --  the call has been completed
+
+      Cancelled
+      --  the call was asynchronous, and was cancelled
+     );
+   pragma Ordered (Entry_Call_State);
 
    --  Never_Abortable is used for calls that are made in a abort deferred
    --  region (see ARM 9.8(5-11), 9.8 (20)). Such a call is never abortable.
@@ -839,9 +839,9 @@ package System.Tasking is
    --  Indicates the number of nested asynchronous task control statements
    --  or entries a task is in.
 
---   Level_Completed_Task : constant ATC_Level_Base := -1;
---   --  ATC_Level of a task that has "completed". A task reaches the completed
---   --  state after an abort, exception propagation, or normal exit.
+   Level_Completed_Task : constant ATC_Level_Base := -1;
+   --  ATC_Level of a task that has "completed". A task reaches the completed
+   --  state after an abort, exception propagation, or normal exit.
 
    Level_No_ATC_Occurring : constant ATC_Level_Base := 0;
    --  ATC_Level of a task not executing a entry call or an asynchronous
@@ -867,10 +867,10 @@ package System.Tasking is
       Self  : Task_Id;
       --  ID of the caller
 
---      Mode : Call_Modes;
---
---      State : Entry_Call_State;
---      pragma Atomic (State);
+      Mode : Call_Modes;
+
+      State : Entry_Call_State;
+      pragma Atomic (State);
       --  Indicates part of the state of the call
       --
       --  Protection: If the call is not on a queue, it should only be
@@ -890,8 +890,8 @@ package System.Tasking is
 --      --  being aborted.
 --
 --      Prev : Entry_Call_Link;
---
---      Next : Entry_Call_Link;
+
+      Next : Entry_Call_Link;
 
       Level : ATC_Level;
       --  One of Self and Level are redundant in this implementation, since
@@ -935,11 +935,11 @@ package System.Tasking is
       --  call being serviced. For protected entry calls, this function should
       --  be performed by GNULLI ceiling locking.
 
---      Cancellation_Attempted : Boolean := False;
---      pragma Atomic (Cancellation_Attempted);
---      --  Cancellation of the call has been attempted.
---      --  Consider merging this into State???
---
+      Cancellation_Attempted : Boolean := False;
+      pragma Atomic (Cancellation_Attempted);
+      --  Cancellation of the call has been attempted.
+      --  Consider merging this into State???
+
 --      With_Abort : Boolean := False;
 --      --  Tell caller whether the call may be aborted
 --      --  ??? consider merging this with Was_Abortable state

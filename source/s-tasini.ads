@@ -146,34 +146,34 @@ package System.Tasking.Initialization is
 --   --  reused) ATCB. The critical thing here is to not make any reference to
 --   --  the ATCB after the lock is released. See also comments on
 --   --  Terminate_Task and Unlock.
---
---   procedure Wakeup_Entry_Caller
---     (Self_ID    : Task_Id;
---      Entry_Call : Entry_Call_Link;
---      New_State  : Entry_Call_State);
---   pragma Inline (Wakeup_Entry_Caller);
---   --  This is called at the end of service of an entry call, to abort the
---   --  caller if he is in an abortable part, and to wake up the caller if he
---   --  is on Entry_Caller_Sleep. Call it holding the lock of Entry_Call.Self.
---   --
---   --  Timed_Call or Simple_Call:
---   --    The caller is waiting on Entry_Caller_Sleep, in Wait_For_Completion,
---   --    or Wait_For_Completion_With_Timeout.
---   --
---   --  Conditional_Call:
---   --    The caller might be in Wait_For_Completion,
---   --    waiting for a rendezvous (possibly requeued without abort) to
---   --    complete.
---   --
---   --  Asynchronous_Call:
---   --    The caller may be executing in the abortable part an async. select,
---   --    or on a time delay, if Entry_Call.State >= Was_Abortable.
---
---   procedure Locked_Abort_To_Level
---     (Self_ID : Task_Id;
---      T       : Task_Id;
---      L       : ATC_Level_Base);
---   pragma Inline (Locked_Abort_To_Level);
---   --  Abort a task to a specified ATC level. Call this only with T locked
+
+   procedure Wakeup_Entry_Caller
+     (Self_ID    : Task_Id;
+      Entry_Call : Entry_Call_Link;
+      New_State  : Entry_Call_State);
+   pragma Inline (Wakeup_Entry_Caller);
+   --  This is called at the end of service of an entry call, to abort the
+   --  caller if he is in an abortable part, and to wake up the caller if he
+   --  is on Entry_Caller_Sleep. Call it holding the lock of Entry_Call.Self.
+   --
+   --  Timed_Call or Simple_Call:
+   --    The caller is waiting on Entry_Caller_Sleep, in Wait_For_Completion,
+   --    or Wait_For_Completion_With_Timeout.
+   --
+   --  Conditional_Call:
+   --    The caller might be in Wait_For_Completion,
+   --    waiting for a rendezvous (possibly requeued without abort) to
+   --    complete.
+   --
+   --  Asynchronous_Call:
+   --    The caller may be executing in the abortable part an async. select,
+   --    or on a time delay, if Entry_Call.State >= Was_Abortable.
+
+   procedure Locked_Abort_To_Level
+     (Self_ID : Task_Id;
+      T       : Task_Id;
+      L       : ATC_Level_Base);
+   pragma Inline (Locked_Abort_To_Level);
+   --  Abort a task to a specified ATC level. Call this only with T locked
 
 end System.Tasking.Initialization;

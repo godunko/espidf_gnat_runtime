@@ -495,103 +495,103 @@ package body System.Tasking.Initialization is
    --  enter the task body, and so they do not get a chance to call
    --  Complete_Task. The actual work for this case is done in Terminate_Task.
 
---   procedure Locked_Abort_To_Level
---     (Self_ID : Task_Id;
---      T       : Task_Id;
---      L       : ATC_Level_Base)
---   is
---   begin
---      if not T.Aborting and then T /= Self_ID then
---         case T.Common.State is
---            when Terminated
---               | Unactivated
---            =>
---               pragma Assert (Standard.False);
---               null;
---
---            when Activating
---               | Runnable
---            =>
---               if T.ATC_Nesting_Level > Level_No_ATC_Occurring then
+   procedure Locked_Abort_To_Level
+     (Self_ID : Task_Id;
+      T       : Task_Id;
+      L       : ATC_Level_Base)
+   is
+   begin
+      if not T.Aborting and then T /= Self_ID then
+         case T.Common.State is
+            when Terminated
+               | Unactivated
+            =>
+               pragma Assert (Standard.False);
+               null;
+
+            when Activating
+               | Runnable
+            =>
+               if T.ATC_Nesting_Level > Level_No_ATC_Occurring then
                   --  This scenario occurs when an asynchronous protected entry
                   --  call is canceled during a requeue with abort.
 
---                  T.Entry_Calls
---                    (T.ATC_Nesting_Level).Cancellation_Attempted := True;
---               end if;
---
---            when Interrupt_Server_Blocked_On_Event_Flag =>
---               null;
---
---            when AST_Server_Sleep
---               | Async_Select_Sleep
---               | Delay_Sleep
---               | Interrupt_Server_Blocked_Interrupt_Sleep
---               | Interrupt_Server_Idle_Sleep
---               | Timer_Server_Sleep
---            =>
---               Wakeup (T, T.Common.State);
---
---            when Acceptor_Delay_Sleep
---               | Acceptor_Sleep
---            =>
---               T.Open_Accepts := null;
---               Wakeup (T, T.Common.State);
---
---            when Entry_Caller_Sleep  =>
---               pragma Assert (T.ATC_Nesting_Level > Level_No_ATC_Occurring);
---
---               T.Entry_Calls
---                 (T.ATC_Nesting_Level).Cancellation_Attempted := True;
---               Wakeup (T, T.Common.State);
---
---            when Activator_Sleep
---               | Asynchronous_Hold
---               | Master_Completion_Sleep
---               | Master_Phase_2_Sleep
---            =>
---               null;
---         end case;
---      end if;
---
---      if T.Pending_ATC_Level > L then
---         T.Pending_ATC_Level := L;
---         T.Pending_Action := True;
---
---         if L = Level_Completed_Task then
---            T.Callable := False;
---         end if;
---
---         --  This prevents aborted task from accepting calls
---
---         if T.Aborting then
---
---            --  The test above is just a heuristic, to reduce wasteful
---            --  calls to Abort_Task.  We are holding T locked, and this
---            --  value will not be set to False except with T also locked,
---            --  inside Exit_One_ATC_Level, so we should not miss wakeups.
---
---            if T.Common.State = Acceptor_Sleep
---                 or else
---               T.Common.State = Acceptor_Delay_Sleep
---            then
---               T.Open_Accepts := null;
---            end if;
---
---         elsif T /= Self_ID and then
---           (T.Common.State = Runnable
---             or else T.Common.State = Interrupt_Server_Blocked_On_Event_Flag)
---
---            --  The task is blocked on a system call waiting for the
---            --  completion event. In this case Abort_Task may need to take
---            --  special action in order to succeed.
---
---         then
---            Abort_Task (T);
---         end if;
---      end if;
---   end Locked_Abort_To_Level;
---
+                  T.Entry_Calls
+                    (T.ATC_Nesting_Level).Cancellation_Attempted := True;
+               end if;
+
+            when Interrupt_Server_Blocked_On_Event_Flag =>
+               null;
+
+            when AST_Server_Sleep
+               | Async_Select_Sleep
+               | Delay_Sleep
+               | Interrupt_Server_Blocked_Interrupt_Sleep
+               | Interrupt_Server_Idle_Sleep
+               | Timer_Server_Sleep
+            =>
+               Wakeup (T, T.Common.State);
+
+            when Acceptor_Delay_Sleep
+               | Acceptor_Sleep
+            =>
+               T.Open_Accepts := null;
+               Wakeup (T, T.Common.State);
+
+            when Entry_Caller_Sleep  =>
+               pragma Assert (T.ATC_Nesting_Level > Level_No_ATC_Occurring);
+
+               T.Entry_Calls
+                 (T.ATC_Nesting_Level).Cancellation_Attempted := True;
+               Wakeup (T, T.Common.State);
+
+            when Activator_Sleep
+               | Asynchronous_Hold
+               | Master_Completion_Sleep
+               | Master_Phase_2_Sleep
+            =>
+               null;
+         end case;
+      end if;
+
+      if T.Pending_ATC_Level > L then
+         T.Pending_ATC_Level := L;
+         T.Pending_Action := True;
+
+         if L = Level_Completed_Task then
+            T.Callable := False;
+         end if;
+
+         --  This prevents aborted task from accepting calls
+
+         if T.Aborting then
+
+            --  The test above is just a heuristic, to reduce wasteful
+            --  calls to Abort_Task.  We are holding T locked, and this
+            --  value will not be set to False except with T also locked,
+            --  inside Exit_One_ATC_Level, so we should not miss wakeups.
+
+            if T.Common.State = Acceptor_Sleep
+                 or else
+               T.Common.State = Acceptor_Delay_Sleep
+            then
+               T.Open_Accepts := null;
+            end if;
+
+         elsif T /= Self_ID and then
+           (T.Common.State = Runnable
+             or else T.Common.State = Interrupt_Server_Blocked_On_Event_Flag)
+
+            --  The task is blocked on a system call waiting for the
+            --  completion event. In this case Abort_Task may need to take
+            --  special action in order to succeed.
+
+         then
+            Abort_Task (T);
+         end if;
+      end if;
+   end Locked_Abort_To_Level;
+
 --   --------------------------------
 --   -- Remove_From_All_Tasks_List --
 --   --------------------------------
@@ -808,36 +808,36 @@ package body System.Tasking.Initialization is
    --    an async. select, or on a time delay,
    --    if Entry_Call.State >= Was_Abortable.
 
---   procedure Wakeup_Entry_Caller
---     (Self_ID    : Task_Id;
---      Entry_Call : Entry_Call_Link;
---      New_State  : Entry_Call_State)
---   is
---      Caller : constant Task_Id := Entry_Call.Self;
---
---   begin
+   procedure Wakeup_Entry_Caller
+     (Self_ID    : Task_Id;
+      Entry_Call : Entry_Call_Link;
+      New_State  : Entry_Call_State)
+   is
+      Caller : constant Task_Id := Entry_Call.Self;
+
+   begin
 --      pragma Debug (Debug.Trace
 --        (Self_ID, "Wakeup_Entry_Caller", 'E', Caller));
---      pragma Assert (New_State = Done or else New_State = Cancelled);
---
---      pragma Assert (Caller.Common.State /= Unactivated);
---
---      Entry_Call.State := New_State;
---
---      if Entry_Call.Mode = Asynchronous_Call then
+      pragma Assert (New_State = Done or else New_State = Cancelled);
+
+      pragma Assert (Caller.Common.State /= Unactivated);
+
+      Entry_Call.State := New_State;
+
+      if Entry_Call.Mode = Asynchronous_Call then
 
          --  Abort the caller in his abortable part, but do so only if call has
          --  been queued abortably.
 
---         if Entry_Call.State >= Was_Abortable or else New_State = Done then
---            Locked_Abort_To_Level (Self_ID, Caller, Entry_Call.Level - 1);
---         end if;
---
---      elsif Caller.Common.State = Entry_Caller_Sleep then
---         Wakeup (Caller, Entry_Caller_Sleep);
---      end if;
---   end Wakeup_Entry_Caller;
---
+         if Entry_Call.State >= Was_Abortable or else New_State = Done then
+            Locked_Abort_To_Level (Self_ID, Caller, Entry_Call.Level - 1);
+         end if;
+
+      elsif Caller.Common.State = Entry_Caller_Sleep then
+         Wakeup (Caller, Entry_Caller_Sleep);
+      end if;
+   end Wakeup_Entry_Caller;
+
 --   -------------------------
 --   -- Finalize_Attributes --
 --   -------------------------
