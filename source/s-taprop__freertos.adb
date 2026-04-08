@@ -118,15 +118,15 @@ package body System.Task_Primitives.Operations is
    procedure Initialize_TCB (Self_ID : Task_Id; Succeeded : out Boolean) is
    begin
       Self_ID.Common.LL.Thread := Null_Thread_Id;
-      --  Self_ID.Common.LL.CV := semBCreate (SEM_Q_PRIORITY, SEM_EMPTY);
+      Self_ID.Common.LL.CV := xSemaphoreCreateBinary;
 
-      --  if Self_ID.Common.LL.CV = 0 then
-      --     Succeeded := False;
-      --
-      --  else
+      if Self_ID.Common.LL.CV = Null_SemaphoreHandle_t then
+         Succeeded := False;
+
+      else
          Succeeded := True;
          Initialize_Lock (Self_ID.Common.LL.L'Access, ATCB_Level);
-      --  end if;
+      end if;
    end Initialize_TCB;
 
    --------------------

@@ -5,6 +5,7 @@
 --  The base types are defined here while the functional implementations
 --  are in ``Task_Primitives.Operations``.
 
+with System.FreeRTOS;
 with System.OS_Interface;
 with System.OS_Locks;
 
@@ -41,7 +42,7 @@ private
       --  gdb. The order of the two first fields (Thread and LWP) is important.
       --  On targets where lwp is not relevant, this is equivalent to Thread.
 
---      CV : aliased System.OS_Interface.SEM_ID;
+      CV : aliased System.FreeRTOS.SemaphoreHandle_t;
       --  Condition variable used to queue threads until condition is signaled
 
       L  : aliased System.OS_Locks.RTS_Lock;
