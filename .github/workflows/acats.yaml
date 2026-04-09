@@ -1,0 +1,72 @@
+
+name: ACATS
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v4
+    - name: Checkout GNAT Runtime ACATS Testsuite repo
+      uses: actions/checkout@v4
+      with:
+        repository: godunko/espidf_gnat_runtime_acats
+        path: test_apps/acats
+    - name: Checkout A0B Tools
+      uses: actions/checkout@v4
+      with:
+        repository: godunko/a0b-tools
+        path: crates/a0b-tools
+    - name: Checkout Xtensa Dynconfig
+      uses: actions/checkout@v4
+      with:
+        repository: godunko/xtensa-dynconfig
+        path: crates/xtensa-dynconfig
+    - name: Checkout `bb-runtimes` for FSF GCC 15
+      uses: actions/checkout@v4
+      with:
+        repository: alire-project/bb-runtimes
+        ref: gnat-fsf-15
+        path: crates/bb-runtimes
+
+    - name: Install Alire
+      uses: alire-project/setup-alire@v5
+    - name: Configure Alire
+      run: |
+        alr settings --global --set dependencies.shared FALSE
+        alr settings --global
+
+    - name: Build Xtensa Dynconfig
+      run: |
+        alr -C ${{ github.workspace }}/crates/xtensa-dynconfig --non-interactive with --solve
+        alr -C ${{ github.workspace }}/crates/xtensa-dynconfig build
+    - name: Build A0B Tools
+      run: |
+        alr -C ${{ github.workspace }}/crates/a0b-tools --non-interactive with --solve
+        alr -C ${{ github.workspace }}/crates/a0b-tools build
+    - name: Pin Alire crates and update `bb-runtimes` path
+      run: |
+        alr toolchain --select gnat_xtensa_esp32_elf
+        sed -i 's/bb-runtimes=..\/..\//bb-runtimes=/' alire.toml
+        sed -i '/\[\[pins\]\]/q' alire.toml
+        alr pin xtensa_dynconfig --use ${{ github.workspace }}/crates/xtensa-dynconfig
+        alr pin a0b_tools --use ${{ github.workspace }}/crates/a0b-tools
+        cat alire.toml
+        alr --non-interactive with --solve
+    - name: Install ESP-IDF
+      uses: espressif/install-esp-idf-action@v1
+      with:
+        version: "v5.5.4"
+    - name: Install ESP-IDF QEmu
+      run: |
+        ESP_IDF_EXPORT_DEBUG=1
+        python $IDF_PATH/tools/idf_tools.py install esp-rom-elfs qemu-xtensa
+
+    - name: Build and Run tests
+      run: |
+        . $IDF_PATH/export.sh
+        cd test_apps/acats/bundle_1
+        idf.py set-target esp32s3
+        idf.py qemu --qemu-extra-args --no-reboot | tee log
+        ../support/report.sh log

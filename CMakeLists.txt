@@ -1,4 +1,4 @@
-idf_component_register(REQUIRES cxx freertos)
+idf_component_register(REQUIRES cxx freertos newlib)
 
 ExternalProject_Add(espidf_gnat_runtime
     PREFIX ${COMPONENT_DIR}
@@ -16,5 +16,5 @@ ExternalProject_Add(espidf_gnat_runtime
 )
 
 add_prebuilt_library(espidf_gnat_runtime_build "${COMPONENT_LIB}"
-    REQUIRES cxx freertos)
+    REQUIRES cxx freertos newlib)
 add_dependencies(espidf_gnat_runtime espidf_gnat_runtime_build)
