@@ -27,6 +27,8 @@
       "s-macres.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-macres.adb" },
       "s-textio.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-textio.adb" },
 
+      "s-lidosq.adb": { },  //  Replace to preven infinite recursion in default implementation
+      "s-lidosq.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-lidosq.ads" },
       "s-lisisq.adb": { },  //  Replace to preven infinite recursion in default implementation
       "s-lisisq.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-lisisq.ads" },
 
