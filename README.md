@@ -1,3 +1,5 @@
+[![ACATS](https://github.com/godunko/espidf_gnat_runtime/actions/workflows/acats.yaml/badge.svg)](https://github.com/godunko/espidf_gnat_runtime/actions/workflows/acats.yaml)
+
 # ESP-IDF GNAT Runtime
 
 This repository provides a GNAT Runtime Library (RTS) tailored for Ada development on the ESP32 family using the ESP-IDF (Espressif IoT Development Framework).
