@@ -23,6 +23,10 @@ ExternalProject_Add(espidf_gnat_runtime
 add_prebuilt_library(espidf_gnat_runtime_build "${COMPONENT_LIB}"
     REQUIRES cxx freertos)
 
+# Remove generated runtime artifacts on clean.
+set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_CLEAN_FILES
+    "${COMPONENT_DIR}/runtime")
+
 if(NOT CONFIG_LIBC_NEWLIB)
     add_custom_target(espidf_gnat_runtime_newlib_check ALL
         COMMAND ${CMAKE_COMMAND} -E echo "ERROR: \`espidf_gnat_runtime\` requires CONFIG_LIBC_NEWLIB=y. Select Newlib under Component config -> LibC."
