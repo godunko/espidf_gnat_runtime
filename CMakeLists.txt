@@ -1,4 +1,8 @@
-idf_component_register(REQUIRES cxx freertos newlib)
+if(NOT CONFIG_LIBC_NEWLIB)
+    message(WARNING "`espidf_gnat_runtime` requires CONFIG_LIBC_NEWLIB=y. Configure Newlib in menuconfig under Component config -> LibC. Build will fail until then.")
+endif()
+
+idf_component_register(REQUIRES cxx freertos)
 
 ExternalProject_Add(espidf_gnat_runtime
     PREFIX ${COMPONENT_DIR}
@@ -16,5 +20,14 @@ ExternalProject_Add(espidf_gnat_runtime
 )
 
 add_prebuilt_library(espidf_gnat_runtime_build "${COMPONENT_LIB}"
-    REQUIRES cxx freertos newlib)
+    REQUIRES cxx freertos)
+
+if(NOT CONFIG_LIBC_NEWLIB)
+    add_custom_target(espidf_gnat_runtime_newlib_check ALL
+        COMMAND ${CMAKE_COMMAND} -E echo "ERROR: \`espidf_gnat_runtime\` requires CONFIG_LIBC_NEWLIB=y. Select Newlib under Component config -> LibC."
+        COMMAND ${CMAKE_COMMAND} -E false
+        VERBATIM)
+    add_dependencies(espidf_gnat_runtime_build espidf_gnat_runtime_newlib_check)
+endif()
+
 add_dependencies(espidf_gnat_runtime espidf_gnat_runtime_build)
