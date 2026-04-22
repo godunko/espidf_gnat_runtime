@@ -1107,13 +1107,13 @@ package System.Tasking is
 --      --  completion point (aka. synchronization point).
 --      --
 --      --  Protection: Self.L
---
---      Terminate_Alternative : Boolean := False;
---      --  Task is accepting Select with Terminate Alternative
---      --
---      --  Protection: Self.L
---
---      --  End of flags
+
+      Terminate_Alternative : Boolean := False;
+      --  Task is accepting Select with Terminate Alternative
+      --
+      --  Protection: Self.L
+
+      --  End of flags
 
       --  Beginning of counts
 
