@@ -104,11 +104,11 @@ package System.Tasking.Utilities is
    --  Cancel any entry calls queued on target task.
    --  Call this while holding T's lock.
 
---   procedure Exit_One_ATC_Level (Self_ID : Task_Id);
---   pragma Inline (Exit_One_ATC_Level);
---   --  Call only with abort deferred and holding lock of Self_ID.
---   --  This is a bit of common code for all entry calls.
---   --  The effect is to exit one level of ATC nesting.
+   procedure Exit_One_ATC_Level (Self_ID : Task_Id);
+   pragma Inline (Exit_One_ATC_Level);
+   --  Call only with abort deferred and holding lock of Self_ID.
+   --  This is a bit of common code for all entry calls.
+   --  The effect is to exit one level of ATC nesting.
 
    procedure Abort_One_Task (Self_ID : Task_Id; T : Task_Id);
    --  Similar to Locked_Abort_To_Level (Self_ID, T, Level_Completed_Task),

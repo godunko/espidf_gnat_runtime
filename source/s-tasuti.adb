@@ -185,48 +185,48 @@ package body System.Tasking.Utilities is
       end loop;
    end Cancel_Queued_Entry_Calls;
 
---   ------------------------
---   -- Exit_One_ATC_Level --
---   ------------------------
---
---   --  Call only with abort deferred and holding lock of Self_Id.
---   --  This is a bit of common code for all entry calls.
---   --  The effect is to exit one level of ATC nesting.
---
---   --  If we have reached the desired ATC nesting level, reset the
---   --  requested level to effective infinity, to allow further calls.
---   --  In any case, reset Self_Id.Aborting, to allow re-raising of
---   --  Abort_Signal.
---
---   procedure Exit_One_ATC_Level (Self_ID : Task_Id) is
---   begin
---      pragma Assert (Self_ID.ATC_Nesting_Level > Level_No_ATC_Occurring);
---
---      Self_ID.ATC_Nesting_Level := Self_ID.ATC_Nesting_Level - 1;
---
+   ------------------------
+   -- Exit_One_ATC_Level --
+   ------------------------
+
+   --  Call only with abort deferred and holding lock of Self_Id.
+   --  This is a bit of common code for all entry calls.
+   --  The effect is to exit one level of ATC nesting.
+
+   --  If we have reached the desired ATC nesting level, reset the
+   --  requested level to effective infinity, to allow further calls.
+   --  In any case, reset Self_Id.Aborting, to allow re-raising of
+   --  Abort_Signal.
+
+   procedure Exit_One_ATC_Level (Self_ID : Task_Id) is
+   begin
+      pragma Assert (Self_ID.ATC_Nesting_Level > Level_No_ATC_Occurring);
+
+      Self_ID.ATC_Nesting_Level := Self_ID.ATC_Nesting_Level - 1;
+
 --      pragma Debug
 --        (Debug.Trace (Self_ID, "EOAL: exited to ATC level: " &
 --         ATC_Level'Image (Self_ID.ATC_Nesting_Level), 'A'));
---
---      if Self_ID.Pending_ATC_Level < Level_No_Pending_Abort then
---
---         if Self_ID.Pending_ATC_Level = Self_ID.ATC_Nesting_Level then
---            Self_ID.Pending_ATC_Level := Level_No_Pending_Abort;
---            Self_ID.Aborting := False;
---         else
---            --  Force the next Undefer_Abort to re-raise Abort_Signal
---
---            pragma Assert
---              (Self_ID.Pending_ATC_Level < Self_ID.ATC_Nesting_Level);
---
---            if Self_ID.Aborting then
---               Self_ID.ATC_Hack := True;
---               Self_ID.Pending_Action := True;
---            end if;
---         end if;
---      end if;
---   end Exit_One_ATC_Level;
---
+
+      if Self_ID.Pending_ATC_Level < Level_No_Pending_Abort then
+
+         if Self_ID.Pending_ATC_Level = Self_ID.ATC_Nesting_Level then
+            Self_ID.Pending_ATC_Level := Level_No_Pending_Abort;
+            Self_ID.Aborting := False;
+         else
+            --  Force the next Undefer_Abort to re-raise Abort_Signal
+
+            pragma Assert
+              (Self_ID.Pending_ATC_Level < Self_ID.ATC_Nesting_Level);
+
+            if Self_ID.Aborting then
+               Self_ID.ATC_Hack := True;
+               Self_ID.Pending_Action := True;
+            end if;
+         end if;
+      end if;
+   end Exit_One_ATC_Level;
+
 --   ----------------------
 --   -- Make_Independent --
 --   ----------------------
