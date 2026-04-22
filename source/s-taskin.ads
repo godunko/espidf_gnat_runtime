@@ -927,9 +927,9 @@ package System.Tasking is
       --  Lock_Server implementation still need to loop around chasing for
       --  pointer changes even with a single pointer.
 
---      Acceptor_Prev_Call : Entry_Call_Link;
---      --  For task entry calls only
---
+      Acceptor_Prev_Call : Entry_Call_Link;
+      --  For task entry calls only
+
 --      Acceptor_Prev_Priority : Rendezvous_Priority := Priority_Not_Boosted;
       --  For task entry calls only. The priority of the most recent prior
       --  call being serviced. For protected entry calls, this function should
