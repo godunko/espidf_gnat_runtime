@@ -30,7 +30,7 @@
 ------------------------------------------------------------------------------
 
 with System.Task_Primitives.Operations;
---  with System.Storage_Elements;
+with System.Storage_Elements;
 
 package body System.Tasking is
 
@@ -152,15 +152,13 @@ package body System.Tasking is
          --  Stack_Checking algorithm therefore needs to use the requested
          --  size, or 0 in case of an unknown size.
 
-         null;
---         T.Common.Compiler_Data.Pri_Stack_Info.Size :=
---            Storage_Elements.Storage_Offset (Stack_Size);
+         T.Common.Compiler_Data.Pri_Stack_Info.Size :=
+            Storage_Elements.Storage_Offset (Stack_Size);
 
       else
-         null;
---         T.Common.Compiler_Data.Pri_Stack_Info.Size :=
---           Storage_Elements.Storage_Offset
---             (Parameters.Adjust_Storage_Size (Stack_Size));
+         T.Common.Compiler_Data.Pri_Stack_Info.Size :=
+           Storage_Elements.Storage_Offset
+             (Parameters.Adjust_Storage_Size (Stack_Size));
       end if;
 
       --  Link the task into the list of all tasks

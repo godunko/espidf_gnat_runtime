@@ -40,7 +40,7 @@
 with Ada.Exceptions;
 with System.Parameters;
 with System.Secondary_Stack;
---  with System.Stack_Checking;
+with System.Stack_Checking;
 
 package System.Soft_Links is
    pragma Preelaborate;
@@ -340,7 +340,7 @@ package System.Soft_Links is
    --  Task_Control_Block or into a global variable in the non tasking case.
 
    type TSD is limited record
---      Pri_Stack_Info : aliased Stack_Checking.Stack_Info;
+      Pri_Stack_Info : aliased Stack_Checking.Stack_Info;
       --  Information on stack (Base/Limit/Size) used by System.Stack_Checking.
       --  If this TSD does not belong to the environment task, the Size field
       --  must be initialized to the tasks requested stack size before the task

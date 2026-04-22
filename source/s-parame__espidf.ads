@@ -29,7 +29,15 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  Default version used when no target-specific version is provided
+--  This is ESP-IDF/FreeRTOS version of the package. It is based on default
+--  version, but adjust some parameters:
+--
+--    Default_Stack_Size              20 * 1024
+--    Minimum_Stack_Size              8 * 1024
+--    Runtime_Default_Sec_Stack_Size  4 * 1024
+--    Sec_Stack_Dynamic               False
+--    No_Abort                        True
+--    Max_Task_Image_Length           32
 
 --  This package defines a number of system-dependent parameters for GNAT.
 --  These are values that are referenced by the runtime library and are
@@ -64,21 +72,21 @@ package System.Parameters is
    Unspecified_Size : constant Size_Type := Size_Type'First;
    --  Value used to indicate that no size type is set
 
---   function Default_Stack_Size return Size_Type;
---   --  Default task stack size used if none is specified
---
---   function Minimum_Stack_Size return Size_Type;
---   --  Minimum task stack size permitted
---
---   function Adjust_Storage_Size (Size : Size_Type) return Size_Type;
---   --  Given the storage size stored in the TCB, return the Storage_Size
---   --  value required by the RM for the Storage_Size attribute. The
---   --  required adjustment is as follows:
---   --
---   --    when Size = Unspecified_Size, return Default_Stack_Size
---   --    when Size < Minimum_Stack_Size, return Minimum_Stack_Size
---   --    otherwise return given Size
---
+   function Default_Stack_Size return Size_Type;
+   --  Default task stack size used if none is specified
+
+   function Minimum_Stack_Size return Size_Type;
+   --  Minimum task stack size permitted
+
+   function Adjust_Storage_Size (Size : Size_Type) return Size_Type;
+   --  Given the storage size stored in the TCB, return the Storage_Size
+   --  value required by the RM for the Storage_Size attribute. The
+   --  required adjustment is as follows:
+   --
+   --    when Size = Unspecified_Size, return Default_Stack_Size
+   --    when Size < Minimum_Stack_Size, return Minimum_Stack_Size
+   --    otherwise return given Size
+
 --   Default_Env_Stack_Size : constant Size_Type := 8_192_000;
 --   --  Assumed size of the environment task, if no other information is
 --   --  available. This value is used when stack checking is enabled and
