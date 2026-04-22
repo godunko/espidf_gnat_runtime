@@ -114,6 +114,34 @@ package body System.Task_Primitives.Operations is
 
    function Self return Task_Id renames Specific.Self;
 
+   -----------
+   -- Sleep --
+   -----------
+
+   procedure Sleep (Self_ID : Task_Id; Reason : System.Tasking.Task_States) is
+      pragma Unreferenced (Reason);
+
+      Result : BaseType_t;
+
+   begin
+      pragma Assert (Self_ID = Self);
+
+      --  Release the mutex before sleeping
+
+      Result := xSemaphoreGive (Self_ID.Common.LL.L.Mutex);
+      pragma Assert (Result = pdTRUE);
+
+      --  Perform a blocking operation to take the CV semaphore.
+
+      Result := xSemaphoreTake (Self_ID.Common.LL.CV, portMAX_DELAY);
+      pragma Assert (Result = pdTRUE);
+
+      --  Take the mutex back
+
+      Result := xSemaphoreTake (Self_ID.Common.LL.L.Mutex, portMAX_DELAY);
+      pragma Assert (Result = pdTRUE);
+   end Sleep;
+
    -----------------
    -- Timed_Delay --
    -----------------

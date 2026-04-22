@@ -345,19 +345,19 @@ package System.Task_Primitives.Operations is
 --   function RT_Resolution return Duration;
 --   pragma Inline (RT_Resolution);
 --   --  Returns resolution of the underlying clock used to implement RT_Clock
---
---   ----------------
---   -- Extensions --
---   ----------------
+
+   ----------------
+   -- Extensions --
+   ----------------
 
    --  Whoever calls either of the Sleep routines is responsible for checking
    --  for pending aborts before the call. Pending priority changes are handled
    --  internally.
 
---   procedure Sleep
---     (Self_ID : ST.Task_Id;
---      Reason  : System.Tasking.Task_States);
---   pragma Inline (Sleep);
+   procedure Sleep
+     (Self_ID : ST.Task_Id;
+      Reason  : System.Tasking.Task_States);
+   pragma Inline (Sleep);
    --  Wait until the current task, T,  is signaled to wake up
    --
    --  precondition:
