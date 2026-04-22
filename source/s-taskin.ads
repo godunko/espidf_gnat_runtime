@@ -598,14 +598,14 @@ package System.Tasking is
 --      --  The address of the alternate signal stack for this task, if any
 --      --
 --      --  Protection: Only accessed by Self
---
---      Task_Entry_Point : Task_Procedure_Access;
---      --  Information needed to call the procedure containing the code for
---      --  the body of this task.
---      --
---      --  Protection: Part of the synchronization between Self and Activator.
---      --  Activator writes it, once, before Self starts executing. Self reads
---      --  it, once, as part of its execution.
+
+      Task_Entry_Point : Task_Procedure_Access;
+      --  Information needed to call the procedure containing the code for
+      --  the body of this task.
+      --
+      --  Protection: Part of the synchronization between Self and Activator.
+      --  Activator writes it, once, before Self starts executing. Self reads
+      --  it, once, as part of its execution.
 
       Compiler_Data : System.Soft_Links.TSD;
       --  Task-specific data needed by the compiler to store per-task

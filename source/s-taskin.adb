@@ -132,7 +132,7 @@ package body System.Tasking is
       T.Common.Protected_Action_Nesting := 0;
 --      T.Common.Call                     := null;
 --      T.Common.Task_Arg                 := Task_Arg;
---      T.Common.Task_Entry_Point         := Task_Entry_Point;
+      T.Common.Task_Entry_Point         := Task_Entry_Point;
       T.Common.Activator                := Self_ID;
       T.Common.Wait_Count               := 0;
 --      T.Common.Elaborated               := Elaborated;
