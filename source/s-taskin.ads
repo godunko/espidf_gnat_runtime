@@ -113,11 +113,11 @@ package System.Tasking is
 
    type Task_List is array (Positive range <>) of Task_Id;
 
---   function Self return Task_Id;
---   pragma Inline (Self);
---   --  This is the compiler interface version of this function. Do not call
---   --  from the run-time system.
---
+   function Self return Task_Id;
+   pragma Inline (Self);
+   --  This is the compiler interface version of this function. Do not call
+   --  from the run-time system.
+
 --   function To_Task_Id is
 --     new Ada.Unchecked_Conversion
 --       (System.Task_Primitives.Task_Address, Task_Id);

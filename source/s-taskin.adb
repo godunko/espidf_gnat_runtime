@@ -59,13 +59,13 @@ package body System.Tasking is
 --   begin
 --      return Entry_Index (Self_Id.Entry_Num);
 --   end Number_Of_Entries;
---
---   ----------
---   -- Self --
---   ----------
---
---   function Self return Task_Id renames STPO.Self;
---
+
+   ----------
+   -- Self --
+   ----------
+
+   function Self return Task_Id renames STPO.Self;
+
 --   ------------------
 --   -- Storage_Size --
 --   ------------------
