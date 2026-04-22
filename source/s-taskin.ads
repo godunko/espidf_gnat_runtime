@@ -1218,8 +1218,7 @@ private
    Null_Task : constant Task_Id := null;
 
    type Activation_Chain is limited record
---      T_ID : Task_Id;
-      null;
+      T_ID : Task_Id;
    end record;
 
    --  Activation_Chain is an in-out parameter of initialization procedures and
