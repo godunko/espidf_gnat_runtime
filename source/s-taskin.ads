@@ -111,8 +111,8 @@ package System.Tasking is
 
    Null_Task : constant Task_Id;
 
---   type Task_List is array (Positive range <>) of Task_Id;
---
+   type Task_List is array (Positive range <>) of Task_Id;
+
 --   function Self return Task_Id;
 --   pragma Inline (Self);
 --   --  This is the compiler interface version of this function. Do not call
