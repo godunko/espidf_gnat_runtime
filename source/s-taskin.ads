@@ -529,10 +529,10 @@ package System.Tasking is
       --  strive to make the taskset command line tool have the expected effect
       --  when the program does not use RM D.16 features.
 
---      Base_CPU : System.Multiprocessors.CPU_Range;
---      --  Base CPU, only changed via dispatching domains package.
---      --
---      --  Protection: Self.L
+      Base_CPU : System.Multiprocessors.CPU_Range;
+      --  Base CPU, only changed via dispatching domains package.
+      --
+      --  Protection: Self.L
 
       Current_Priority : System.Any_Priority;
       --  Active priority, except that the effects of protected object

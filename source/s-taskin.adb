@@ -113,7 +113,7 @@ package body System.Tasking is
       T.Common.Parent := Parent;
       T.Common.Base_Priority := Base_Priority;
 --      T.Common.CPU_Is_Explicit := CPU_Is_Explicit;
---      T.Common.Base_CPU := Base_CPU;
+      T.Common.Base_CPU := Base_CPU;
 
       --  The Domain defaults to that of the activator. But that can be null in
       --  the case of foreign threads (see Register_Foreign_Thread), in which
@@ -255,9 +255,9 @@ package body System.Tasking is
 --      Dispatching_Domain_Tasks :=
 --        new Array_Allocated_Tasks'
 --          (Multiprocessors.CPU'First .. Multiprocessors.Number_Of_CPUs => 0);
---
---      --  Signal that this task is being allocated to a processor
---
+
+      --  Signal that this task is being allocated to a processor
+
 --      if Base_CPU /= System.Multiprocessors.Not_A_Specific_CPU then
 --
 --         --  Increase the number of tasks attached to the CPU to which this
