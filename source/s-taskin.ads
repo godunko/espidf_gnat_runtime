@@ -618,10 +618,10 @@ package System.Tasking is
       --
       --  Protection: RTS_Lock
 
---      Activation_Link : Task_Id;
---      --  Used to link this task to a list of tasks to be activated
---      --
---      --  Protection: Only used by Activator
+      Activation_Link : Task_Id;
+      --  Used to link this task to a list of tasks to be activated
+      --
+      --  Protection: Only used by Activator
 
       Activator : Task_Id;
       pragma Atomic (Activator);
