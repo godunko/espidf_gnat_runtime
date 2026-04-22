@@ -571,13 +571,13 @@ package System.Tasking is
       Task_Image_Len : Natural;
       --  Actual length of Task_Image
 
---      Call : Entry_Call_Link;
---      --  The entry call that has been accepted by this task.
---      --
---      --  Protection: Self.L. Self will modify this field when Self.Accepting
---      --  is False, and will not need the mutex to do so. Once a task sets
---      --  Pending_ATC_Level = Level_Completed_Task, no other task can access
---      --  this field.
+      Call : Entry_Call_Link;
+      --  The entry call that has been accepted by this task.
+      --
+      --  Protection: Self.L. Self will modify this field when Self.Accepting
+      --  is False, and will not need the mutex to do so. Once a task sets
+      --  Pending_ATC_Level = Level_Completed_Task, no other task can access
+      --  this field.
 
       LL : aliased Task_Primitives.Private_Data;
       --  Control block used by the underlying low-level tasking service
