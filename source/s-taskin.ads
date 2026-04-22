@@ -622,17 +622,17 @@ package System.Tasking is
 --      --  Used to link this task to a list of tasks to be activated
 --      --
 --      --  Protection: Only used by Activator
---
---      Activator : Task_Id;
---      pragma Atomic (Activator);
---      --  The task that created this task, either by declaring it as a task
---      --  object or by executing a task allocator. The value is null iff Self
---      --  has completed activation.
---      --
---      --  Protection: Set by Activator before Self is activated, and
---      --  only modified by Self after that. Can be read by any task via
---      --  Ada.Task_Identification.Activation_Is_Complete; hence Atomic.
---
+
+      Activator : Task_Id;
+      pragma Atomic (Activator);
+      --  The task that created this task, either by declaring it as a task
+      --  object or by executing a task allocator. The value is null iff Self
+      --  has completed activation.
+      --
+      --  Protection: Set by Activator before Self is activated, and
+      --  only modified by Self after that. Can be read by any task via
+      --  Ada.Task_Identification.Activation_Is_Complete; hence Atomic.
+
 --      Wait_Count : Natural;
       --  This count is used by a task that is waiting for other tasks. At all
       --  other times, the value should be zero. It is used differently in
