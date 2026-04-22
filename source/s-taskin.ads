@@ -751,15 +751,15 @@ package System.Tasking is
    All_Tasks_List : Task_Id;
    --  Global linked list of all tasks
 
---   ------------------------------------------
---   -- Regular (non restricted) definitions --
---   ------------------------------------------
---
---   --------------------------------
---   -- Master Related Definitions --
---   --------------------------------
---
---   subtype Master_Level is Integer;
+   ------------------------------------------
+   -- Regular (non restricted) definitions --
+   ------------------------------------------
+
+   --------------------------------
+   -- Master Related Definitions --
+   --------------------------------
+
+   subtype Master_Level is Integer;
 --   subtype Master_ID is Master_Level;
 
    --  Normally, a task starts out with internal master nesting level one
@@ -773,7 +773,7 @@ package System.Tasking is
    --  distinguished if needed.
 
 --   Foreign_Task_Level     : constant Master_Level := 0;
---   Environment_Task_Level : constant Master_Level := 1;
+   Environment_Task_Level : constant Master_Level := 1;
 --   Independent_Task_Level : constant Master_Level := 2;
 --   Library_Task_Level     : constant Master_Level := 3;
 --   --  Note that the value of Library_Task_Level is also hard coded in the
@@ -1017,7 +1017,7 @@ package System.Tasking is
       --  updated it itself using information from a suspended Caller, or
       --  after Caller has updated it and awakened Self.
 
---      Master_Of_Task : Master_Level;
+      Master_Of_Task : Master_Level;
       --  The task executing the master of this task, and the ID of this task's
       --  master (unique only among masters currently active within Parent).
       --

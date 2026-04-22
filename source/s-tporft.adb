@@ -71,7 +71,7 @@ begin
    Unlock_RTS;
    pragma Assert (Succeeded);
 
---   Self_Id.Master_Of_Task := 0;
+   Self_Id.Master_Of_Task := 0;
 --   Self_Id.Master_Within := Self_Id.Master_Of_Task + 1;
 
    for L in Self_Id.Entry_Calls'Range loop
