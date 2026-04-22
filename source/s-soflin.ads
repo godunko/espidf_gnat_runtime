@@ -377,18 +377,18 @@ package System.Soft_Links is
 --   pragma Inline (Destroy_TSD);
 --   --  Called from s-tassta just before a thread is destroyed to perform
 --   --  any required finalization.
---
---   function Get_GNAT_Exception return Ada.Exceptions.Exception_Id;
---   pragma Inline (Get_GNAT_Exception);
---   --  This function obtains the Exception_Id from the Exception_Occurrence
---   --  referenced by the Current_Excep field of the task specific data, i.e.
---   --  the call is equivalent to
---   --  Exception_Identity (Get_Current_Exception.all)
---
---   --  Export the Get/Set routines for the various Task Specific Data (TSD)
---   --  elements as callable subprograms instead of objects of access to
---   --  subprogram types.
---
+
+   function Get_GNAT_Exception return Ada.Exceptions.Exception_Id;
+   pragma Inline (Get_GNAT_Exception);
+   --  This function obtains the Exception_Id from the Exception_Occurrence
+   --  referenced by the Current_Excep field of the task specific data, i.e.
+   --  the call is equivalent to
+   --  Exception_Identity (Get_Current_Exception.all)
+
+   --  Export the Get/Set routines for the various Task Specific Data (TSD)
+   --  elements as callable subprograms instead of objects of access to
+   --  subprogram types.
+
 --   function  Get_Jmpbuf_Address_Soft return  Address;
 --   procedure Set_Jmpbuf_Address_Soft (Addr : Address);
 --   pragma Inline (Get_Jmpbuf_Address_Soft);

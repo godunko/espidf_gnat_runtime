@@ -161,14 +161,14 @@ package body System.Soft_Links is
       return NT_TSD.Current_Excep'Access;
    end Get_Current_Excep_NT;
 
---   ------------------------
---   -- Get_GNAT_Exception --
---   ------------------------
---
---   function Get_GNAT_Exception return Ada.Exceptions.Exception_Id is
---   begin
---      return Ada.Exceptions.Exception_Identity (Get_Current_Excep.all.all);
---   end Get_GNAT_Exception;
+   ------------------------
+   -- Get_GNAT_Exception --
+   ------------------------
+
+   function Get_GNAT_Exception return Ada.Exceptions.Exception_Id is
+   begin
+      return Ada.Exceptions.Exception_Identity (Get_Current_Excep.all.all);
+   end Get_GNAT_Exception;
 
    ---------------------------
    -- Get_Jmpbuf_Address_NT --
