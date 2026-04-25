@@ -1,6 +1,24 @@
 
 package body System.IniFin is
 
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize is
+   begin
+      null;
+   end Initialize;
+
+   --------------
+   -- Finalize --
+   --------------
+
+   procedure Finalize is
+   begin
+      null;
+   end Finalize;
+
    ------------------------
    -- Runtime_Initialize --
    ------------------------

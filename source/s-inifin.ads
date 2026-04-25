@@ -14,6 +14,12 @@ package System.IniFin is
    pragma Export (C, Runtime_Finalize, "__gnat_runtime_finalize");
    --  This procedure is called by adafinal.
 
+   procedure Initialize;
+   pragma Export (C, Initialize, "__gnat_initialize");
+
+   procedure Finalize;
+   pragma Export (C, Finalize, "__gnat_finalize");
+
 private
 
    Gl_Main_Priority : Integer := -1;
