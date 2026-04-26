@@ -7,6 +7,9 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/godunko/espidf-alire:main
+    strategy:
+      matrix:
+        esp32_mcu: [esp32c3, esp32s3]
     steps:
     - name: Display environment
       run: |
@@ -47,6 +50,7 @@ jobs:
         alr -C crates/a0b-tools build
     - name: Pin Alire crates and update `bb-runtimes` path
       run: |
+        cp test_apps/acats/bundle_1/${{ matrix.esp32_mcu }}/alire.toml test_apps/acats/bundle_1
         alr toolchain --select gnat_xtensa_esp32_elf
         sed -i 's/bb-runtimes=..\/..\//bb-runtimes=/' alire.toml
         sed -i '/\[\[pins\]\]/q' alire.toml
