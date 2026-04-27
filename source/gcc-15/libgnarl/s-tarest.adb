@@ -41,6 +41,7 @@ pragma Style_Checks (All_Checks);
 
 with Ada.Exceptions;
 
+with System.CRTL;
 with System.OS_Locks;
 with System.Soft_Links.Tasking;
 with System.Task_Primitives.Operations;
@@ -207,6 +208,29 @@ package body System.Tasking.Restricted.Stages is
       --  execution of its task body, then EO will contain the associated
       --  exception occurrence. Otherwise, it will contain Null_Occurrence.
 
+      procedure Stderr_Put (S : String);
+      --  Best-effort low-level output used for unhandled task exceptions.
+
+      ----------------
+      -- Stderr_Put --
+      ----------------
+
+      procedure Stderr_Put (S : String) is
+      begin
+         if S'Length > 0 then
+            declare
+               Result : constant System.CRTL.ssize_t :=
+                 System.CRTL.write
+                   (2,
+                    S'Address,
+                    System.CRTL.size_t (S'Length));
+               pragma Unreferenced (Result);
+            begin
+               null;
+            end;
+         end if;
+      end Stderr_Put;
+
    begin
       --  Initialize low-level TCB components, that cannot be initialized by
       --  the creator.
@@ -240,6 +264,10 @@ package body System.Tasking.Restricted.Stages is
 
             Cause := Unhandled_Exception;
             Save_Occurrence (EO, E);
+
+            Stderr_Put ("RTS: unhandled Ada task exception: ");
+            Stderr_Put (Exception_Information (E));
+
       end;
 
       --  Look for a fall-back handler
