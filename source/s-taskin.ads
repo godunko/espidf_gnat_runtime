@@ -695,7 +695,7 @@ package System.Tasking is
       --
       --  Protection: Self.L
 
---      Specific_Handler : Termination_Handler;
+      Specific_Handler : Termination_Handler;
       --  This is the specific handler that applies only to this task, and not
       --  any of its dependent tasks.
       --
