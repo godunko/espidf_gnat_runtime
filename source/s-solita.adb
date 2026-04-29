@@ -33,25 +33,25 @@ pragma Style_Checks (All_Checks);
 --  Turn off subprogram alpha ordering check, since we group soft link bodies
 --  and dummy soft link bodies together separately in this unit.
 
---  with Ada.Exceptions;
---  with Ada.Exceptions.Is_Null_Occurrence;
---
+with Ada.Exceptions;
+with Ada.Exceptions.Is_Null_Occurrence;
+
 with System.Task_Primitives.Operations;
 with System.Tasking;
 --  with System.Stack_Checking;
---  with System.Secondary_Stack;
+with System.Secondary_Stack;
 
 package body System.Soft_Links.Tasking is
 
    package STPO renames System.Task_Primitives.Operations;
    package SSL  renames System.Soft_Links;
 
---   use Ada.Exceptions;
+   use Ada.Exceptions;
 
    use type System.Secondary_Stack.SS_Stack_Ptr;
 
---   use type System.Tasking.Task_Id;
---   use type System.Tasking.Termination_Handler;
+   use type System.Tasking.Task_Id;
+   use type System.Tasking.Termination_Handler;
 
    ----------------
    -- Local Data --
@@ -147,12 +147,11 @@ package body System.Soft_Links.Tasking is
    --------------------------------
 
    procedure Task_Termination_Handler_T (Excep : SSL.EO) is
---      Self_Id : constant System.Tasking.Task_Id := STPO.Self;
---      Cause   : System.Tasking.Cause_Of_Termination;
---      EO      : Ada.Exceptions.Exception_Occurrence;
+      Self_Id : constant System.Tasking.Task_Id := STPO.Self;
+      Cause   : System.Tasking.Cause_Of_Termination;
+      EO      : Ada.Exceptions.Exception_Occurrence;
 
    begin
-      raise Program_Error;
       --  We can only be here because we are terminating the environment task.
       --  Task termination for all other tasks is handled in the Task_Wrapper.
 
@@ -160,26 +159,26 @@ package body System.Soft_Links.Tasking is
       --  here because some restricted run-times may not have System.OS_Lib
       --  and calling abort may do more harm than good to the main application.
 
---      pragma Assert (Self_Id = STPO.Environment_Task);
---
---      --  Normal task termination
---
---      if Is_Null_Occurrence (Excep) then
---         Cause := System.Tasking.Normal;
---         Ada.Exceptions.Save_Occurrence (EO, Ada.Exceptions.Null_Occurrence);
---
---      --  Abnormal task termination
---
---      elsif Exception_Identity (Excep) = Standard'Abort_Signal'Identity then
---         Cause := System.Tasking.Abnormal;
---         Ada.Exceptions.Save_Occurrence (EO, Ada.Exceptions.Null_Occurrence);
---
---      --  Termination because of an unhandled exception
---
---      else
---         Cause := System.Tasking.Unhandled_Exception;
---         Ada.Exceptions.Save_Occurrence (EO, Excep);
---      end if;
+      pragma Assert (Self_Id = STPO.Environment_Task);
+
+      --  Normal task termination
+
+      if Is_Null_Occurrence (Excep) then
+         Cause := System.Tasking.Normal;
+         Ada.Exceptions.Save_Occurrence (EO, Ada.Exceptions.Null_Occurrence);
+
+      --  Abnormal task termination
+
+      elsif Exception_Identity (Excep) = Standard'Abort_Signal'Identity then
+         Cause := System.Tasking.Abnormal;
+         Ada.Exceptions.Save_Occurrence (EO, Ada.Exceptions.Null_Occurrence);
+
+      --  Termination because of an unhandled exception
+
+      else
+         Cause := System.Tasking.Unhandled_Exception;
+         Ada.Exceptions.Save_Occurrence (EO, Excep);
+      end if;
 
       --  There is no need for explicit protection against race conditions for
       --  this part because it can only be executed by the environment task
@@ -188,16 +187,16 @@ package body System.Soft_Links.Tasking is
       --  it has no parents, and, as specified in ARM C.7.3 par. 9/2, "the
       --  fall-back handler applies only to the dependent tasks of the task".
 
---      if Self_Id.Common.Specific_Handler /= null then
---         begin
---            Self_Id.Common.Specific_Handler.all (Cause, Self_Id, EO);
---         exception
+      if Self_Id.Common.Specific_Handler /= null then
+         begin
+            Self_Id.Common.Specific_Handler.all (Cause, Self_Id, EO);
+         exception
             --  RM-C.7.3(16) requires all exceptions raised here to be ignored
---
---            when others =>
---               null;
---         end;
---      end if;
+
+            when others =>
+               null;
+         end;
+      end if;
    end Task_Termination_Handler_T;
 
    -----------------------------
