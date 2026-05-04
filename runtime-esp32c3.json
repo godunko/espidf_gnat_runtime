@@ -19,7 +19,9 @@
         "No_Finalization": false,
         "No_Exception_Propagation": false,
         "No_Implicit_Dynamic_Code": false
-      }
+      },
+      "interrupt_priority_values": 7,
+      "priority_values": 25
     },
     "files":
     {
