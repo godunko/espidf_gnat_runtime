@@ -785,8 +785,14 @@ package body System.Task_Primitives.Operations is
          Ceiling_Violation := False;
       end if;
 
-      Result := xSemaphoreTake (L.Mutex, portMAX_DELAY);
-      pragma Assert (Result = pdTRUE);
+      if Is_Task_Context then
+         Result := xSemaphoreTake (L.Mutex, portMAX_DELAY);
+         pragma Assert (Result = pdTRUE);
+
+      else
+         Result := xSemaphoreTakeFromISR (L.Mutex, null);
+         pragma Assert (Result = pdTRUE);
+      end if;
    end Write_Lock;
 
    procedure Write_Lock (L : not null access RTS_Lock) is
@@ -821,8 +827,14 @@ package body System.Task_Primitives.Operations is
    procedure Unlock (L : not null access Lock) is
       Result : BaseType_t;
    begin
-      Result := xSemaphoreGive (L.Mutex);
-      pragma Assert (Result = pdTRUE);
+      if Is_Task_Context then
+         Result := xSemaphoreGive (L.Mutex);
+         pragma Assert (Result = pdTRUE);
+
+      else
+         Result := xSemaphoreGiveFromISR (L.Mutex, null);
+         pragma Assert (Result = pdTRUE);
+      end if;
    end Unlock;
 
    procedure Unlock (L : not null access RTS_Lock) is
