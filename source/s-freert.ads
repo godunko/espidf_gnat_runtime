@@ -98,6 +98,12 @@ package System.FreeRTOS is
       xTicksToWait : TickType_t) return BaseType_t
      with Import, Convention => C, External_Name => "__gnat_xSemaphoreTake";
 
+   function xSemaphoreTakeFromISR
+     (xSemaphore   : SemaphoreHandle_t;
+      pxHigherPriorityTaskWoken : access BaseType_t) return BaseType_t
+     with Import, Convention => C,
+          External_Name => "__gnat_xSemaphoreTakeFromISR";
+
    function xSemaphoreTakeRecursive
      (xMutex       : SemaphoreHandle_t;
       xTicksToWait : TickType_t) return BaseType_t
@@ -106,6 +112,12 @@ package System.FreeRTOS is
 
    function xSemaphoreGive (xSemaphore : SemaphoreHandle_t) return BaseType_t
      with Import, Convention => C, External_Name => "__gnat_xSemaphoreGive";
+
+   function xSemaphoreGiveFromISR
+     (xSemaphore   : SemaphoreHandle_t;
+      pxHigherPriorityTaskWoken : access BaseType_t) return BaseType_t
+     with Import, Convention => C,
+          External_Name => "__gnat_xSemaphoreGiveFromISR";
 
    function xSemaphoreGiveRecursive
      (xMutex : SemaphoreHandle_t) return BaseType_t
