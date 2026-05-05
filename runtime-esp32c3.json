@@ -95,6 +95,7 @@
     {
       "a-interr.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-interr.adb" },  //  Dummy version
       "a-interr.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-interr.ads" },  //  Same as in GCC
+      "a-intnam.ads": { "crate": "espidf_gnat_runtime", "path": "source/a-intnam__esp32c3.ads" },
       "a-sytaco.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-sytaco.adb" },
       "a-sytaco.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-sytaco.ads" },
       "a-taster.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-taster.adb" },
