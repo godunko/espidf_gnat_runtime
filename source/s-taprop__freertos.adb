@@ -108,6 +108,18 @@ package body System.Task_Primitives.Operations is
    --  This function returns True if the current execution is in the context of
    --  a task, and False if it is an interrupt context.
 
+   procedure Semaphore_Take
+     (xSemaphore      : SemaphoreHandle_t;
+      In_Task_Context : Boolean);
+   --  Calls `xSemaphoreTake` or `xSemaphoreTakeFromISR` depending on the
+   --  context.
+
+   procedure Semaphore_Give
+     (xSemaphore      : SemaphoreHandle_t;
+      In_Task_Context : Boolean);
+   --  Calls `xSemaphoreGive` or `xSemaphoreGiveFromISR` depending on the
+   --  context.
+
    function To_Address is
      new Ada.Unchecked_Conversion (Task_Id, System.Address);
 
@@ -621,6 +633,48 @@ package body System.Task_Primitives.Operations is
       return System.FreeRTOS.xPortInIsrContext = System.FreeRTOS.pdFALSE;
    end Is_Task_Context;
 
+   --------------------
+   -- Semaphore_Give --
+   --------------------
+
+   procedure Semaphore_Give
+     (xSemaphore      : SemaphoreHandle_t;
+      In_Task_Context : Boolean)
+   is
+      Result : BaseType_t;
+
+   begin
+      if In_Task_Context then
+         Result := xSemaphoreGive (xSemaphore);
+
+      else
+         Result := xSemaphoreGiveFromISR (xSemaphore, null);
+      end if;
+
+      pragma Assert (Result = pdTRUE);
+   end Semaphore_Give;
+
+   --------------------
+   -- Semaphore_Take --
+   --------------------
+
+   procedure Semaphore_Take
+     (xSemaphore      : SemaphoreHandle_t;
+      In_Task_Context : Boolean)
+   is
+      Result : BaseType_t;
+
+   begin
+      if In_Task_Context then
+         Result := xSemaphoreTake (xSemaphore, portMAX_DELAY);
+
+      else
+         Result := xSemaphoreTakeFromISR (xSemaphore, null);
+      end if;
+
+      pragma Assert (Result = pdTRUE);
+   end Semaphore_Take;
+
    ----------------
    -- Initialize --
    ----------------
@@ -771,10 +825,7 @@ package body System.Task_Primitives.Operations is
 
    procedure Write_Lock
      (L                 : not null access Lock;
-      Ceiling_Violation : out Boolean)
-   is
-      Result : BaseType_t;
-
+      Ceiling_Violation : out Boolean) is
    begin
       if L.Protocol = Prio_Protect
         and then int (Self.Common.Current_Priority) > L.Prio_Ceiling
@@ -785,14 +836,7 @@ package body System.Task_Primitives.Operations is
          Ceiling_Violation := False;
       end if;
 
-      if Is_Task_Context then
-         Result := xSemaphoreTake (L.Mutex, portMAX_DELAY);
-         pragma Assert (Result = pdTRUE);
-
-      else
-         Result := xSemaphoreTakeFromISR (L.Mutex, null);
-         pragma Assert (Result = pdTRUE);
-      end if;
+      Semaphore_Take (L.Mutex, Is_Task_Context);
    end Write_Lock;
 
    procedure Write_Lock (L : not null access RTS_Lock) is
@@ -825,16 +869,8 @@ package body System.Task_Primitives.Operations is
    ------------
 
    procedure Unlock (L : not null access Lock) is
-      Result : BaseType_t;
    begin
-      if Is_Task_Context then
-         Result := xSemaphoreGive (L.Mutex);
-         pragma Assert (Result = pdTRUE);
-
-      else
-         Result := xSemaphoreGiveFromISR (L.Mutex, null);
-         pragma Assert (Result = pdTRUE);
-      end if;
+      Semaphore_Give (L.Mutex, Is_Task_Context);
    end Unlock;
 
    procedure Unlock (L : not null access RTS_Lock) is
