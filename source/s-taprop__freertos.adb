@@ -471,18 +471,16 @@ package body System.Task_Primitives.Operations is
    ---------------
 
    procedure Set_False (S : in out Suspension_Object) is
-      Result : BaseType_t;
+      In_Task_Context : constant Boolean := Operations.Is_Task_Context;
 
    begin
       SSL.Abort_Defer.all;
 
-      Result := xSemaphoreTake (S.L, portMAX_DELAY);
-      pragma Assert (Result = pdTRUE);
+      Semaphore_Take (S.L, In_Task_Context);
 
       S.State := False;
 
-      Result := xSemaphoreGive (S.L);
-      pragma Assert (Result = pdTRUE);
+      Semaphore_Give (S.L, In_Task_Context);
 
       SSL.Abort_Undefer.all;
    end Set_False;
@@ -492,18 +490,17 @@ package body System.Task_Primitives.Operations is
    --------------
 
    procedure Set_True (S : in out Suspension_Object) is
-      Result : BaseType_t;
+      In_Task_Context : constant Boolean := Operations.Is_Task_Context;
 
    begin
       --  Set_True can be called from an interrupt context, in which case
       --  Abort_Defer is undefined.
 
-      if Is_Task_Context then
+      if In_Task_Context then
          SSL.Abort_Defer.all;
       end if;
 
-      Result := xSemaphoreTake (S.L, portMAX_DELAY);
-      pragma Assert (Result = pdTRUE);
+      Semaphore_Take (S.L, In_Task_Context);
 
       --  If there is already a task waiting on this suspension object then we
       --  resume it, leaving the state of the suspension object to False, as it
@@ -514,19 +511,17 @@ package body System.Task_Primitives.Operations is
          S.Waiting := False;
          S.State := False;
 
-         Result := xSemaphoreGive (S.CV);
-         pragma Assert (Result = pdTRUE);
+         Semaphore_Give (S.CV, In_Task_Context);
       else
          S.State := True;
       end if;
 
-      Result := xSemaphoreGive (S.L);
-      pragma Assert (Result = pdTRUE);
+      Semaphore_Give (S.L, In_Task_Context);
 
       --  Set_True can be called from an interrupt context, in which case
       --  Abort_Undefer is undefined.
 
-      if Is_Task_Context then
+      if In_Task_Context then
          SSL.Abort_Undefer.all;
       end if;
    end Set_True;
