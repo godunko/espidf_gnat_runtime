@@ -98,6 +98,8 @@
       "a-intnam.ads": { "crate": "espidf_gnat_runtime", "path": "source/a-intnam__esp32c3.ads" },
       "a-sytaco.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-sytaco.adb" },
       "a-sytaco.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-sytaco.ads" },
+      "a-taside.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-taside.adb" },
+      "a-taside.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-taside.ads" },
       "a-taster.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-taster.adb" },
       "a-taster.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-taster.ads" },
       "s-espidf.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-espidf.adb" },
