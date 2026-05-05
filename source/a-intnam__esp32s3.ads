@@ -1,0 +1,106 @@
+
+--  This is the ESP-IDF/ESP32S3 version of this file.
+
+package Ada.Interrupts.Names is
+
+   --  All identifiers in this unit are implementation defined
+
+   pragma Implementation_Defined;
+
+   WIFI_MAC_Interrupt              : constant Interrupt_ID := 0;
+   WIFI_NMI_Interrupt              : constant Interrupt_ID := 1;
+   WIFI_PWR_Interrupt              : constant Interrupt_ID := 2;
+   WIFI_BB_Interrupt               : constant Interrupt_ID := 3;
+   BT_MAC_Interrupt                : constant Interrupt_ID := 4;
+   BT_BB_Interrupt                 : constant Interrupt_ID := 5;
+   BT_BB_NMI_Interrupt             : constant Interrupt_ID := 6;
+   RWBT_Interrupt                  : constant Interrupt_ID := 7;
+   RWBLE_Interrupt                 : constant Interrupt_ID := 8;
+   RWBT_NMI_Interrupt              : constant Interrupt_ID := 9;
+   RWBLE_NMI_Interrupt             : constant Interrupt_ID := 10;
+   I2C_MASTER_Interrupt            : constant Interrupt_ID := 11;
+   SLC0_Interrupt                  : constant Interrupt_ID := 12;
+   SLC1_Interrupt                  : constant Interrupt_ID := 13;
+   UHCI0_Interrupt                 : constant Interrupt_ID := 14;
+   UHCI1_Interrupt                 : constant Interrupt_ID := 15;
+   GPIO_Interrupt                  : constant Interrupt_ID := 16;
+   GPIO_NMI_Interrupt              : constant Interrupt_ID := 17;
+   GPIO_INTR_2_Interrupt           : constant Interrupt_ID := 18;
+   GPIO_NMI_2_Interrupt            : constant Interrupt_ID := 19;
+   SPI1_Interrupt                  : constant Interrupt_ID := 20;
+   SPI2_Interrupt                  : constant Interrupt_ID := 21;
+   SPI3_Interrupt                  : constant Interrupt_ID := 22;
+   LCD_CAM_Interrupt               : constant Interrupt_ID := 24;
+   I2S0_Interrupt                  : constant Interrupt_ID := 25;
+   I2S1_Interrupt                  : constant Interrupt_ID := 26;
+   UART0_Interrupt                 : constant Interrupt_ID := 27;
+   UART1_Interrupt                 : constant Interrupt_ID := 28;
+   UART2_Interrupt                 : constant Interrupt_ID := 29;
+   SDIO_HOST_Interrupt             : constant Interrupt_ID := 30;
+   MCPWM0_Interrupt                : constant Interrupt_ID := 31;
+   MCPWM1_Interrupt                : constant Interrupt_ID := 32;
+   LEDC_Interrupt                  : constant Interrupt_ID := 35;
+   EFUSE_Interrupt                 : constant Interrupt_ID := 36;
+   TWAI0_Interrupt                 : constant Interrupt_ID := 37;
+   USB_Interrupt                   : constant Interrupt_ID := 38;
+   RTC_CORE_Interrupt              : constant Interrupt_ID := 39;
+   RMT_Interrupt                   : constant Interrupt_ID := 40;
+   PCNT_Interrupt                  : constant Interrupt_ID := 41;
+   I2C_EXT0_Interrupt              : constant Interrupt_ID := 42;
+   I2C_EXT1_Interrupt              : constant Interrupt_ID := 43;
+   SPI2_DMA_Interrupt              : constant Interrupt_ID := 44;
+   SPI3_DMA_Interrupt              : constant Interrupt_ID := 45;
+   WDT_Interrupt                   : constant Interrupt_ID := 47;
+   TIMER1_Interrupt                : constant Interrupt_ID := 48;
+   TIMER2_Interrupt                : constant Interrupt_ID := 49;
+   TG0_T0_LEVEL_Interrupt          : constant Interrupt_ID := 50;
+   TG0_T1_LEVEL_Interrupt          : constant Interrupt_ID := 51;
+   TG0_WDT_LEVEL_Interrupt         : constant Interrupt_ID := 52;
+   TG1_T0_LEVEL_Interrupt          : constant Interrupt_ID := 53;
+   TG1_T1_LEVEL_Interrupt          : constant Interrupt_ID := 54;
+   TG1_WDT_LEVEL_Interrupt         : constant Interrupt_ID := 55;
+   CACHE_IA_Interrupt              : constant Interrupt_ID := 56;
+   SYSTIMER_TARGET0_Interrupt      : constant Interrupt_ID := 57;
+   SYSTIMER_TARGET1_Interrupt      : constant Interrupt_ID := 58;
+   SYSTIMER_TARGET2_Interrupt      : constant Interrupt_ID := 59;
+   SPI_MEM_REJECT_CACHE_Interrupt  : constant Interrupt_ID := 60;
+   DCACHE_PRELOAD0_Interrupt       : constant Interrupt_ID := 61;
+   ICACHE_PRELOAD0_Interrupt       : constant Interrupt_ID := 62;
+   DCACHE_SYNC0_Interrupt          : constant Interrupt_ID := 63;
+   ICACHE_SYNC0_Interrupt          : constant Interrupt_ID := 64;
+   APB_ADC_Interrupt               : constant Interrupt_ID := 65;
+   DMA_IN_CH0_Interrupt            : constant Interrupt_ID := 66;
+   DMA_IN_CH1_Interrupt            : constant Interrupt_ID := 67;
+   DMA_IN_CH2_Interrupt            : constant Interrupt_ID := 68;
+   DMA_IN_CH3_Interrupt            : constant Interrupt_ID := 69;
+   DMA_IN_CH4_Interrupt            : constant Interrupt_ID := 70;
+   DMA_OUT_CH0_Interrupt           : constant Interrupt_ID := 71;
+   DMA_OUT_CH1_Interrupt           : constant Interrupt_ID := 72;
+   DMA_OUT_CH2_Interrupt           : constant Interrupt_ID := 73;
+   DMA_OUT_CH3_Interrupt           : constant Interrupt_ID := 74;
+   DMA_OUT_CH4_Interrupt           : constant Interrupt_ID := 75;
+   RSA_Interrupt                   : constant Interrupt_ID := 76;
+   AES_Interrupt                   : constant Interrupt_ID := 77;
+   SHA_Interrupt                   : constant Interrupt_ID := 78;
+   FROM_CPU_INTR0_Interrupt        : constant Interrupt_ID := 79;
+   FROM_CPU_INTR1_Interrupt        : constant Interrupt_ID := 80;
+   FROM_CPU_INTR2_Interrupt        : constant Interrupt_ID := 81;
+   FROM_CPU_INTR3_Interrupt        : constant Interrupt_ID := 82;
+   ASSIST_DEBUG_Interrupt          : constant Interrupt_ID := 83;
+   DMA_APBPERI_PMS_Interrupt       : constant Interrupt_ID := 84;
+   CORE0_IRAM0_PMS_Interrupt       : constant Interrupt_ID := 85;
+   CORE0_DRAM0_PMS_Interrupt       : constant Interrupt_ID := 86;
+   CORE0_PIF_PMS_Interrupt         : constant Interrupt_ID := 87;
+   CORE0_PIF_PMS_SIZE_Interrupt    : constant Interrupt_ID := 88;
+   CORE1_IRAM0_PMS_Interrupt       : constant Interrupt_ID := 89;
+   CORE1_DRAM0_PMS_Interrupt       : constant Interrupt_ID := 90;
+   CORE1_PIF_PMS_Interrupt         : constant Interrupt_ID := 91;
+   CORE1_PIF_PMS_SIZE_Interrupt    : constant Interrupt_ID := 92;
+   BACKUP_PMS_VIOLATE_Interrupt    : constant Interrupt_ID := 93;
+   CACHE_CORE0_ACS_Interrupt       : constant Interrupt_ID := 94;
+   CACHE_CORE1_ACS_Interrupt       : constant Interrupt_ID := 95;
+   USB_DEVICE_Interrupt            : constant Interrupt_ID := 96;
+   PERI_BACKUP_Interrupt           : constant Interrupt_ID := 97;
+   DMA_EXTMEM_REJECT_Interrupt     : constant Interrupt_ID := 98;
+
+end Ada.Interrupts.Names;

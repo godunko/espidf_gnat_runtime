@@ -16,6 +16,15 @@ package System.OS_Interface is
 
    Null_Thread_Id : constant Thread_Id := System.FreeRTOS.Null_TaskHandle_t;
 
+   ----------------
+   -- Interrupts --
+   ----------------
+
+   Max_Interrupt : constant := 98;
+   --  Max number of peripheral interrupt sources on ESP32S3.
+   --
+   --  XXX Should it be declared in MCU specific package?
+
    -------------------------------------------------------
    -- Declarations for Ada.Real_Time from `bb-runtimes` --
    -------------------------------------------------------
