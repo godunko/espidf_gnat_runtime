@@ -114,8 +114,6 @@
       "s-taprob.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-taprob.ads" },
       "s-tarest.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-tarest.adb" },
       "s-tarest.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-tarest.ads" },
-      "a-taside.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-taside.adb" },
-      "a-taside.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-taside.ads" },
       "s-tasque.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-tasque.adb" },
       "s-tasque.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-tasque.ads" },
       "s-tasren.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-tasren.adb" },
