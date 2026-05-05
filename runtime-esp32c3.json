@@ -97,6 +97,8 @@
       "a-sytaco.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-sytaco.ads" },
       "a-taster.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-taster.adb" },
       "a-taster.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/a-taster.ads" },
+      "s-espidf.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-espidf.adb" },
+      "s-espidf.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-espidf.ads" },
       "s-reldel.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-reldel.adb" },
       "s-reldel.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/full/extended/s-reldel.ads" },
       "s-taenca.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-taenca.adb" },
