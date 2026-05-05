@@ -49,13 +49,13 @@ with System.OS_Interface;
 
 package System.Interrupts is
 
---   pragma Elaborate_Body;
---   --  Comment needed on why this is here ???
---
---   -------------------------
---   -- Constants and types --
---   -------------------------
---
+   pragma Elaborate_Body;
+   --  Comment needed on why this is here ???
+
+   -------------------------
+   -- Constants and types --
+   -------------------------
+
 --   Default_Interrupt_Priority : constant System.Interrupt_Priority :=
 --     System.Interrupt_Priority'Last;
    --  Default value used when a pragma Interrupt_Handler or Attach_Handler is
@@ -64,14 +64,14 @@ package System.Interrupts is
    type Ada_Interrupt_ID is range 0 .. System.OS_Interface.Max_Interrupt;
    --  Avoid inheritance by Ada.Interrupts.Interrupt_ID of unwanted operations
 
---   type Interrupt_ID is range 0 .. System.OS_Interface.Max_Interrupt;
---
---   subtype System_Interrupt_Id is Interrupt_ID;
+   type Interrupt_ID is range 0 .. System.OS_Interface.Max_Interrupt;
+
+   subtype System_Interrupt_Id is Interrupt_ID;
    --  This synonym is introduced so that the type is accessible through
    --  rtsfind, otherwise the name clashes with its homonym in Ada.Interrupts.
 
---   type Parameterless_Handler is access protected procedure;
---
+   type Parameterless_Handler is access protected procedure;
+
 --   ----------------------
 --   -- General services --
 --   ----------------------
@@ -204,11 +204,11 @@ package System.Interrupts is
    --  including the pointer to the actual PO, this way this routine is called
    --  only once for each type definition of PO).
 
---   type Static_Handler_Index is range 0 .. Integer'Last;
---   subtype Positive_Static_Handler_Index is
---     Static_Handler_Index range 1 .. Static_Handler_Index'Last;
---   --  Comment needed ???
---
+   type Static_Handler_Index is range 0 .. Integer'Last;
+   subtype Positive_Static_Handler_Index is
+     Static_Handler_Index range 1 .. Static_Handler_Index'Last;
+   --  Comment needed ???
+
 --   type Previous_Handler_Item is record
 --      Interrupt : Interrupt_ID;
 --      Handler   : Parameterless_Handler;
@@ -218,17 +218,17 @@ package System.Interrupts is
 --
 --   type Previous_Handler_Array is array
 --     (Positive_Static_Handler_Index range <>) of Previous_Handler_Item;
---
---   type New_Handler_Item is record
---      Interrupt : Interrupt_ID;
---      Handler   : Parameterless_Handler;
---   end record;
---   --  Contains all the information from an Attach_Handler pragma
---
---   type New_Handler_Array is
---     array (Positive_Static_Handler_Index range <>) of New_Handler_Item;
---   --  Comment needed ???
---
+
+   type New_Handler_Item is record
+      Interrupt : Interrupt_ID;
+      Handler   : Parameterless_Handler;
+   end record;
+   --  Contains all the information from an Attach_Handler pragma
+
+   type New_Handler_Array is
+     array (Positive_Static_Handler_Index range <>) of New_Handler_Item;
+   --  Comment needed ???
+
 --   --  Case (1)
 --
 --   type Dynamic_Interrupt_Protection is new
@@ -266,14 +266,14 @@ package System.Interrupts is
 --      New_Handlers : New_Handler_Array);
 --   --  Store the old handlers in Object.Previous_Handlers and install
 --   --  the new static handlers.
---
---   procedure Install_Restricted_Handlers
---     (Prio     : Interrupt_Priority;
---      Handlers : New_Handler_Array);
---   --  Install the static Handlers for the given interrupts and do not
---   --  store previously installed handlers. This procedure is used when
---   --  the Ravenscar restrictions are in place since in that case there
---   --  are only library-level protected handlers that will be installed
---   --  at initialization and never be replaced.
+
+   procedure Install_Restricted_Handlers
+     (Prio     : Interrupt_Priority;
+      Handlers : New_Handler_Array);
+   --  Install the static Handlers for the given interrupts and do not
+   --  store previously installed handlers. This procedure is used when
+   --  the Ravenscar restrictions are in place since in that case there
+   --  are only library-level protected handlers that will be installed
+   --  at initialization and never be replaced.
 
 end System.Interrupts;
