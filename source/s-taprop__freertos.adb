@@ -636,17 +636,23 @@ package body System.Task_Primitives.Operations is
      (xSemaphore      : SemaphoreHandle_t;
       In_Task_Context : Boolean)
    is
-      Result : BaseType_t;
+      Result                     : BaseType_t;
+      Higher_Priority_Task_Woken : BaseType_t := pdFALSE;
 
    begin
       if In_Task_Context then
          Result := xSemaphoreGive (xSemaphore);
+         pragma Assert (Result = pdTRUE);
 
       else
-         Result := xSemaphoreGiveFromISR (xSemaphore, null);
-      end if;
+         Result :=
+           xSemaphoreGiveFromISR (xSemaphore, Higher_Priority_Task_Woken);
+         pragma Assert (Result = pdTRUE);
 
-      pragma Assert (Result = pdTRUE);
+         portYIELD_FROM_ISR (Higher_Priority_Task_Woken);
+         --  Yield to the higher priority task that was woken up by this give
+         --  operation.
+      end if;
    end Semaphore_Give;
 
    --------------------
@@ -657,17 +663,23 @@ package body System.Task_Primitives.Operations is
      (xSemaphore      : SemaphoreHandle_t;
       In_Task_Context : Boolean)
    is
-      Result : BaseType_t;
+      Result                     : BaseType_t;
+      Higher_Priority_Task_Woken : BaseType_t := pdFALSE;
 
    begin
       if In_Task_Context then
          Result := xSemaphoreTake (xSemaphore, portMAX_DELAY);
+         pragma Assert (Result = pdTRUE);
 
       else
-         Result := xSemaphoreTakeFromISR (xSemaphore, null);
-      end if;
+         Result :=
+           xSemaphoreTakeFromISR (xSemaphore, Higher_Priority_Task_Woken);
+         pragma Assert (Result = pdTRUE);
 
-      pragma Assert (Result = pdTRUE);
+         portYIELD_FROM_ISR (Higher_Priority_Task_Woken);
+         --  Yield to the higher priority task that was woken up by this take
+         --  operation.
+      end if;
    end Semaphore_Take;
 
    ----------------

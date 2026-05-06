@@ -73,6 +73,10 @@ package System.FreeRTOS is
    procedure vTaskDelay (xTicksToDelay : TickType_t)
      with Import, Convention => C, External_Name => "vTaskDelay";
 
+   procedure portYIELD_FROM_ISR (xHigherPriorityTaskWoken : BaseType_t)
+     with Import, Convention => C,
+          External_Name => "__gnat_portYIELD_FROM_ISR";
+
    type SemaphoreHandle_t is private;
 
    Null_SemaphoreHandle_t : constant SemaphoreHandle_t;
@@ -99,8 +103,8 @@ package System.FreeRTOS is
      with Import, Convention => C, External_Name => "__gnat_xSemaphoreTake";
 
    function xSemaphoreTakeFromISR
-     (xSemaphore   : SemaphoreHandle_t;
-      pxHigherPriorityTaskWoken : access BaseType_t) return BaseType_t
+     (xSemaphore                : SemaphoreHandle_t;
+      pxHigherPriorityTaskWoken : out BaseType_t) return BaseType_t
      with Import, Convention => C,
           External_Name => "__gnat_xSemaphoreTakeFromISR";
 
@@ -114,8 +118,8 @@ package System.FreeRTOS is
      with Import, Convention => C, External_Name => "__gnat_xSemaphoreGive";
 
    function xSemaphoreGiveFromISR
-     (xSemaphore   : SemaphoreHandle_t;
-      pxHigherPriorityTaskWoken : access BaseType_t) return BaseType_t
+     (xSemaphore                : SemaphoreHandle_t;
+      pxHigherPriorityTaskWoken : out BaseType_t) return BaseType_t
      with Import, Convention => C,
           External_Name => "__gnat_xSemaphoreGiveFromISR";
 

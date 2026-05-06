@@ -1,5 +1,8 @@
+
 #include <freertos/FreeRTOS.h>
+#include <freertos/portmacro.h>
 #include <freertos/semphr.h>
+#include <freertos/task.h>
 
 TickType_t __gnat_pdMS_TO_TICKS(unsigned ms)
 {
@@ -9,6 +12,11 @@ TickType_t __gnat_pdMS_TO_TICKS(unsigned ms)
 unsigned __gnat_pdTICKS_TO_MS(TickType_t ticks)
 {
   return pdTICKS_TO_MS(ticks);
+}
+
+void __gnat_portYIELD_FROM_ISR(BaseType_t xHigherPriorityTaskWoken)
+{
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 SemaphoreHandle_t __gnat_xSemaphoreCreateBinary()
