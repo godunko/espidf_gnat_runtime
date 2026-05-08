@@ -42,6 +42,8 @@ which handles the complex boilerplate of linking Ada with the ESP-IDF build syst
 
 Follow the instructions in the template repository to initialize the environment and flash your device using `idf.py`.
 
+There is AI Agent Skills that can be used to create Ada/ESP-IDF project, see https://github.com/godunko/ada_espidf_skills
+
 ## Important Considerations
 
  * RTS Locks: Features requiring runtime locking (like controlled objects) should not be used within ISR contexts to prevent deadlocks or crashes.
