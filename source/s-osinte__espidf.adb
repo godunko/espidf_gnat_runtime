@@ -34,8 +34,13 @@ package body System.OS_Interface is
          return System.FreeRTOS.portMAX_DELAY;
 
       else
-         return
-           System.FreeRTOS.pdMS_TO_TICKS (Interfaces.C.unsigned (D * 1_000.0));
+         return Result : System.FreeRTOS.TickType_t :=
+           System.FreeRTOS.pdMS_TO_TICKS (Interfaces.C.unsigned (D * 1_000.0))
+         do
+            if To_Duration (Result) < D then
+               Result := @ + 1;
+            end if;
+         end return;
       end if;
    end To_Ticks;
 

@@ -47,9 +47,10 @@ package System.OS_Interface is
 
    function To_Ticks (D : Duration) return System.FreeRTOS.TickType_t;
    --  Convert a duration value (in seconds) into FreeRTOS ticks. Negative
-   --  durations are converted to zero. Durations that are too large to be
-   --  represented in the underlying tasking system are converted to the
-   --  maximum representable value (portMAX_DELAY).
+   --  durations are converted to zero. Zero duration is converted to zero.
+   --  Otherwise, returned value is rounded up to next clock tick. Durations
+   --  that are too large to be represented in the underlying tasking system
+   --  are converted to the maximum representable value (portMAX_DELAY).
 
    function To_Duration (Ticks : System.FreeRTOS.TickType_t) return Duration;
    --  Convert FreeRTOS ticks into a duration value (in seconds)

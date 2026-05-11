@@ -186,7 +186,6 @@ package body System.Task_Primitives.Operations is
          Ticks    := To_Ticks (Time);
 
          if Ticks > 0 and then Ticks < portMAX_DELAY then
-
             --  First tick will delay anytime between 0 and tick period,
             --  so we need to add one to be on the safe side.
 
@@ -236,32 +235,17 @@ package body System.Task_Primitives.Operations is
                   Timedout := True;
 
                else
-                  declare
-                     D : constant Duration := Absolute - Monotonic_Clock;
+                  Ticks := To_Ticks (Absolute - Monotonic_Clock);
 
-                  begin
-                     if D < 0.0 and then To_Ticks (abs D) > 0 then
-                        Timedout := True;
+                  if Ticks = 0 then
+                     Timedout := True;
 
-                     else
-                        Ticks := To_Ticks (Absolute - Monotonic_Clock);
+                  elsif Ticks = portMAX_DELAY then
+                     --  portMAX_DELAY is used to indicate infinite delay,
+                     --  avoid its use.
 
-                        if Ticks < portMAX_DELAY - 1 then
-
-                           --  First tick will delay anytime between 0 and
-                           --  tick period, so we need to add one to be on the
-                           --  safe side.
-
-                           Ticks := @ + 1;
-
-                        elsif Ticks = System.FreeRTOS.portMAX_DELAY then
-                           --  portMAX_DELAY is used to indicate infinite
-                           --  delay, avoid its use.
-
-                           Ticks := @ - 1;
-                        end if;
-                     end if;
-                  end;
+                     Ticks := @ - 1;
+                  end if;
                end if;
             end if;
 
