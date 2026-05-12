@@ -1,53 +1,51 @@
-[![ACATS](https://github.com/godunko/espidf_gnat_runtime/actions/workflows/acats.yaml/badge.svg)](https://github.com/godunko/espidf_gnat_runtime/actions/workflows/acats.yaml)
-
 # ESP-IDF GNAT Runtime
 
-This repository provides a GNAT Runtime Library (RTS) tailored for Ada development on the ESP32 family using the ESP-IDF (Espressif IoT Development Framework).
+[![ACATS](https://github.com/godunko/espidf_gnat_runtime/actions/workflows/acats.yaml/badge.svg)](https://github.com/godunko/espidf_gnat_runtime/actions/workflows/acats.yaml)
+[![Alire](https://img.shields.io/badge/Alire-Crate-blue)](https://alire.ada.dev)
+[![License](https://img.shields.io/badge/License-Apache%202.0-red.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Unlike standard "Bare Board" runtimes, this RTS is designed to coexist with the ESP-IDF ecosystem, allowing developers to leverage Ada's safety features alongside Espressif's robust C-based SDK.
-
-## Key Features
-
-While many embedded runtimes are "Zero Footprint", this runtime provides a rich subset of the Ada Standard Library, including:
-
- * Native and Foreign Tasking: Ada tasks and protected objects are supported with restrictions of Jorvik profile.
-   Ada code can be safely executed within multiple FreeRTOS tasks and across multiple CPU cores.
- * Exceptions: Full support for exception propagation and `Ada.Exceptions`.
- * Memory Management: Static secondary stack support and Controlled Objects (`Ada.Finalization`).
- * Standard Library: Includes `Ada.Containers.*`, `Ada.Strings.*`, `Ada.Numerics.*`, and more.
- * ISR Compatibility: Ada subprograms can be used as Interrupt Service Routine (ISR) callbacks (note: avoid RTS-locking features within ISRs).
+The **`espidf_gnat_runtime`** provides the GNAT runtime support libraries required to develop **Ada** and **SPARK** applications for Espressif SoCs. It serves as the foundational layer enabling the GNAT compiler to target Espressif’s hardware, bridging Ada language features with the underlying system.
 
 ## Supported Architectures
 
-Currently tested for:
- * ESP32-C3 (RISC-V)
- * ESP32-S3 (Xtensa)
+* **Xtensa:** Full support for the **ESP32-S3** series.
+* **RISC-V:** Full support for the **ESP32-C3** series.
 
-Note: There are no known technical blockers for other ESP32 variants.
+## Key Features
 
-## Prerequisites
+* **Ada Language Support:** Implementation of essential features, including exception handling, controlled types, and secondary stacks.
+* **Standard Library:** Support for a rich set of standard packages, including `Ada.Numerics`, `Ada.Strings`, `Ada.Containers`, and more.
+* **Real-Time Concurrency:** Support for the **Jorvik profile**, enabling safe, deterministic Ada tasks and protected objects.
+* **Hardware Interoperability:** Support for applications running alongside the **ESP-IDF** environment, allowing Ada code to coexist with Espressif’s system services.
+* **Verified Quality:** Validated using the **ACATS** (Ada Conformity Assessment Test Suite) to ensure language compliance on both supported architectures.
 
-Before using this runtime, ensure your environment is set up with:
+---
 
- * ESP-IDF SDK: Installed and configured (including the export.sh or export.bat step).
- * Alire Package Manager: Required to manage the Ada toolchain and dependencies. Get Alire here.
- * GNAT Toolchain: An appropriate cross-compiler (`gnat_xtensa_esp32_elf` or `gnat_riscv64_elf`) usually managed automatically via Alire.
+## Requirements
+
+This project is managed exclusively via **Alire**. To use this runtime, you must have the following:
+
+1.  **[Alire](https://alire.ada.dev/):** The Ada Package Manager.
+2.  **ESP-IDF SDK:** Installed and configured in your environment path.
+3.  **GNAT Cross-Compiler:** Handled via Alire dependencies (specifically `xtensa-esp32-elf` or `riscv64-elf`).
+
+---
 
 ## Getting Started
 
-The most efficient way to start is by using one of the project template:
- * [ESP32C3](https://github.com/godunko/esp32c3_template),
- * [ESP32S3](https://github.com/godunko/esp32s3_template),
-which handles the complex boilerplate of linking Ada with the ESP-IDF build system (CMake).
+Because this runtime requires specific toolchain, linker, and build system configurations, projects **must** be initialized using one of the following validated methods:
 
-Follow the instructions in the template repository to initialize the environment and flash your device using `idf.py`.
+### 1. Using SoC-Specific Templates
+The most straightforward way to start is to clone the template corresponding to your target hardware:
+* **For ESP32-C3 (RISC-V):** [esp32c3_template](https://github.com/godunko/esp32c3_template)
+* **For ESP32-S3 (Xtensa):** [esp32s3_template](https://github.com/godunko/esp32s3_template)
 
-There is AI Agent Skills that can be used to create Ada/ESP-IDF project, see https://github.com/godunko/ada_espidf_skills
+### 2. Using the Agent Skill
+If you are using an AI-assisted workflow, you can generate a complete project skeleton using the specialized agent skill:
+* **Skill:** [ada-espidf-skeleton](https://github.com/godunko/ada_espidf_skills/tree/main/ada-espidf-skeleton)
 
-## Important Considerations
+---
 
- * RTS Locks: Features requiring runtime locking (like controlled objects) should not be used within ISR contexts to prevent deadlocks or crashes.
+## License
 
-## Contributing
-
-Contributions to expand support for unsupported MCUs or to implement further standard library packages are welcome. Please feel free to open Issues or Pull Requests.
+This project is licensed under the **Apache License 2.0** with Runtime Exception — see the [LICENSE](LICENSE) file for details.
