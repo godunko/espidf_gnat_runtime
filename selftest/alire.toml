@@ -1,5 +1,5 @@
-name = "espidf_gnat_runtime"
-description = "A0B: GNAT Runtime for ESP-IDF"
+name = "espidf_gnat_runtime_selftest"
+description = "GNAT Runtime for ESP-IDF Selftest"
 version = "0.1.0-dev"
 
 authors = ["Vadim Godunko"]
@@ -8,14 +8,13 @@ maintainers-logins = ["godunko"]
 licenses = "Apache-2.0 WITH LLVM-exception"
 tags = ["embedded", "esp32", "espidf", "runtime"]
 
-auto-gpr-with=false
-
 [configuration]
 generate_ada = false
 generate_c = false
 generate_gpr = false
 
-[[actions]]
-type = "test"
-directory = "selftest"
-command = ["alr", "build"]
+[[depends-on]]
+espidf_gnat_runtime = "*"
+
+[[pins]]
+espidf_gnat_runtime = { path='..' }

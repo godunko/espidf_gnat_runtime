@@ -1,0 +1,4 @@
+
+abstract project ESPIDF_GNAT_Runtime_Selftest is
+
+end ESPIDF_GNAT_Runtime_Selftest;
