@@ -81,6 +81,7 @@ jobs:
         report-path: 'test_apps/acats/bundle_1/*.json'
         github-report: true
         upload-artifact: true
+        artifact-name: 'ctrf-report-${{ matrix.esp32_mcu }}'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       if: always()
