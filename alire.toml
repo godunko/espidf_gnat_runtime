@@ -1,7 +1,7 @@
 name = "espidf_gnat_runtime"
 description = "A0B: GNAT Runtime for ESP-IDF"
 website = "https://github.com/godunko/espidf_gnat_runtime"
-version = "0.1.0-dev"
+version = "0.1.0"
 long-description = """
 The `espidf_gnat_runtime` provides the runtime support libraries required to develop Ada and SPARK applications for Espressif SoCs.
 It serves as the foundational layer that enables the GNAT compiler to target Espressif's hardware, providing the essential infrastructure to bridge Ada language features with the underlying system.
