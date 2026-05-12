@@ -81,7 +81,6 @@ jobs:
         report-path: 'test_apps/acats/bundle_1/*.json'
         github-report: true
         upload-artifact: true
-        insights-report: true
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       if: always()
