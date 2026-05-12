@@ -1,5 +1,6 @@
 name = "espidf_gnat_runtime"
 description = "A0B: GNAT Runtime for ESP-IDF"
+website = "https://github.com/godunko/espidf_gnat_runtime"
 version = "0.1.0-dev"
 
 authors = ["Vadim Godunko"]
