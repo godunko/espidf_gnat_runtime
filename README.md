@@ -2,7 +2,7 @@
 
 [![ACATS](https://github.com/godunko/espidf_gnat_runtime/actions/workflows/acats.yaml/badge.svg)](https://github.com/godunko/espidf_gnat_runtime/actions/workflows/acats.yaml)
 [![Alire](https://img.shields.io/badge/Alire-Crate-blue)](https://alire.ada.dev)
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)
+[![License: GPL-3.0 w/ GCC Exception](https://img.shields.io/badge/License-GPL--3.0--with--GCC--exception-blue.svg)](https://spdx.org/licenses/GPL-3.0-with-GCC-exception.html)
 
 The **`espidf_gnat_runtime`** provides the GNAT runtime support libraries required to develop **Ada** and **SPARK** applications for Espressif SoCs. It serves as the foundational layer enabling the GNAT compiler to target Espressif’s hardware, bridging Ada language features with the underlying system.
 
