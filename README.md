@@ -8,7 +8,7 @@ The **`espidf_gnat_runtime`** provides the GNAT runtime support libraries requir
 
 ## Supported Architectures
 
-* **Xtensa:** Full support for the **ESP32-S3** series.
+* **Xtensa:** Full support for the **ESP32**, **ESP32-S3** series.
 * **RISC-V:** Full support for the **ESP32-C3** series.
 
 ## Key Features
@@ -38,7 +38,8 @@ Because this runtime requires specific toolchain, linker, and build system confi
 ### 1. Using SoC-Specific Templates
 The most straightforward way to start is to clone the template corresponding to your target hardware:
 * **For ESP32-C3 (RISC-V):** [esp32c3_template](https://github.com/godunko/esp32c3_template)
-* **For ESP32-S3 (Xtensa):** [esp32s3_template](https://github.com/godunko/esp32s3_template)
+* **For ESP32 (Xtensa, LX6):** [esp32_template](https://github.com/RREE/esp32_template)
+* **For ESP32-S3 (Xtensa, LX7):** [esp32s3_template](https://github.com/godunko/esp32s3_template)
 
 ### 2. Using the Agent Skill
 If you are using an AI-assisted workflow, you can generate a complete project skeleton using the specialized agent skill:
