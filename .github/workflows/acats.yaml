@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        esp32_mcu: [esp32c3, esp32s3]
+        esp32_mcu: [esp32, esp32c3, esp32s3]
     steps:
     - name: Display environment
       run: |
