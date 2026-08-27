@@ -33,7 +33,7 @@
 
 --  These declarations are not part of the GNARLI
 
---  with System.Tasking.Debug;
+with System.Tasking.Debug;
 with System.Task_Primitives.Operations;
 with System.Tasking.Initialization;
 with System.Tasking.Queuing;
@@ -42,7 +42,7 @@ package body System.Tasking.Utilities is
 
    package STPO renames System.Task_Primitives.Operations;
 
---   use Tasking.Debug;
+   use Tasking.Debug;
    use Task_Primitives.Operations;
 
    --------------------
@@ -203,9 +203,9 @@ package body System.Tasking.Utilities is
 
       Self_ID.ATC_Nesting_Level := Self_ID.ATC_Nesting_Level - 1;
 
---      pragma Debug
---        (Debug.Trace (Self_ID, "EOAL: exited to ATC level: " &
---         ATC_Level'Image (Self_ID.ATC_Nesting_Level), 'A'));
+      pragma Debug
+        (Debug.Trace (Self_ID, "EOAL: exited to ATC level: " &
+         ATC_Level'Image (Self_ID.ATC_Nesting_Level), 'A'));
 
       if Self_ID.Pending_ATC_Level < Level_No_Pending_Abort then
 
@@ -226,254 +226,252 @@ package body System.Tasking.Utilities is
       end if;
    end Exit_One_ATC_Level;
 
---   ----------------------
---   -- Make_Independent --
---   ----------------------
---
---   function Make_Independent return Boolean is
---      Self_Id               : constant Task_Id := STPO.Self;
---      Environment_Task      : constant Task_Id := STPO.Environment_Task;
---      Parent                : constant Task_Id := Self_Id.Common.Parent;
---
---   begin
---      if Self_Id.Known_Tasks_Index /= -1 then
---         Known_Tasks (Self_Id.Known_Tasks_Index) := null;
---      end if;
---
---      Initialization.Defer_Abort (Self_Id);
---      Write_Lock (Environment_Task);
---      Write_Lock (Self_Id);
---
---      --  The run time assumes that the parent of an independent task is the
---      --  environment task.
---
---      pragma Assert (Parent = Environment_Task);
---
---      Self_Id.Master_Of_Task := Independent_Task_Level;
---
---      --  Update Independent_Task_Count that is needed for the GLADE
---      --  termination rule. See also pending update in
---      --  System.Tasking.Stages.Check_Independent
---
---      Independent_Task_Count := Independent_Task_Count + 1;
+   ----------------------
+   -- Make_Independent --
+   ----------------------
+
+   function Make_Independent return Boolean is
+      Self_Id               : constant Task_Id := STPO.Self;
+      Environment_Task      : constant Task_Id := STPO.Environment_Task;
+      Parent                : constant Task_Id := Self_Id.Common.Parent;
+
+   begin
+      if Self_Id.Known_Tasks_Index /= -1 then
+         Known_Tasks (Self_Id.Known_Tasks_Index) := null;
+      end if;
+
+      Initialization.Defer_Abort (Self_Id);
+      Write_Lock (Environment_Task);
+      Write_Lock (Self_Id);
+
+      --  The run time assumes that the parent of an independent task is the
+      --  environment task.
+
+      pragma Assert (Parent = Environment_Task);
+
+      Self_Id.Master_Of_Task := Independent_Task_Level;
+
+      --  Update Independent_Task_Count that is needed for the GLADE
+      --  termination rule. See also pending update in
+      --  System.Tasking.Stages.Check_Independent
+
+      Independent_Task_Count := Independent_Task_Count + 1;
 
       --  This should be called before the task reaches its "begin" (see spec),
       --  which ensures that the environment task cannot race ahead and be
       --  already waiting for children to complete.
 
---      Unlock (Self_Id);
---      pragma Assert
---  (Environment_Task.Common.State /= Master_Completion_Sleep);
---
---      Unlock (Environment_Task);
---      Initialization.Undefer_Abort (Self_Id);
---
---      --  Return True. Actually the return value is junk, since we expect it
---      --  always to be ignored (see spec), but we have to return something!
---
---      return True;
---   end Make_Independent;
---
---   ------------------
---   -- Make_Passive --
---   ------------------
---
---   procedure Make_Passive (Self_ID : Task_Id; Task_Completed : Boolean) is
---      C : Task_Id := Self_ID;
---      P : Task_Id := C.Common.Parent;
---
---      Master_Completion_Phase : Integer;
---
---   begin
---      if P /= null then
---         Write_Lock (P);
---      end if;
---
---      Write_Lock (C);
---
---      if Task_Completed then
---         Self_ID.Common.State := Terminated;
---
---         if Self_ID.Awake_Count = 0 then
---
---            --  We are completing via a terminate alternative.
---            --  Our parent should wait in Phase 2 of Complete_Master.
---
---            Master_Completion_Phase := 2;
---
---            pragma Assert (Task_Completed);
---            pragma Assert (Self_ID.Terminate_Alternative);
---            pragma Assert (Self_ID.Alive_Count = 1);
---
---         else
---            --  We are NOT on a terminate alternative.
---            --  Our parent should wait in Phase 1 of Complete_Master.
---
---            Master_Completion_Phase := 1;
---            pragma Assert (Self_ID.Awake_Count >= 1);
---         end if;
---
---      --  We are accepting with a terminate alternative
---
---      else
---         if Self_ID.Open_Accepts = null then
---
---            --  Somebody started a rendezvous while we had our lock open.
---            --  Skip the terminate alternative.
---
---            Unlock (C);
---
---            if P /= null then
---               Unlock (P);
---            end if;
---
---            return;
---         end if;
---
---         Self_ID.Terminate_Alternative := True;
---         Master_Completion_Phase := 0;
---
---         pragma Assert (Self_ID.Terminate_Alternative);
---         pragma Assert (Self_ID.Awake_Count >= 1);
---      end if;
---
---      if Master_Completion_Phase = 2 then
---
---         --  Since our Awake_Count is zero but our Alive_Count
---         --  is nonzero, we have been accepting with a terminate
---         --  alternative, and we now have been told to terminate
---         --  by a completed master (in some ancestor task) that
---         --  is waiting (with zero Awake_Count) in Phase 2 of
---         --  Complete_Master.
---
---         pragma Debug (Debug.Trace (Self_ID, "Make_Passive: Phase 2", 'M'));
---
---         pragma Assert (P /= null);
---
---         C.Alive_Count := C.Alive_Count - 1;
---
---         if C.Alive_Count > 0 then
---            Unlock (C);
---            Unlock (P);
---            return;
---         end if;
---
---         --  C's count just went to zero, indicating that
---         --  all of C's dependents are terminated.
---         --  C has a parent, P.
---
---         loop
---            --  C's count just went to zero, indicating that all of C's
---            --  dependents are terminated. C has a parent, P. Notify P that
---            --  C and its dependents have all terminated.
---
---            P.Alive_Count := P.Alive_Count - 1;
---            exit when P.Alive_Count > 0;
---            Unlock (C);
---            Unlock (P);
---            C := P;
---            P := C.Common.Parent;
---
---            --  Environment task cannot have terminated yet
---
---            pragma Assert (P /= null);
---
---            Write_Lock (P);
---            Write_Lock (C);
---         end loop;
---
---         if P.Common.State = Master_Phase_2_Sleep
---           and then C.Master_Of_Task = P.Master_Within
---         then
---            pragma Assert (P.Common.Wait_Count > 0);
---            P.Common.Wait_Count := P.Common.Wait_Count - 1;
---
---            if P.Common.Wait_Count = 0 then
---               Wakeup (P, Master_Phase_2_Sleep);
---            end if;
---         end if;
---
---         Unlock (C);
---         Unlock (P);
---         return;
---      end if;
---
---      --  We are terminating in Phase 1 or Complete_Master,
---      --  or are accepting on a terminate alternative.
---
---      C.Awake_Count := C.Awake_Count - 1;
---
---      if Task_Completed then
---         C.Alive_Count := C.Alive_Count - 1;
---      end if;
---
---      if C.Awake_Count > 0 or else P = null then
---         Unlock (C);
---
---         if P /= null then
---            Unlock (P);
---         end if;
---
---         return;
---      end if;
---
---      --  C's count just went to zero, indicating that all of C's
---      --  dependents are terminated or accepting with terminate alt.
---      --  C has a parent, P.
---
---      loop
---         --  Notify P that C has gone passive
---
---         if P.Awake_Count > 0 then
---            P.Awake_Count := P.Awake_Count - 1;
---         end if;
---
---         if Task_Completed and then C.Alive_Count = 0 then
---            P.Alive_Count := P.Alive_Count - 1;
---         end if;
---
---         exit when P.Awake_Count > 0;
---         Unlock (C);
---         Unlock (P);
---         C := P;
---         P := C.Common.Parent;
---
---         if P = null then
---            return;
---         end if;
---
---         Write_Lock (P);
---         Write_Lock (C);
---      end loop;
---
---      --  P has non-passive dependents
---
---      if P.Common.State = Master_Completion_Sleep
---        and then C.Master_Of_Task = P.Master_Within
---      then
---         pragma Debug
---           (Debug.Trace
---            (Self_ID, "Make_Passive: Phase 1, parent waiting", 'M'));
---
---         --  If parent is in Master_Completion_Sleep, it cannot be on a
---         --  terminate alternative, hence it cannot have Wait_Count of zero.
---
---         pragma Assert (P.Common.Wait_Count > 0);
---         P.Common.Wait_Count := P.Common.Wait_Count - 1;
---
---         if P.Common.Wait_Count = 0 then
---            Wakeup (P, Master_Completion_Sleep);
---         end if;
---
---      else
---         pragma Debug
---           (Debug.Trace
---  (Self_ID, "Make_Passive: Phase 1, parent awake", 'M'));
---         null;
---      end if;
---
---      Unlock (C);
---      Unlock (P);
---   end Make_Passive;
+      Unlock (Self_Id);
+      pragma Assert (Environment_Task.Common.State /= Master_Completion_Sleep);
+
+      Unlock (Environment_Task);
+      Initialization.Undefer_Abort (Self_Id);
+
+      --  Return True. Actually the return value is junk, since we expect it
+      --  always to be ignored (see spec), but we have to return something!
+
+      return True;
+   end Make_Independent;
+
+   ------------------
+   -- Make_Passive --
+   ------------------
+
+   procedure Make_Passive (Self_ID : Task_Id; Task_Completed : Boolean) is
+      C : Task_Id := Self_ID;
+      P : Task_Id := C.Common.Parent;
+
+      Master_Completion_Phase : Integer;
+
+   begin
+      if P /= null then
+         Write_Lock (P);
+      end if;
+
+      Write_Lock (C);
+
+      if Task_Completed then
+         Self_ID.Common.State := Terminated;
+
+         if Self_ID.Awake_Count = 0 then
+
+            --  We are completing via a terminate alternative.
+            --  Our parent should wait in Phase 2 of Complete_Master.
+
+            Master_Completion_Phase := 2;
+
+            pragma Assert (Task_Completed);
+            pragma Assert (Self_ID.Terminate_Alternative);
+            pragma Assert (Self_ID.Alive_Count = 1);
+
+         else
+            --  We are NOT on a terminate alternative.
+            --  Our parent should wait in Phase 1 of Complete_Master.
+
+            Master_Completion_Phase := 1;
+            pragma Assert (Self_ID.Awake_Count >= 1);
+         end if;
+
+      --  We are accepting with a terminate alternative
+
+      else
+         if Self_ID.Open_Accepts = null then
+
+            --  Somebody started a rendezvous while we had our lock open.
+            --  Skip the terminate alternative.
+
+            Unlock (C);
+
+            if P /= null then
+               Unlock (P);
+            end if;
+
+            return;
+         end if;
+
+         Self_ID.Terminate_Alternative := True;
+         Master_Completion_Phase := 0;
+
+         pragma Assert (Self_ID.Terminate_Alternative);
+         pragma Assert (Self_ID.Awake_Count >= 1);
+      end if;
+
+      if Master_Completion_Phase = 2 then
+
+         --  Since our Awake_Count is zero but our Alive_Count
+         --  is nonzero, we have been accepting with a terminate
+         --  alternative, and we now have been told to terminate
+         --  by a completed master (in some ancestor task) that
+         --  is waiting (with zero Awake_Count) in Phase 2 of
+         --  Complete_Master.
+
+         pragma Debug (Debug.Trace (Self_ID, "Make_Passive: Phase 2", 'M'));
+
+         pragma Assert (P /= null);
+
+         C.Alive_Count := C.Alive_Count - 1;
+
+         if C.Alive_Count > 0 then
+            Unlock (C);
+            Unlock (P);
+            return;
+         end if;
+
+         --  C's count just went to zero, indicating that
+         --  all of C's dependents are terminated.
+         --  C has a parent, P.
+
+         loop
+            --  C's count just went to zero, indicating that all of C's
+            --  dependents are terminated. C has a parent, P. Notify P that
+            --  C and its dependents have all terminated.
+
+            P.Alive_Count := P.Alive_Count - 1;
+            exit when P.Alive_Count > 0;
+            Unlock (C);
+            Unlock (P);
+            C := P;
+            P := C.Common.Parent;
+
+            --  Environment task cannot have terminated yet
+
+            pragma Assert (P /= null);
+
+            Write_Lock (P);
+            Write_Lock (C);
+         end loop;
+
+         if P.Common.State = Master_Phase_2_Sleep
+           and then C.Master_Of_Task = P.Master_Within
+         then
+            pragma Assert (P.Common.Wait_Count > 0);
+            P.Common.Wait_Count := P.Common.Wait_Count - 1;
+
+            if P.Common.Wait_Count = 0 then
+               Wakeup (P, Master_Phase_2_Sleep);
+            end if;
+         end if;
+
+         Unlock (C);
+         Unlock (P);
+         return;
+      end if;
+
+      --  We are terminating in Phase 1 or Complete_Master,
+      --  or are accepting on a terminate alternative.
+
+      C.Awake_Count := C.Awake_Count - 1;
+
+      if Task_Completed then
+         C.Alive_Count := C.Alive_Count - 1;
+      end if;
+
+      if C.Awake_Count > 0 or else P = null then
+         Unlock (C);
+
+         if P /= null then
+            Unlock (P);
+         end if;
+
+         return;
+      end if;
+
+      --  C's count just went to zero, indicating that all of C's
+      --  dependents are terminated or accepting with terminate alt.
+      --  C has a parent, P.
+
+      loop
+         --  Notify P that C has gone passive
+
+         if P.Awake_Count > 0 then
+            P.Awake_Count := P.Awake_Count - 1;
+         end if;
+
+         if Task_Completed and then C.Alive_Count = 0 then
+            P.Alive_Count := P.Alive_Count - 1;
+         end if;
+
+         exit when P.Awake_Count > 0;
+         Unlock (C);
+         Unlock (P);
+         C := P;
+         P := C.Common.Parent;
+
+         if P = null then
+            return;
+         end if;
+
+         Write_Lock (P);
+         Write_Lock (C);
+      end loop;
+
+      --  P has non-passive dependents
+
+      if P.Common.State = Master_Completion_Sleep
+        and then C.Master_Of_Task = P.Master_Within
+      then
+         pragma Debug
+           (Debug.Trace
+            (Self_ID, "Make_Passive: Phase 1, parent waiting", 'M'));
+
+         --  If parent is in Master_Completion_Sleep, it cannot be on a
+         --  terminate alternative, hence it cannot have Wait_Count of zero.
+
+         pragma Assert (P.Common.Wait_Count > 0);
+         P.Common.Wait_Count := P.Common.Wait_Count - 1;
+
+         if P.Common.Wait_Count = 0 then
+            Wakeup (P, Master_Completion_Sleep);
+         end if;
+
+      else
+         pragma Debug
+           (Debug.Trace (Self_ID, "Make_Passive: Phase 1, parent awake", 'M'));
+         null;
+      end if;
+
+      Unlock (C);
+      Unlock (P);
+   end Make_Passive;
 
 end System.Tasking.Utilities;

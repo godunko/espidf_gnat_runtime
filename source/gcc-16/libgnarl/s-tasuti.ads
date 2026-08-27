@@ -32,19 +32,19 @@
 --  This package provides RTS Internal Declarations.
 --  These declarations are not part of the GNARLI
 
---  with Ada.Unchecked_Conversion;
---  with System.Task_Primitives;
+with Ada.Unchecked_Conversion;
+with System.Task_Primitives;
 
 package System.Tasking.Utilities is
 
---   function ATCB_To_Address is new
---     Ada.Unchecked_Conversion (Task_Id, System.Task_Primitives.Task_Address);
---
---   ---------------------------------
---   -- Task_Stage Related routines --
---   ---------------------------------
---
---   function Make_Independent return Boolean;
+   function ATCB_To_Address is new
+     Ada.Unchecked_Conversion (Task_Id, System.Task_Primitives.Task_Address);
+
+   ---------------------------------
+   -- Task_Stage Related routines --
+   ---------------------------------
+
+   function Make_Independent return Boolean;
    --  Move the current task to the outermost level (level 2) of the master
    --  hierarchy of the environment task. That is one level further out
    --  than normal tasks defined in library-level packages (level 3). The
@@ -89,12 +89,12 @@ package System.Tasking.Utilities is
    --  task activation helps prevent the tasks from accessing uninitialized
    --  data.
 
---   Independent_Task_Count : Natural := 0;
---   --  Number of independent tasks. This counter is incremented each time
---   --  Make_Independent is called. Note that if a server task terminates,
---   --  this counter will not be decremented. Since Make_Independent locks
---   --  the environment task (because every independent task depends on it),
---   --  this counter is protected by the environment task's lock.
+   Independent_Task_Count : Natural := 0;
+   --  Number of independent tasks. This counter is incremented each time
+   --  Make_Independent is called. Note that if a server task terminates,
+   --  this counter will not be decremented. Since Make_Independent locks
+   --  the environment task (because every independent task depends on it),
+   --  this counter is protected by the environment task's lock.
 
    ---------------------------------
    -- Task Abort Related Routines --
@@ -121,9 +121,9 @@ package System.Tasking.Utilities is
    --  Abort_Tasks is called to initiate abort, however, the actual
    --  aborting is done by aborted task by means of Abort_Handler
 
---   procedure Make_Passive (Self_ID : Task_Id; Task_Completed : Boolean);
---   --  Update counts to indicate current task is either terminated or
---   --  accepting on a terminate alternative. Call holding no locks except
---   --  Global_Task_Lock when calling from Terminate_Task.
+   procedure Make_Passive (Self_ID : Task_Id; Task_Completed : Boolean);
+   --  Update counts to indicate current task is either terminated or
+   --  accepting on a terminate alternative. Call holding no locks except
+   --  Global_Task_Lock when calling from Terminate_Task.
 
 end System.Tasking.Utilities;
