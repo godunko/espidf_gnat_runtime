@@ -947,9 +947,9 @@ package System.Tasking is
       --  Tell caller whether the call may be aborted
       --  ??? consider merging this with Was_Abortable state
 
---      Needs_Requeue : Boolean := False;
---      --  Temporary to tell acceptor of task entry call that
---      --  Exceptional_Complete_Rendezvous needs to do requeue.
+      Needs_Requeue : Boolean := False;
+      --  Temporary to tell acceptor of task entry call that
+      --  Exceptional_Complete_Rendezvous needs to do requeue.
    end record;
 
 --   ------------------------------------
