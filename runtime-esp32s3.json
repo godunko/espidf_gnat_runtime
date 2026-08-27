@@ -81,7 +81,7 @@
       "s-taspri.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-taspri__freertos.ads" },
       "s-tpoaal.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-tpoaal.adb" },
       "s-tpopsp.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-tpopsp__tls.adb" },
-      "s-tporft.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-tporft.adb" },
+      "s-tporft.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnarl/s-tporft.adb" },
       "s-traceb.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-traceb.adb" },
       "s-traceb.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-15/libgnat/s-traceb.ads" },
       "freertos.c": { "crate": "espidf_gnat_runtime", "path": "source/freertos.c" },
