@@ -47,7 +47,7 @@ with System.Tasking.Entry_Calls;
 with System.Tasking.Queuing;
 with System.Tasking.Rendezvous;
 with System.Tasking.Utilities;
---  with System.Tasking.Debug;
+with System.Tasking.Debug;
 with System.Restrictions;
 
 with System.Tasking.Initialization;
@@ -183,20 +183,20 @@ package body System.Tasking.Protected_Objects.Operations is
    --  since the call must be over after returning from Wait_For_Completion.
    --  No other task can access the call record at this point.
 
---   procedure Cancel_Protected_Entry_Call
---     (Block : in out Communication_Block) is
---   begin
---      Entry_Calls.Try_To_Cancel_Entry_Call (Block.Cancelled);
---   end Cancel_Protected_Entry_Call;
---
---   ---------------
---   -- Cancelled --
---   ---------------
---
---   function Cancelled (Block : Communication_Block) return Boolean is
---   begin
---      return Block.Cancelled;
---   end Cancelled;
+   procedure Cancel_Protected_Entry_Call
+     (Block : in out Communication_Block) is
+   begin
+      Entry_Calls.Try_To_Cancel_Entry_Call (Block.Cancelled);
+   end Cancel_Protected_Entry_Call;
+
+   ---------------
+   -- Cancelled --
+   ---------------
+
+   function Cancelled (Block : Communication_Block) return Boolean is
+   begin
+      return Block.Cancelled;
+   end Cancelled;
 
    -------------------------
    -- Complete_Entry_Body --
@@ -207,14 +207,14 @@ package body System.Tasking.Protected_Objects.Operations is
       Exceptional_Complete_Entry_Body (Object, Ada.Exceptions.Null_Id);
    end Complete_Entry_Body;
 
---   --------------
---   -- Enqueued --
---   --------------
---
---   function Enqueued (Block : Communication_Block) return Boolean is
---   begin
---      return Block.Enqueued;
---   end Enqueued;
+   --------------
+   -- Enqueued --
+   --------------
+
+   function Enqueued (Block : Communication_Block) return Boolean is
+   begin
+      return Block.Enqueued;
+   end Enqueued;
 
    -------------------------------------
    -- Exceptional_Complete_Entry_Body --
@@ -233,8 +233,8 @@ package body System.Tasking.Protected_Objects.Operations is
       Self_Id    : Task_Id;
 
    begin
---      pragma Debug
---       (Debug.Trace (STPO.Self, "Exceptional_Complete_Entry_Body", 'P'));
+      pragma Debug
+       (Debug.Trace (STPO.Self, "Exceptional_Complete_Entry_Body", 'P'));
 
       --  We must have abort deferred, since we are inside a protected
       --  operation.
@@ -291,8 +291,8 @@ package body System.Tasking.Protected_Objects.Operations is
 
          Object.Call_In_Progress := Entry_Call;
 
---         pragma Debug
---          (Debug.Trace (Self_ID, "PODOQ: start entry body", 'P'));
+         pragma Debug
+          (Debug.Trace (Self_ID, "PODOQ: start entry body", 'P'));
          Object.Entry_Bodies (Index).Action (
              Object.Compiler_Info, Entry_Call.Uninterpreted_Data, E);
 
@@ -390,8 +390,8 @@ package body System.Tasking.Protected_Objects.Operations is
          Object.Call_In_Progress := Entry_Call;
 
          begin
---            pragma Debug
---              (Debug.Trace (Self_ID, "POSE: start entry body", 'P'));
+            pragma Debug
+              (Debug.Trace (Self_ID, "POSE: start entry body", 'P'));
 
             Object.Entry_Bodies
               (Object.Find_Body_Index (Object.Compiler_Info, E)).Action
@@ -420,17 +420,17 @@ package body System.Tasking.Protected_Objects.Operations is
       end if;
    end PO_Service_Entries;
 
---   ---------------------
---   -- Protected_Count --
---   ---------------------
---
---   function Protected_Count
---     (Object : Protection_Entries'Class;
---      E      : Protected_Entry_Index) return Natural
---   is
---   begin
---      return Queuing.Count_Waiting (Object.Entry_Queues (E));
---   end Protected_Count;
+   ---------------------
+   -- Protected_Count --
+   ---------------------
+
+   function Protected_Count
+     (Object : Protection_Entries'Class;
+      E      : Protected_Entry_Index) return Natural
+   is
+   begin
+      return Queuing.Count_Waiting (Object.Entry_Queues (E));
+   end Protected_Count;
 
    --------------------------
    -- Protected_Entry_Call --
@@ -495,8 +495,8 @@ package body System.Tasking.Protected_Objects.Operations is
       Ceiling_Violation   : Boolean;
 
    begin
---      pragma Debug
---        (Debug.Trace (Self_ID, "Protected_Entry_Call", 'P'));
+      pragma Debug
+        (Debug.Trace (Self_ID, "Protected_Entry_Call", 'P'));
 
       if Self_ID.ATC_Nesting_Level = ATC_Level'Last then
          raise Storage_Error with "not enough ATC nesting levels";
@@ -528,9 +528,9 @@ package body System.Tasking.Protected_Objects.Operations is
 
       Block.Self := Self_ID;
       Self_ID.ATC_Nesting_Level := Self_ID.ATC_Nesting_Level + 1;
---      pragma Debug
---        (Debug.Trace (Self_ID, "PEC: entered ATC level: " &
---         ATC_Level'Image (Self_ID.ATC_Nesting_Level), 'A'));
+      pragma Debug
+        (Debug.Trace (Self_ID, "PEC: entered ATC level: " &
+         ATC_Level'Image (Self_ID.ATC_Nesting_Level), 'A'));
       Entry_Call :=
          Self_ID.Entry_Calls (Self_ID.ATC_Nesting_Level)'Access;
       Entry_Call.Next := null;
@@ -706,127 +706,127 @@ package body System.Tasking.Protected_Objects.Operations is
       end if;
    end Requeue_Call;
 
---   ----------------------------
---   -- Protected_Entry_Caller --
---   ----------------------------
---
---   function Protected_Entry_Caller
---     (Object : Protection_Entries'Class) return Task_Id is
---   begin
---      return Object.Call_In_Progress.Self;
---   end Protected_Entry_Caller;
---
---   -----------------------------
---   -- Requeue_Protected_Entry --
---   -----------------------------
---
---   --  Compiler interface only (do not call from within the RTS)
---
---   --  entry e when b is
---   --  begin
---   --     b := false;
---   --     ...A...
---   --     requeue e2;
---   --  end e;
---
---   --  procedure rPT__E10b (O : address; P : address; E :
---   --    protected_entry_index) is
---   --     type rTVP is access rTV;
---   --     freeze rTVP []
---   --     _object : rTVP := rTVP!(O);
---   --  begin
---   --     declare
---   --        rR : protection renames _object._object;
---   --        vP : integer renames _object.v;
---   --        bP : boolean renames _object.b;
---   --     begin
---   --        b := false;
---   --        ...A...
---   --        requeue_protected_entry (rR'unchecked_access, rR'
---   --          unchecked_access, 2, false, objectF => 0, new_objectF =>
---   --          0);
---   --        return;
---   --     end;
---   --     complete_entry_body (_object._object'unchecked_access, objectF =>
---   --       0);
---   --     return;
---   --  exception
---   --     when others =>
---   --        abort_undefer.all;
---   --        exceptional_complete_entry_body (_object._object'
---   --          unchecked_access, current_exception, objectF => 0);
---   --        return;
---   --  end rPT__E10b;
---
---   procedure Requeue_Protected_Entry
---     (Object     : Protection_Entries_Access;
---      New_Object : Protection_Entries_Access;
---      E          : Protected_Entry_Index;
---      With_Abort : Boolean)
---   is
---      Entry_Call : constant Entry_Call_Link := Object.Call_In_Progress;
---
---   begin
---      pragma Debug
---        (Debug.Trace (STPO.Self, "Requeue_Protected_Entry", 'P'));
---      pragma Assert (STPO.Self.Deferral_Level > 0);
---
---      Entry_Call.E := Entry_Index (E);
---      Entry_Call.Called_PO := To_Address (New_Object);
---      Entry_Call.Called_Task := null;
---      Entry_Call.With_Abort := With_Abort;
---      Object.Call_In_Progress := null;
---   end Requeue_Protected_Entry;
---
---   -------------------------------------
---   -- Requeue_Task_To_Protected_Entry --
---   -------------------------------------
---
---   --  Compiler interface only (do not call from within the RTS)
---
---   --    accept e1 do
---   --      ...A...
---   --      requeue r.e2;
---   --    end e1;
---
---   --    A79b : address;
---   --    L78b : label
---
---   --    begin
---   --       accept_call (1, A79b);
---   --       ...A...
---   --       requeue_task_to_protected_entry (rTV!(r)._object'
---   --         unchecked_access, 2, false, new_objectF => 0);
---   --       goto L78b;
---   --       <<L78b>>
---   --       complete_rendezvous;
---
---   --    exception
---   --       when all others =>
---   --          exceptional_complete_rendezvous (get_gnat_exception);
---   --    end;
---
---   procedure Requeue_Task_To_Protected_Entry
---     (New_Object : Protection_Entries_Access;
---      E          : Protected_Entry_Index;
---      With_Abort : Boolean)
---   is
---      Self_ID    : constant Task_Id := STPO.Self;
---      Entry_Call : constant Entry_Call_Link := Self_ID.Common.Call;
---
---   begin
---      Initialization.Defer_Abort (Self_ID);
---
---      --  We do not need to lock Self_ID here since the call is not abortable
---      --  at this point, and therefore, the caller cannot cancel the call.
---
---      Entry_Call.Needs_Requeue := True;
---      Entry_Call.With_Abort := With_Abort;
---      Entry_Call.Called_PO := To_Address (New_Object);
---      Entry_Call.Called_Task := null;
---      Entry_Call.E := Entry_Index (E);
---      Initialization.Undefer_Abort (Self_ID);
---   end Requeue_Task_To_Protected_Entry;
+   ----------------------------
+   -- Protected_Entry_Caller --
+   ----------------------------
+
+   function Protected_Entry_Caller
+     (Object : Protection_Entries'Class) return Task_Id is
+   begin
+      return Object.Call_In_Progress.Self;
+   end Protected_Entry_Caller;
+
+   -----------------------------
+   -- Requeue_Protected_Entry --
+   -----------------------------
+
+   --  Compiler interface only (do not call from within the RTS)
+
+   --  entry e when b is
+   --  begin
+   --     b := false;
+   --     ...A...
+   --     requeue e2;
+   --  end e;
+
+   --  procedure rPT__E10b (O : address; P : address; E :
+   --    protected_entry_index) is
+   --     type rTVP is access rTV;
+   --     freeze rTVP []
+   --     _object : rTVP := rTVP!(O);
+   --  begin
+   --     declare
+   --        rR : protection renames _object._object;
+   --        vP : integer renames _object.v;
+   --        bP : boolean renames _object.b;
+   --     begin
+   --        b := false;
+   --        ...A...
+   --        requeue_protected_entry (rR'unchecked_access, rR'
+   --          unchecked_access, 2, false, objectF => 0, new_objectF =>
+   --          0);
+   --        return;
+   --     end;
+   --     complete_entry_body (_object._object'unchecked_access, objectF =>
+   --       0);
+   --     return;
+   --  exception
+   --     when others =>
+   --        abort_undefer.all;
+   --        exceptional_complete_entry_body (_object._object'
+   --          unchecked_access, current_exception, objectF => 0);
+   --        return;
+   --  end rPT__E10b;
+
+   procedure Requeue_Protected_Entry
+     (Object     : Protection_Entries_Access;
+      New_Object : Protection_Entries_Access;
+      E          : Protected_Entry_Index;
+      With_Abort : Boolean)
+   is
+      Entry_Call : constant Entry_Call_Link := Object.Call_In_Progress;
+
+   begin
+      pragma Debug
+        (Debug.Trace (STPO.Self, "Requeue_Protected_Entry", 'P'));
+      pragma Assert (STPO.Self.Deferral_Level > 0);
+
+      Entry_Call.E := Entry_Index (E);
+      Entry_Call.Called_PO := To_Address (New_Object);
+      Entry_Call.Called_Task := null;
+      Entry_Call.With_Abort := With_Abort;
+      Object.Call_In_Progress := null;
+   end Requeue_Protected_Entry;
+
+   -------------------------------------
+   -- Requeue_Task_To_Protected_Entry --
+   -------------------------------------
+
+   --  Compiler interface only (do not call from within the RTS)
+
+   --    accept e1 do
+   --      ...A...
+   --      requeue r.e2;
+   --    end e1;
+
+   --    A79b : address;
+   --    L78b : label
+
+   --    begin
+   --       accept_call (1, A79b);
+   --       ...A...
+   --       requeue_task_to_protected_entry (rTV!(r)._object'
+   --         unchecked_access, 2, false, new_objectF => 0);
+   --       goto L78b;
+   --       <<L78b>>
+   --       complete_rendezvous;
+
+   --    exception
+   --       when all others =>
+   --          exceptional_complete_rendezvous (get_gnat_exception);
+   --    end;
+
+   procedure Requeue_Task_To_Protected_Entry
+     (New_Object : Protection_Entries_Access;
+      E          : Protected_Entry_Index;
+      With_Abort : Boolean)
+   is
+      Self_ID    : constant Task_Id := STPO.Self;
+      Entry_Call : constant Entry_Call_Link := Self_ID.Common.Call;
+
+   begin
+      Initialization.Defer_Abort (Self_ID);
+
+      --  We do not need to lock Self_ID here since the call is not abortable
+      --  at this point, and therefore, the caller cannot cancel the call.
+
+      Entry_Call.Needs_Requeue := True;
+      Entry_Call.With_Abort := With_Abort;
+      Entry_Call.Called_PO := To_Address (New_Object);
+      Entry_Call.Called_Task := null;
+      Entry_Call.E := Entry_Index (E);
+      Initialization.Undefer_Abort (Self_ID);
+   end Requeue_Task_To_Protected_Entry;
 
    ---------------------
    -- Service_Entries --
@@ -838,97 +838,97 @@ package body System.Tasking.Protected_Objects.Operations is
       PO_Service_Entries (Self_ID, Object);
    end Service_Entries;
 
---   --------------------------------
---   -- Timed_Protected_Entry_Call --
---   --------------------------------
---
---   --  Compiler interface only (do not call from within the RTS)
---
---   procedure Timed_Protected_Entry_Call
---     (Object                : Protection_Entries_Access;
---      E                     : Protected_Entry_Index;
---      Uninterpreted_Data    : System.Address;
---      Timeout               : Duration;
---      Mode                  : Delay_Modes;
---      Entry_Call_Successful : out Boolean)
---   is
---      Self_Id           : constant Task_Id  := STPO.Self;
---      Entry_Call        : Entry_Call_Link;
---      Ceiling_Violation : Boolean;
---
---      Yielded : Boolean;
---
---   begin
---      if Self_Id.ATC_Nesting_Level = ATC_Level'Last then
---         raise Storage_Error with "not enough ATC nesting levels";
---      end if;
---
---      --  If pragma Detect_Blocking is active then Program_Error must be
---      --  raised if this potentially blocking operation is called from a
---      --  protected action.
---
---      if Detect_Blocking
---        and then Self_Id.Common.Protected_Action_Nesting > 0
---      then
---         raise Program_Error with "potentially blocking operation";
---      end if;
---
---      Initialization.Defer_Abort_Nestable (Self_Id);
---      Lock_Entries_With_Status (Object, Ceiling_Violation);
---
---      if Ceiling_Violation then
---         Initialization.Undefer_Abort (Self_Id);
---         raise Program_Error;
---      end if;
---
---      Self_Id.ATC_Nesting_Level := Self_Id.ATC_Nesting_Level + 1;
---      pragma Debug
---        (Debug.Trace (Self_Id, "TPEC: exited to ATC level: " &
---         ATC_Level'Image (Self_Id.ATC_Nesting_Level), 'A'));
---      Entry_Call := Self_Id.Entry_Calls (Self_Id.ATC_Nesting_Level)'Access;
---      Entry_Call.Next := null;
---      Entry_Call.Mode := Timed_Call;
---      Entry_Call.Cancellation_Attempted := False;
---
---      Entry_Call.State :=
---        (if Self_Id.Deferral_Level > 1
---         then Never_Abortable
---         else Now_Abortable);
---
---      Entry_Call.E := Entry_Index (E);
---      Entry_Call.Prio := STPO.Get_Priority (Self_Id);
---      Entry_Call.Uninterpreted_Data := Uninterpreted_Data;
---      Entry_Call.Called_PO := To_Address (Object);
---      Entry_Call.Called_Task := null;
---      Entry_Call.Exception_To_Raise := Ada.Exceptions.Null_Id;
---      Entry_Call.With_Abort := True;
---
---      PO_Do_Or_Queue (Self_Id, Object, Entry_Call);
---      PO_Service_Entries (Self_Id, Object);
---      STPO.Write_Lock (Self_Id);
---
---      --  Try to avoid waiting for completed or cancelled calls
---
---      if Entry_Call.State >= Done then
---         Utilities.Exit_One_ATC_Level (Self_Id);
---         STPO.Unlock (Self_Id);
---
---         Entry_Call_Successful := Entry_Call.State = Done;
---         Initialization.Undefer_Abort_Nestable (Self_Id);
---         Entry_Calls.Check_Exception (Self_Id, Entry_Call);
---         return;
---      end if;
---
---      Entry_Calls.Wait_For_Completion_With_Timeout
---        (Entry_Call, Timeout, Mode, Yielded);
---      STPO.Unlock (Self_Id);
---
---      --  ??? Do we need to yield in case Yielded is False
---
---      Initialization.Undefer_Abort_Nestable (Self_Id);
---      Entry_Call_Successful := Entry_Call.State = Done;
---      Entry_Calls.Check_Exception (Self_Id, Entry_Call);
---   end Timed_Protected_Entry_Call;
+   --------------------------------
+   -- Timed_Protected_Entry_Call --
+   --------------------------------
+
+   --  Compiler interface only (do not call from within the RTS)
+
+   procedure Timed_Protected_Entry_Call
+     (Object                : Protection_Entries_Access;
+      E                     : Protected_Entry_Index;
+      Uninterpreted_Data    : System.Address;
+      Timeout               : Duration;
+      Mode                  : Delay_Modes;
+      Entry_Call_Successful : out Boolean)
+   is
+      Self_Id           : constant Task_Id  := STPO.Self;
+      Entry_Call        : Entry_Call_Link;
+      Ceiling_Violation : Boolean;
+
+      Yielded : Boolean;
+
+   begin
+      if Self_Id.ATC_Nesting_Level = ATC_Level'Last then
+         raise Storage_Error with "not enough ATC nesting levels";
+      end if;
+
+      --  If pragma Detect_Blocking is active then Program_Error must be
+      --  raised if this potentially blocking operation is called from a
+      --  protected action.
+
+      if Detect_Blocking
+        and then Self_Id.Common.Protected_Action_Nesting > 0
+      then
+         raise Program_Error with "potentially blocking operation";
+      end if;
+
+      Initialization.Defer_Abort_Nestable (Self_Id);
+      Lock_Entries_With_Status (Object, Ceiling_Violation);
+
+      if Ceiling_Violation then
+         Initialization.Undefer_Abort (Self_Id);
+         raise Program_Error;
+      end if;
+
+      Self_Id.ATC_Nesting_Level := Self_Id.ATC_Nesting_Level + 1;
+      pragma Debug
+        (Debug.Trace (Self_Id, "TPEC: exited to ATC level: " &
+         ATC_Level'Image (Self_Id.ATC_Nesting_Level), 'A'));
+      Entry_Call := Self_Id.Entry_Calls (Self_Id.ATC_Nesting_Level)'Access;
+      Entry_Call.Next := null;
+      Entry_Call.Mode := Timed_Call;
+      Entry_Call.Cancellation_Attempted := False;
+
+      Entry_Call.State :=
+        (if Self_Id.Deferral_Level > 1
+         then Never_Abortable
+         else Now_Abortable);
+
+      Entry_Call.E := Entry_Index (E);
+      Entry_Call.Prio := STPO.Get_Priority (Self_Id);
+      Entry_Call.Uninterpreted_Data := Uninterpreted_Data;
+      Entry_Call.Called_PO := To_Address (Object);
+      Entry_Call.Called_Task := null;
+      Entry_Call.Exception_To_Raise := Ada.Exceptions.Null_Id;
+      Entry_Call.With_Abort := True;
+
+      PO_Do_Or_Queue (Self_Id, Object, Entry_Call);
+      PO_Service_Entries (Self_Id, Object);
+      STPO.Write_Lock (Self_Id);
+
+      --  Try to avoid waiting for completed or cancelled calls
+
+      if Entry_Call.State >= Done then
+         Utilities.Exit_One_ATC_Level (Self_Id);
+         STPO.Unlock (Self_Id);
+
+         Entry_Call_Successful := Entry_Call.State = Done;
+         Initialization.Undefer_Abort_Nestable (Self_Id);
+         Entry_Calls.Check_Exception (Self_Id, Entry_Call);
+         return;
+      end if;
+
+      Entry_Calls.Wait_For_Completion_With_Timeout
+        (Entry_Call, Timeout, Mode, Yielded);
+      STPO.Unlock (Self_Id);
+
+      --  ??? Do we need to yield in case Yielded is False
+
+      Initialization.Undefer_Abort_Nestable (Self_Id);
+      Entry_Call_Successful := Entry_Call.State = Done;
+      Entry_Calls.Check_Exception (Self_Id, Entry_Call);
+   end Timed_Protected_Entry_Call;
 
    ----------------------------
    -- Update_For_Queue_To_PO --

@@ -77,16 +77,16 @@ package System.Tasking.Protected_Objects.Operations is
    --    Block
    --      Information passed between runtime calls by the compiler
 
---   procedure Timed_Protected_Entry_Call
---     (Object                : Entries.Protection_Entries_Access;
---      E                     : Protected_Entry_Index;
---      Uninterpreted_Data    : System.Address;
---      Timeout               : Duration;
---      Mode                  : Delay_Modes;
---      Entry_Call_Successful : out Boolean);
---   --  Same as the Protected_Entry_Call but with time-out specified.
---   --  This routines is used when we do not use ATC mechanism to implement
---   --  timed entry calls.
+   procedure Timed_Protected_Entry_Call
+     (Object                : Entries.Protection_Entries_Access;
+      E                     : Protected_Entry_Index;
+      Uninterpreted_Data    : System.Address;
+      Timeout               : Duration;
+      Mode                  : Delay_Modes;
+      Entry_Call_Successful : out Boolean);
+   --  Same as the Protected_Entry_Call but with time-out specified.
+   --  This routines is used when we do not use ATC mechanism to implement
+   --  timed entry calls.
 
    procedure Service_Entries (Object : Entries.Protection_Entries_Access);
    pragma Inline (Service_Entries);
@@ -123,61 +123,60 @@ package System.Tasking.Protected_Objects.Operations is
    --  report in Ex the exception whose propagation terminated the entry
    --  body to the runtime system.
 
---   procedure Cancel_Protected_Entry_Call
---  (Block : in out Communication_Block);
---   --  Attempt to cancel the most recent protected entry call. If the call is
---   --  not queued abortably, wait until it is or until it has completed.
---   --  If the call is actually cancelled, the called object will be
---   --  locked on return from this call. Get_Cancelled (Block) can be
---   --  used to determine if the cancellation took place; there
---   --  may be entries needing service in this case.
---   --
---   --  Block passes information between this and other runtime calls.
---
---   function Enqueued (Block : Communication_Block) return Boolean;
---   --  Returns True if the Protected_Entry_Call which returned the
---   --  specified Block object was queued; False otherwise.
---
---   function Cancelled (Block : Communication_Block) return Boolean;
---   --  Returns True if the Protected_Entry_Call which returned the
---   --  specified Block object was cancelled, False otherwise.
---
---   procedure Requeue_Protected_Entry
---     (Object     : Entries.Protection_Entries_Access;
---      New_Object : Entries.Protection_Entries_Access;
---      E          : Protected_Entry_Index;
---      With_Abort : Boolean);
---   --  If Object = New_Object, queue the protected entry call on Object
---   --   currently being serviced on the queue corresponding to the entry
---   --   represented by E.
---   --
---   --  If Object /= New_Object, transfer the call to New_Object.E,
---   --   executing or queuing it as appropriate.
---   --
---   --  With_Abort---True if the call is to be queued abortably, false
---   --   otherwise.
---
---   procedure Requeue_Task_To_Protected_Entry
---     (New_Object : Entries.Protection_Entries_Access;
---      E          : Protected_Entry_Index;
---      With_Abort : Boolean);
---   --  Transfer task entry call currently being serviced to entry E
---   --   on New_Object.
---   --
---   --  With_Abort---True if the call is to be queued abortably, false
---   --   otherwise.
---
---   function Protected_Count
---     (Object : Entries.Protection_Entries'Class;
---      E      : Protected_Entry_Index)
---      return   Natural;
---   --  Return the number of entry calls to E on Object
---
---   function Protected_Entry_Caller
---     (Object : Entries.Protection_Entries'Class) return Task_Id;
---   --  Return value of E'Caller, where E is the protected entry currently
---   --  being handled. This will only work if called from within an entry
---   --  body, as required by the LRM (C.7.1(14)).
+   procedure Cancel_Protected_Entry_Call (Block : in out Communication_Block);
+   --  Attempt to cancel the most recent protected entry call. If the call is
+   --  not queued abortably, wait until it is or until it has completed.
+   --  If the call is actually cancelled, the called object will be
+   --  locked on return from this call. Get_Cancelled (Block) can be
+   --  used to determine if the cancellation took place; there
+   --  may be entries needing service in this case.
+   --
+   --  Block passes information between this and other runtime calls.
+
+   function Enqueued (Block : Communication_Block) return Boolean;
+   --  Returns True if the Protected_Entry_Call which returned the
+   --  specified Block object was queued; False otherwise.
+
+   function Cancelled (Block : Communication_Block) return Boolean;
+   --  Returns True if the Protected_Entry_Call which returned the
+   --  specified Block object was cancelled, False otherwise.
+
+   procedure Requeue_Protected_Entry
+     (Object     : Entries.Protection_Entries_Access;
+      New_Object : Entries.Protection_Entries_Access;
+      E          : Protected_Entry_Index;
+      With_Abort : Boolean);
+   --  If Object = New_Object, queue the protected entry call on Object
+   --   currently being serviced on the queue corresponding to the entry
+   --   represented by E.
+   --
+   --  If Object /= New_Object, transfer the call to New_Object.E,
+   --   executing or queuing it as appropriate.
+   --
+   --  With_Abort---True if the call is to be queued abortably, false
+   --   otherwise.
+
+   procedure Requeue_Task_To_Protected_Entry
+     (New_Object : Entries.Protection_Entries_Access;
+      E          : Protected_Entry_Index;
+      With_Abort : Boolean);
+   --  Transfer task entry call currently being serviced to entry E
+   --   on New_Object.
+   --
+   --  With_Abort---True if the call is to be queued abortably, false
+   --   otherwise.
+
+   function Protected_Count
+     (Object : Entries.Protection_Entries'Class;
+      E      : Protected_Entry_Index)
+      return   Natural;
+   --  Return the number of entry calls to E on Object
+
+   function Protected_Entry_Caller
+     (Object : Entries.Protection_Entries'Class) return Task_Id;
+   --  Return value of E'Caller, where E is the protected entry currently
+   --  being handled. This will only work if called from within an entry
+   --  body, as required by the LRM (C.7.1(14)).
 
    --  For internal use only
 
