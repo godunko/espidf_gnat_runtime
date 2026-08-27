@@ -38,7 +38,7 @@ with Ada.Exceptions.Is_Null_Occurrence;
 
 with System.Task_Primitives.Operations;
 with System.Tasking;
---  with System.Stack_Checking;
+with System.Stack_Checking;
 with System.Secondary_Stack;
 
 package body System.Soft_Links.Tasking is
@@ -65,7 +65,7 @@ package body System.Soft_Links.Tasking is
    -- Tasking Versions of Services Needed by Non-Tasking Programs --
    -----------------------------------------------------------------
 
---   function  Get_Jmpbuf_Address return  Address;
+   function  Get_Jmpbuf_Address return  Address;
    procedure Set_Jmpbuf_Address (Addr : Address);
    --  Get/Set Jmpbuf_Address for current task
 
@@ -79,17 +79,17 @@ package body System.Soft_Links.Tasking is
    procedure Task_Termination_Handler_T  (Excep : SSL.EO);
    --  Task-safe version of the task termination procedure
 
---   function Get_Stack_Info return Stack_Checking.Stack_Access;
+   function Get_Stack_Info return Stack_Checking.Stack_Access;
    --  Get access to the current task's Stack_Info
 
    --------------------------
    -- Soft-Link Get Bodies --
    --------------------------
 
---   function Get_Jmpbuf_Address return  Address is
---   begin
---      return STPO.Self.Common.Compiler_Data.Jmpbuf_Address;
---   end Get_Jmpbuf_Address;
+   function Get_Jmpbuf_Address return  Address is
+   begin
+      return STPO.Self.Common.Compiler_Data.Jmpbuf_Address;
+   end Get_Jmpbuf_Address;
 
    function Get_Sec_Stack return SST.SS_Stack_Ptr is
    begin
@@ -100,10 +100,10 @@ package body System.Soft_Links.Tasking is
       end return;
    end Get_Sec_Stack;
 
---   function Get_Stack_Info return Stack_Checking.Stack_Access is
---   begin
---      return STPO.Self.Common.Compiler_Data.Pri_Stack_Info'Access;
---   end Get_Stack_Info;
+   function Get_Stack_Info return Stack_Checking.Stack_Access is
+   begin
+      return STPO.Self.Common.Compiler_Data.Pri_Stack_Info'Access;
+   end Get_Stack_Info;
 
    --------------------------
    -- Soft-Link Set Bodies --
@@ -216,10 +216,10 @@ package body System.Soft_Links.Tasking is
          --  The application being executed uses tasking so that the tasking
          --  version of the following soft links need to be used.
 
---         SSL.Get_Jmpbuf_Address       := Get_Jmpbuf_Address'Access;
+         SSL.Get_Jmpbuf_Address       := Get_Jmpbuf_Address'Access;
          SSL.Set_Jmpbuf_Address       := Set_Jmpbuf_Address'Access;
          SSL.Get_Sec_Stack            := Get_Sec_Stack'Access;
---         SSL.Get_Stack_Info           := Get_Stack_Info'Access;
+         SSL.Get_Stack_Info           := Get_Stack_Info'Access;
          SSL.Set_Sec_Stack            := Set_Sec_Stack'Access;
          SSL.Timed_Delay              := Timed_Delay_T'Access;
          SSL.Task_Termination_Handler := Task_Termination_Handler_T'Access;
