@@ -10,11 +10,8 @@ with Interfaces.C;
 with System.FreeRTOS;
 with System.OS_Interface;
 with System.OS_Primitives;
-with System.Soft_Links;
 
 package body System.Task_Primitives.Operations is
-
-   package SSL renames System.Soft_Links;
 
    use System.FreeRTOS;
    use System.OS_Interface;
@@ -104,10 +101,6 @@ package body System.Task_Primitives.Operations is
    -- Local Subprograms --
    -----------------------
 
-   function Is_Task_Context return Boolean;
-   --  This function returns True if the current execution is in the context of
-   --  a task, and False if it is an interrupt context.
-
    procedure Semaphore_Take
      (xSemaphore      : SemaphoreHandle_t;
       In_Task_Context : Boolean);
@@ -131,152 +124,6 @@ package body System.Task_Primitives.Operations is
    ----------
 
    function Self return Task_Id renames Specific.Self;
-
-   -----------
-   -- Sleep --
-   -----------
-
-   procedure Sleep (Self_ID : Task_Id; Reason : System.Tasking.Task_States) is
-      pragma Unreferenced (Reason);
-
-      Result : BaseType_t;
-
-   begin
-      pragma Assert (Self_ID = Self);
-
-      --  Release the mutex before sleeping
-
-      Result := xSemaphoreGive (Self_ID.Common.LL.L.Mutex);
-      pragma Assert (Result = pdTRUE);
-
-      --  Perform a blocking operation to take the CV semaphore.
-
-      Result := xSemaphoreTake (Self_ID.Common.LL.CV, portMAX_DELAY);
-      pragma Assert (Result = pdTRUE);
-
-      --  Take the mutex back
-
-      Result := xSemaphoreTake (Self_ID.Common.LL.L.Mutex, portMAX_DELAY);
-      pragma Assert (Result = pdTRUE);
-   end Sleep;
-
-   -----------------
-   -- Timed_Delay --
-   -----------------
-
-   --  This is for use in implementing delay statements, so we assume the
-   --  caller is holding no locks.
-
-   procedure Timed_Delay
-     (Self_ID : Task_Id;
-      Time    : Duration;
-      Mode    : ST.Delay_Modes)
-   is
-      Orig     : constant Duration := Monotonic_Clock;
-      Absolute : Duration;
-      Ticks    : TickType_t;
-      Timedout : Boolean;
-      Aborted  : Boolean := False;
-
-      Result   : BaseType_t;
-
-   begin
-      if Mode = Relative then
-         Absolute := Orig + Time;
-         Ticks    := To_Ticks (Time);
-
-         if Ticks > 0 and then Ticks < portMAX_DELAY then
-            --  First tick will delay anytime between 0 and tick period,
-            --  so we need to add one to be on the safe side.
-
-            Ticks := Ticks + 1;
-         end if;
-
-      else
-         Absolute := Time;
-         Ticks    := To_Ticks (Time - Orig);
-      end if;
-
-      if Ticks = System.FreeRTOS.portMAX_DELAY then
-         --  portMAX_DELAY is used to indicate infinite delay, avoid its use.
-
-         Ticks := @ - 1;
-      end if;
-
-      if Ticks > 0 then
-
-         --  Modifying State, locking the TCB
-
-         Result := xSemaphoreTake (Self_ID.Common.LL.L.Mutex, portMAX_DELAY);
-         pragma Assert (Result = pdTRUE);
-
-         Self_ID.Common.State := Delay_Sleep;
-         Timedout := False;
-
-         loop
-            Aborted := Self_ID.Pending_ATC_Level < Self_ID.ATC_Nesting_Level;
-
-            --  Release the TCB before sleeping
-
-            Result := xSemaphoreGive (Self_ID.Common.LL.L.Mutex);
-            pragma Assert (Result = pdTRUE);
-
-            exit when Aborted;
-
-            Result := xSemaphoreTake (Self_ID.Common.LL.CV, Ticks);
-
-            if Result /= pdTRUE then
-
-               --  If Ticks = portMAX_DELAY - 1, it was most probably
-               --  truncated, so make another round after recomputing
-               --  Ticks from absolute time.
-
-               if Ticks /= System.FreeRTOS.portMAX_DELAY - 1 then
-                  Timedout := True;
-
-               else
-                  Ticks := To_Ticks (Absolute - Monotonic_Clock);
-
-                  if Ticks = 0 then
-                     Timedout := True;
-
-                  elsif Ticks = portMAX_DELAY then
-                     --  portMAX_DELAY is used to indicate infinite delay,
-                     --  avoid its use.
-
-                     Ticks := @ - 1;
-                  end if;
-               end if;
-            end if;
-
-            --  Take back the lock after having slept, to protect further
-            --  access to Self_ID.
-
-            Result :=
-              xSemaphoreTake (Self_ID.Common.LL.L.Mutex, portMAX_DELAY);
-            pragma Assert (Result = pdTRUE);
-
-            exit when Timedout;
-         end loop;
-
-         Self_ID.Common.State := Runnable;
-
-         Result := xSemaphoreGive (Self_ID.Common.LL.L.Mutex);
-         pragma Assert (Result = pdTRUE);
-
-      else
-         vTaskDelay (0);
-      end if;
-   end Timed_Delay;
-
-   ---------------------
-   -- Monotonic_Clock --
-   ---------------------
-
-   function Monotonic_Clock return Duration is
-   begin
-      return To_Duration (xTaskGetTickCount);
-   end Monotonic_Clock;
 
    --------------------
    -- Initialize_TCB --
@@ -326,11 +173,6 @@ package body System.Task_Primitives.Operations is
 --         Succeeded := False;
 --         return;
 --      end if;
-
-      --  Since the initial signal mask of a thread is inherited from the
-      --  creator, and the Environment task has all its signals masked, we do
-      --  not need to manipulate caller's signal mask at this point. All tasks
-      --  in RTS will have All_Tasks_Mask initially.
 
       --  We now compute the FreeRTOS task name, then spawn ...
 
@@ -390,180 +232,6 @@ package body System.Task_Primitives.Operations is
    begin
       vTaskDelete (T.Common.LL.Thread);
    end Abort_Task;
-
-   ----------------
-   -- Initialize --
-   ----------------
-
-   procedure Initialize (S : in out Suspension_Object) is
-      Success : BaseType_t;
-
-   begin
-      --  Initialize internal state (always to False (RM D.10(6)))
-
-      S.State := False;
-      S.Waiting := False;
-
-      --  Initialize internal mutex
-
-      S.L := xSemaphoreCreateBinary;
-      pragma Assert (S.L /= Null_SemaphoreHandle_t);
-
-      Success := xSemaphoreGive (S.L);
-      pragma Assert (Success = pdTRUE);
-      --  Binary semaphore (opposite to mutex) is in "unavailable" state after
-      --  creation and must be "given" first.
-
-      --  Initialize internal condition variable
-
-      S.CV := xSemaphoreCreateBinary;
-      pragma Assert (S.CV /= Null_SemaphoreHandle_t);
-   end Initialize;
-
-   --------------
-   -- Finalize --
-   --------------
-
-   procedure Finalize (S : in out Suspension_Object) is
-      pragma Unmodified (S);
-      --  S may be modified on other targets, but not on FreeRTOS
-
-   begin
-      --  Destroy internal mutex
-
-      vSemaphoreDelete (S.L);
-
-      --  Destroy internal condition variable
-
-      vSemaphoreDelete (S.CV);
-   end Finalize;
-
-   -------------------
-   -- Current_State --
-   -------------------
-
-   function Current_State (S : Suspension_Object) return Boolean is
-   begin
-      --  We do not want to use lock on this read operation. State is marked
-      --  as Atomic so that we ensure that the value retrieved is correct.
-
-      return S.State;
-   end Current_State;
-
-   ---------------
-   -- Set_False --
-   ---------------
-
-   procedure Set_False (S : in out Suspension_Object) is
-      In_Task_Context : constant Boolean := Operations.Is_Task_Context;
-
-   begin
-      SSL.Abort_Defer.all;
-
-      Semaphore_Take (S.L, In_Task_Context);
-
-      S.State := False;
-
-      Semaphore_Give (S.L, In_Task_Context);
-
-      SSL.Abort_Undefer.all;
-   end Set_False;
-
-   --------------
-   -- Set_True --
-   --------------
-
-   procedure Set_True (S : in out Suspension_Object) is
-      In_Task_Context : constant Boolean := Operations.Is_Task_Context;
-
-   begin
-      --  Set_True can be called from an interrupt context, in which case
-      --  Abort_Defer is undefined.
-
-      if In_Task_Context then
-         SSL.Abort_Defer.all;
-      end if;
-
-      Semaphore_Take (S.L, In_Task_Context);
-
-      --  If there is already a task waiting on this suspension object then we
-      --  resume it, leaving the state of the suspension object to False, as it
-      --  is specified in (RM D.10 (9)). Otherwise, it just leaves the state to
-      --  True.
-
-      if S.Waiting then
-         S.Waiting := False;
-         S.State := False;
-
-         Semaphore_Give (S.CV, In_Task_Context);
-      else
-         S.State := True;
-      end if;
-
-      Semaphore_Give (S.L, In_Task_Context);
-
-      --  Set_True can be called from an interrupt context, in which case
-      --  Abort_Undefer is undefined.
-
-      if In_Task_Context then
-         SSL.Abort_Undefer.all;
-      end if;
-   end Set_True;
-
-   ------------------------
-   -- Suspend_Until_True --
-   ------------------------
-
-   procedure Suspend_Until_True (S : in out Suspension_Object) is
-      Result : BaseType_t;
-
-   begin
-      SSL.Abort_Defer.all;
-
-      Result := xSemaphoreTake (S.L, portMAX_DELAY);
-      pragma Assert (Result = pdTRUE);
-
-      if S.Waiting then
-
-         --  Program_Error must be raised upon calling Suspend_Until_True
-         --  if another task is already waiting on that suspension object
-         --  (RM D.10(10)).
-
-         Result := xSemaphoreGive (S.L);
-         pragma Assert (Result = pdTRUE);
-
-         SSL.Abort_Undefer.all;
-
-         raise Program_Error;
-
-      else
-         --  Suspend the task if the state is False. Otherwise, the task
-         --  continues its execution, and the state of the suspension object
-         --  is set to False (RM D.10 (9)).
-
-         if S.State then
-            S.State := False;
-
-            Result := xSemaphoreGive (S.L);
-            pragma Assert (Result = pdTRUE);
-
-            SSL.Abort_Undefer.all;
-
-         else
-            S.Waiting := True;
-
-            --  Release the mutex before sleeping
-
-            Result := xSemaphoreGive (S.L);
-            pragma Assert (Result = pdTRUE);
-
-            SSL.Abort_Undefer.all;
-
-            Result := xSemaphoreTake (S.CV, portMAX_DELAY);
-            pragma Assert (Result = pdTRUE);
-         end if;
-      end if;
-   end Suspend_Until_True;
 
    --------------------
    -- Check_No_Locks --
@@ -727,14 +395,18 @@ package body System.Task_Primitives.Operations is
       --     Environment_Task.Common.Task_Alternate_Stack :=
       --       Alternate_Stack'Address;
       --  end if;
-      --
-      --  --  Make environment task known here because it doesn't go through
-      --  --  Activate_Tasks, which does it for all other tasks.
-      --
-      --  Known_Tasks (Known_Tasks'First) := Environment_Task;
-      --  Environment_Task.Known_Tasks_Index := Known_Tasks'First;
+
+      --  Make environment task known here because it doesn't go through
+      --  Activate_Tasks, which does it for all other tasks.
+
+--      Known_Tasks (Known_Tasks'First) := Environment_Task;
+--      Environment_Task.Known_Tasks_Index := Known_Tasks'First;
 
       Enter_Task (Environment_Task);
+
+      --  Set processor affinity
+
+      --  Set_Task_Affinity (Environment_Task);
 
       --  if State
       --      (System.Interrupt_Management.Abort_Task_Interrupt) /= Default
@@ -892,6 +564,152 @@ package body System.Task_Primitives.Operations is
    begin
       null;
    end Set_Ceiling;
+
+   -----------
+   -- Sleep --
+   -----------
+
+   procedure Sleep (Self_ID : Task_Id; Reason : System.Tasking.Task_States) is
+      pragma Unreferenced (Reason);
+
+      Result : BaseType_t;
+
+   begin
+      pragma Assert (Self_ID = Self);
+
+      --  Release the mutex before sleeping
+
+      Result := xSemaphoreGive (Self_ID.Common.LL.L.Mutex);
+      pragma Assert (Result = pdTRUE);
+
+      --  Perform a blocking operation to take the CV semaphore.
+
+      Result := xSemaphoreTake (Self_ID.Common.LL.CV, portMAX_DELAY);
+      pragma Assert (Result = pdTRUE);
+
+      --  Take the mutex back
+
+      Result := xSemaphoreTake (Self_ID.Common.LL.L.Mutex, portMAX_DELAY);
+      pragma Assert (Result = pdTRUE);
+   end Sleep;
+
+   -----------------
+   -- Timed_Delay --
+   -----------------
+
+   --  This is for use in implementing delay statements, so we assume the
+   --  caller is holding no locks.
+
+   procedure Timed_Delay
+     (Self_ID : Task_Id;
+      Time    : Duration;
+      Mode    : ST.Delay_Modes)
+   is
+      Orig     : constant Duration := Monotonic_Clock;
+      Absolute : Duration;
+      Ticks    : TickType_t;
+      Timedout : Boolean;
+      Aborted  : Boolean := False;
+
+      Result   : BaseType_t;
+
+   begin
+      if Mode = Relative then
+         Absolute := Orig + Time;
+         Ticks    := To_Ticks (Time);
+
+         if Ticks > 0 and then Ticks < portMAX_DELAY then
+            --  First tick will delay anytime between 0 and tick period,
+            --  so we need to add one to be on the safe side.
+
+            Ticks := Ticks + 1;
+         end if;
+
+      else
+         Absolute := Time;
+         Ticks    := To_Ticks (Time - Orig);
+      end if;
+
+      if Ticks = System.FreeRTOS.portMAX_DELAY then
+         --  portMAX_DELAY is used to indicate infinite delay, avoid its use.
+
+         Ticks := @ - 1;
+      end if;
+
+      if Ticks > 0 then
+
+         --  Modifying State, locking the TCB
+
+         Result := xSemaphoreTake (Self_ID.Common.LL.L.Mutex, portMAX_DELAY);
+         pragma Assert (Result = pdTRUE);
+
+         Self_ID.Common.State := Delay_Sleep;
+         Timedout := False;
+
+         loop
+            Aborted := Self_ID.Pending_ATC_Level < Self_ID.ATC_Nesting_Level;
+
+            --  Release the TCB before sleeping
+
+            Result := xSemaphoreGive (Self_ID.Common.LL.L.Mutex);
+            pragma Assert (Result = pdTRUE);
+
+            exit when Aborted;
+
+            Result := xSemaphoreTake (Self_ID.Common.LL.CV, Ticks);
+
+            if Result /= pdTRUE then
+
+               --  If Ticks = portMAX_DELAY - 1, it was most probably
+               --  truncated, so make another round after recomputing
+               --  Ticks from absolute time.
+
+               if Ticks /= System.FreeRTOS.portMAX_DELAY - 1 then
+                  Timedout := True;
+
+               else
+                  Ticks := To_Ticks (Absolute - Monotonic_Clock);
+
+                  if Ticks = 0 then
+                     Timedout := True;
+
+                  elsif Ticks = portMAX_DELAY then
+                     --  portMAX_DELAY is used to indicate infinite delay,
+                     --  avoid its use.
+
+                     Ticks := @ - 1;
+                  end if;
+               end if;
+            end if;
+
+            --  Take back the lock after having slept, to protect further
+            --  access to Self_ID.
+
+            Result :=
+              xSemaphoreTake (Self_ID.Common.LL.L.Mutex, portMAX_DELAY);
+            pragma Assert (Result = pdTRUE);
+
+            exit when Timedout;
+         end loop;
+
+         Self_ID.Common.State := Runnable;
+
+         Result := xSemaphoreGive (Self_ID.Common.LL.L.Mutex);
+         pragma Assert (Result = pdTRUE);
+
+      else
+         vTaskDelay (0);
+      end if;
+   end Timed_Delay;
+
+   ---------------------
+   -- Monotonic_Clock --
+   ---------------------
+
+   function Monotonic_Clock return Duration is
+   begin
+      return To_Duration (xTaskGetTickCount);
+   end Monotonic_Clock;
 
    ------------
    -- Wakeup --

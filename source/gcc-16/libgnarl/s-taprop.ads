@@ -32,14 +32,14 @@
 --  This package contains all the GNULL primitives that interface directly with
 --  the underlying OS.
 
---  with System.OS_Interface;
+with System.OS_Interface;
 with System.Parameters;
 with System.Tasking;
 
 package System.Task_Primitives.Operations is
    pragma Preelaborate;
 
---   package OSI renames System.OS_Interface;
+   package OSI renames System.OS_Interface;
    package ST  renames System.Tasking;
 
    procedure Initialize (Environment_Task : ST.Task_Id);
@@ -81,8 +81,8 @@ package System.Task_Primitives.Operations is
    --  of other operations defined below are not defined unless the caller has
    --  previously called Initialize_Task.
 
---   procedure Exit_Task;
---   pragma Inline (Exit_Task);
+   procedure Exit_Task;
+   pragma Inline (Exit_Task);
    --  Destroy the thread of control. Self must be the ID of the calling task.
    --  The effects of further calls to operations defined below on the task
    --  are undefined thereafter.
@@ -110,8 +110,8 @@ package System.Task_Primitives.Operations is
    pragma Inline (Initialize_TCB);
    --  Initialize all fields of the TCB
 
---   procedure Finalize_TCB (T : ST.Task_Id);
---   pragma Inline (Finalize_TCB);
+   procedure Finalize_TCB (T : ST.Task_Id);
+   pragma Inline (Finalize_TCB);
    --  Finalizes Private_Data of ATCB, and then deallocates it. This is also
    --  responsible for recovering any storage or other resources that were
    --  allocated by Create_Task (the one in this package). This should only be
@@ -341,9 +341,9 @@ package System.Task_Primitives.Operations is
    --  unspecified Epoch. This clock implementation is immune to the
    --  system's clock changes.
 
---   function RT_Resolution return Duration;
---   pragma Inline (RT_Resolution);
---   --  Returns resolution of the underlying clock used to implement RT_Clock
+   function RT_Resolution return Duration;
+   pragma Inline (RT_Resolution);
+   --  Returns resolution of the underlying clock used to implement RT_Clock
 
    ----------------
    -- Extensions --
@@ -375,14 +375,14 @@ package System.Task_Primitives.Operations is
    --  permitted), but it will definitely become ready for execution when a
    --  Wakeup operation is performed for the same task.
 
---   procedure Timed_Sleep
---     (Self_ID  : ST.Task_Id;
---      Time     : Duration;
---      Mode     : ST.Delay_Modes;
---      Reason   : System.Tasking.Task_States;
---      Timedout : out Boolean;
---      Yielded  : out Boolean);
---   --  Combination of Sleep (above) and Timed_Delay
+   procedure Timed_Sleep
+     (Self_ID  : ST.Task_Id;
+      Time     : Duration;
+      Mode     : ST.Delay_Modes;
+      Reason   : System.Tasking.Task_States;
+      Timedout : out Boolean;
+      Yielded  : out Boolean);
+   --  Combination of Sleep (above) and Timed_Delay
 
    procedure Timed_Delay
      (Self_ID : ST.Task_Id;
@@ -405,12 +405,12 @@ package System.Task_Primitives.Operations is
    --  Consider putting this into a variable visible directly
    --  by the rest of the runtime system. ???
 
---   function Get_Thread_Id (T : ST.Task_Id) return OSI.Thread_Id;
---   --  Return the thread id of the specified task
---
---   function Is_Valid_Task return Boolean;
---   pragma Inline (Is_Valid_Task);
---   --  Does the calling thread have an ATCB?
+   function Get_Thread_Id (T : ST.Task_Id) return OSI.Thread_Id;
+   --  Return the thread id of the specified task
+
+   function Is_Valid_Task return Boolean;
+   pragma Inline (Is_Valid_Task);
+   --  Does the calling thread have an ATCB?
 
    function Register_Foreign_Thread return ST.Task_Id;
    --  Allocate and initialize a new ATCB for the current thread
@@ -431,28 +431,28 @@ package System.Task_Primitives.Operations is
    procedure Unlock_RTS;
    --  Release the global RTS lock
 
---   --------------------
---   -- Stack Checking --
---   --------------------
---
---   --  Stack checking in GNAT is done using the concept of stack probes. A
---   --  stack probe is an operation that will generate a storage error if
---   --  an insufficient amount of stack space remains in the current task.
---
---   --  The exact mechanism for a stack probe is target dependent. Typical
---   --  possibilities are to use a load from a non-existent page, a store to a
---   --  read-only page, or a comparison with some stack limit constant. Where
---   --  possible we prefer to use a trap on a bad page access, since this has
---   --  less overhead. The generation of stack probes is either automatic if
---   --  the ABI requires it (as on for example DEC Unix), or is controlled by
---   --  the gcc parameter -fstack-check.
---
---   --  When we are using bad-page accesses, we need a bad page, called guard
---   --  page, at the end of each task stack. On some systems, this is provided
---   --  automatically, but on other systems, we need to create the guard page
---   --  ourselves, and the procedure Stack_Guard is provided for this purpose.
+   --------------------
+   -- Stack Checking --
+   --------------------
 
---   procedure Stack_Guard (T : ST.Task_Id; On : Boolean);
+   --  Stack checking in GNAT is done using the concept of stack probes. A
+   --  stack probe is an operation that will generate a storage error if
+   --  an insufficient amount of stack space remains in the current task.
+
+   --  The exact mechanism for a stack probe is target dependent. Typical
+   --  possibilities are to use a load from a non-existent page, a store to a
+   --  read-only page, or a comparison with some stack limit constant. Where
+   --  possible we prefer to use a trap on a bad page access, since this has
+   --  less overhead. The generation of stack probes is either automatic if
+   --  the ABI requires it (as on for example DEC Unix), or is controlled by
+   --  the gcc parameter -fstack-check.
+
+   --  When we are using bad-page accesses, we need a bad page, called guard
+   --  page, at the end of each task stack. On some systems, this is provided
+   --  automatically, but on other systems, we need to create the guard page
+   --  ourselves, and the procedure Stack_Guard is provided for this purpose.
+
+   procedure Stack_Guard (T : ST.Task_Id; On : Boolean);
    --  Ensure guard page is set if one is needed and the underlying thread
    --  system does not provide it. The procedure is as follows:
    --
@@ -480,43 +480,43 @@ package System.Task_Primitives.Operations is
    --  These interfaces have been added to assist in debugging the
    --  tasking runtime system.
 
---   function Check_Exit (Self_ID : ST.Task_Id) return Boolean;
---   pragma Inline (Check_Exit);
---   --  Check that the current task is holding only Global_Task_Lock
+   function Check_Exit (Self_ID : ST.Task_Id) return Boolean;
+   pragma Inline (Check_Exit);
+   --  Check that the current task is holding only Global_Task_Lock
 
    function Check_No_Locks (Self_ID : ST.Task_Id) return Boolean;
    pragma Inline (Check_No_Locks);
    --  Check that current task is holding no locks
 
---   function Suspend_Task
---     (T           : ST.Task_Id;
---      Thread_Self : OSI.Thread_Id) return Boolean;
+   function Suspend_Task
+     (T           : ST.Task_Id;
+      Thread_Self : OSI.Thread_Id) return Boolean;
    --  Suspend a specific task when the underlying thread library provides this
    --  functionality, unless the thread associated with T is Thread_Self. Such
    --  functionality is needed by gdb on some targets (e.g VxWorks) Return True
    --  is the operation is successful. On targets where this operation is not
    --  available, a dummy body is present which always returns False.
 
---   function Resume_Task
---     (T           : ST.Task_Id;
---      Thread_Self : OSI.Thread_Id) return Boolean;
+   function Resume_Task
+     (T           : ST.Task_Id;
+      Thread_Self : OSI.Thread_Id) return Boolean;
    --  Resume a specific task when the underlying thread library provides
    --  such functionality, unless the thread associated with T is Thread_Self.
    --  Such functionality is needed by gdb on some targets (e.g VxWorks)
    --  Return True is the operation is successful
 
---   procedure Stop_All_Tasks;
+   procedure Stop_All_Tasks;
    --  Stop all tasks when the underlying thread library provides such
    --  functionality. Such functionality is needed by gdb on some targets (e.g
    --  VxWorks) This function can be run from an interrupt handler. Return True
    --  is the operation is successful
 
---   function Stop_Task (T : ST.Task_Id) return Boolean;
+   function Stop_Task (T : ST.Task_Id) return Boolean;
    --  Stop a specific task when the underlying thread library provides
    --  such functionality. Such functionality is needed by gdb on some targets
    --  (e.g VxWorks). Return True is the operation is successful.
 
---   function Continue_Task (T : ST.Task_Id) return Boolean;
+   function Continue_Task (T : ST.Task_Id) return Boolean;
    --  Continue a specific task when the underlying thread library provides
    --  such functionality. Such functionality is needed by gdb on some targets
    --  (e.g VxWorks) Return True is the operation is successful
@@ -525,7 +525,7 @@ package System.Task_Primitives.Operations is
    -- Task affinity --
    -------------------
 
---   procedure Set_Task_Affinity (T : ST.Task_Id);
+   procedure Set_Task_Affinity (T : ST.Task_Id);
    --  Enforce at the operating system level the task affinity defined in the
    --  Ada Task Control Block. Has no effect if the underlying operating system
    --  does not support this capability.
