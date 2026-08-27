@@ -9,6 +9,7 @@ with Interfaces.C;
 
 with System.FreeRTOS;
 with System.OS_Primitives;
+with System.Tasking.Debug;
 
 package body System.Task_Primitives.Operations is
 
@@ -18,6 +19,7 @@ package body System.Task_Primitives.Operations is
    use System.OS_Primitives;
    use System.Parameters;
    use System.Tasking;
+   use System.Tasking.Debug;
 
    use type Interfaces.C.int;
 
@@ -495,8 +497,8 @@ package body System.Task_Primitives.Operations is
       --  Make environment task known here because it doesn't go through
       --  Activate_Tasks, which does it for all other tasks.
 
---      Known_Tasks (Known_Tasks'First) := Environment_Task;
---      Environment_Task.Known_Tasks_Index := Known_Tasks'First;
+      Known_Tasks (Known_Tasks'First) := Environment_Task;
+      Environment_Task.Known_Tasks_Index := Known_Tasks'First;
 
       Enter_Task (Environment_Task);
 
