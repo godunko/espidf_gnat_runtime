@@ -34,11 +34,11 @@ jobs:
       with:
         repository: godunko/xtensa-dynconfig
         path: crates/xtensa-dynconfig
-    - name: Checkout `bb-runtimes` for FSF GCC 15
+    - name: Checkout `bb-runtimes` for FSF GCC 16
       uses: actions/checkout@v4
       with:
         repository: alire-project/bb-runtimes
-        ref: gnat-fsf-15
+        ref: gnat-fsf-16
         path: crates/bb-runtimes
 
     - name: Build Xtensa Dynconfig
