@@ -375,14 +375,14 @@ package System.Task_Primitives.Operations is
    --  permitted), but it will definitely become ready for execution when a
    --  Wakeup operation is performed for the same task.
 
---   procedure Timed_Sleep
---     (Self_ID  : ST.Task_Id;
---      Time     : Duration;
---      Mode     : ST.Delay_Modes;
---      Reason   : System.Tasking.Task_States;
---      Timedout : out Boolean;
---      Yielded  : out Boolean);
---   --  Combination of Sleep (above) and Timed_Delay
+   procedure Timed_Sleep
+     (Self_ID  : ST.Task_Id;
+      Time     : Duration;
+      Mode     : ST.Delay_Modes;
+      Reason   : System.Tasking.Task_States;
+      Timedout : out Boolean;
+      Yielded  : out Boolean);
+   --  Combination of Sleep (above) and Timed_Delay
 
    procedure Timed_Delay
      (Self_ID : ST.Task_Id;

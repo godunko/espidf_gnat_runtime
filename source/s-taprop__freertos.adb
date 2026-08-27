@@ -692,6 +692,117 @@ package body System.Task_Primitives.Operations is
    end Sleep;
 
    -----------------
+   -- Timed_Sleep --
+   -----------------
+
+   --  This is for use within the run-time system, so abort is assumed to be
+   --  already deferred, and the caller should be holding its own ATCB lock.
+
+   procedure Timed_Sleep
+     (Self_ID  : Task_Id;
+      Time     : Duration;
+      Mode     : ST.Delay_Modes;
+      Reason   : System.Tasking.Task_States;
+      Timedout : out Boolean;
+      Yielded  : out Boolean)
+   is
+      pragma Unreferenced (Reason);
+
+      Orig     : constant Duration := Monotonic_Clock;
+      Absolute : Duration;
+      Ticks    : TickType_t;
+      Wakeup   : Boolean := False;
+      Result   : BaseType_t;
+
+   begin
+      Timedout := False;
+      Yielded  := True;
+
+      if Mode = Relative then
+         Absolute := Orig + Time;
+
+         --  Systematically add one since the first tick will delay *at most*
+         --  1 / Rate_Duration seconds, so we need to add one to be on the
+         --  safe side.
+
+         Ticks := To_Ticks (Time);
+
+         if Ticks > 0 and then Ticks < portMAX_DELAY then
+            Ticks := Ticks + 1;
+         end if;
+
+      else
+         Absolute := Time;
+         Ticks    := To_Ticks (Time - Monotonic_Clock);
+      end if;
+
+      if Ticks = System.FreeRTOS.portMAX_DELAY then
+         --  portMAX_DELAY is used to indicate infinite delay, avoid its use.
+
+         Ticks := @ - 1;
+      end if;
+
+      if Ticks > 0 then
+         loop
+            --  Release the mutex before sleeping
+
+            Result := xSemaphoreGive (Self_ID.Common.LL.L.Mutex);
+            pragma Assert (Result = pdTRUE);
+
+            --  Perform a blocking operation to take the CV semaphore.
+
+            Result := xSemaphoreTake (Self_ID.Common.LL.CV, Ticks);
+
+            if Result /= pdTRUE then
+
+               --  Somebody may have called Wakeup for us
+
+               Wakeup := True;
+
+            else
+               --  If Ticks = portMAX_DELAY - 1, it was most probably
+               --  truncated, so make another round after recomputing
+               --  Ticks from absolute time.
+
+               if Ticks /= System.FreeRTOS.portMAX_DELAY - 1 then
+                  Timedout := True;
+
+               else
+                  Ticks := To_Ticks (Absolute - Monotonic_Clock);
+
+                  if Ticks = 0 then
+                     Timedout := True;
+
+                  elsif Ticks = portMAX_DELAY then
+                     --  portMAX_DELAY is used to indicate infinite delay,
+                     --  avoid its use.
+
+                     Ticks := @ - 1;
+                  end if;
+               end if;
+            end if;
+
+            --  Take the mutex back
+
+            Result :=
+              xSemaphoreTake (Self_ID.Common.LL.L.Mutex, portMAX_DELAY);
+            pragma Assert (Result = pdTRUE);
+
+            exit when Timedout or Wakeup;
+         end loop;
+
+      else
+         Timedout := True;
+
+         --  Should never hold a lock while yielding
+
+         Result := xSemaphoreGive (Self_ID.Common.LL.L.Mutex);
+         vTaskDelay (0);
+         Result := xSemaphoreTake (Self_ID.Common.LL.L.Mutex, portMAX_DELAY);
+      end if;
+   end Timed_Sleep;
+
+   -----------------
    -- Timed_Delay --
    -----------------
 
