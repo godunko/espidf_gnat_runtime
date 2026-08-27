@@ -172,12 +172,12 @@ package System.Parameters is
    --  pragma Restrictions (No_Abort_Statements);
    --  pragma Restrictions (Max_Asynchronous_Select_Nesting => 0);
 
---   ---------------------
---   -- Task Attributes --
---   ---------------------
---
---   Max_Attribute_Count : constant := 32;
---   --  Number of task attributes stored in the task control block
+   ---------------------
+   -- Task Attributes --
+   ---------------------
+
+   Max_Attribute_Count : constant := 4;
+   --  Number of task attributes stored in the task control block
 
    -----------------------
    -- Task Image Length --
