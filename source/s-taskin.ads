@@ -1159,8 +1159,8 @@ package System.Tasking is
 
 --      Known_Tasks_Index : Integer := -1;
 --      --  Index in the System.Tasking.Debug.Known_Tasks array
---
---      User_State : Long_Integer := 0;
+
+      User_State : Long_Integer := 0;
       --  User-writeable location, for use in debugging tasks; also provides a
       --  simple task specific data.
 

@@ -8,7 +8,6 @@ with Ada.Unchecked_Conversion;
 with Interfaces.C;
 
 with System.FreeRTOS;
-with System.OS_Interface;
 with System.OS_Primitives;
 
 package body System.Task_Primitives.Operations is
@@ -270,6 +269,103 @@ package body System.Task_Primitives.Operations is
    begin
       Unlock (Single_RTS_Lock'Access);
    end Unlock_RTS;
+
+   ------------------
+   -- Suspend_Task --
+   ------------------
+
+   function Suspend_Task
+     (T           : ST.Task_Id;
+      Thread_Self : Thread_Id) return Boolean
+   is
+   begin
+      if T.Common.LL.Thread /= Null_Thread_Id
+        and then T.Common.LL.Thread /= Thread_Self
+      then
+--         return taskSuspend (T.Common.LL.Thread) = OK;
+         raise Program_Error;
+      else
+         return True;
+      end if;
+   end Suspend_Task;
+
+   -----------------
+   -- Resume_Task --
+   -----------------
+
+   function Resume_Task
+     (T           : ST.Task_Id;
+      Thread_Self : Thread_Id) return Boolean
+   is
+   begin
+      if T.Common.LL.Thread /= Null_Thread_Id
+        and then T.Common.LL.Thread /= Thread_Self
+      then
+--         return taskResume (T.Common.LL.Thread) = OK;
+         raise Program_Error;
+      else
+         return True;
+      end if;
+   end Resume_Task;
+
+   --------------------
+   -- Stop_All_Tasks --
+   --------------------
+
+   procedure Stop_All_Tasks
+   is
+      Thread_Self : constant Thread_Id := xTaskGetCurrentTaskHandle;
+      C           : Task_Id;
+
+--      Dummy : STATUS;
+--      Old   : int;
+
+   begin
+--      Old := Int_Lock;
+
+      C := All_Tasks_List;
+      while C /= null loop
+         if C.Common.LL.Thread /= Null_Thread_Id
+           and then C.Common.LL.Thread /= Thread_Self
+         then
+--            Dummy := Task_Stop (C.Common.LL.Thread);
+            raise Program_Error;
+         end if;
+
+         C := C.Common.All_Tasks_Link;
+      end loop;
+
+--      Int_Unlock (Old);
+   end Stop_All_Tasks;
+
+   ---------------
+   -- Stop_Task --
+   ---------------
+
+   function Stop_Task (T : ST.Task_Id) return Boolean is
+   begin
+      if T.Common.LL.Thread /= Null_Thread_Id then
+--         return Task_Stop (T.Common.LL.Thread) = OK;
+         raise Program_Error;
+      else
+         return True;
+      end if;
+   end Stop_Task;
+
+   -------------------
+   -- Continue_Task --
+   -------------------
+
+   function Continue_Task (T : ST.Task_Id) return Boolean
+   is
+   begin
+      if T.Common.LL.Thread /= Null_Thread_Id then
+--         return Task_Cont (T.Common.LL.Thread) = OK;
+         raise Program_Error;
+      else
+         return True;
+      end if;
+   end Continue_Task;
 
    ---------------------
    -- Is_Task_Context --

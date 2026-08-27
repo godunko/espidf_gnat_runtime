@@ -36,7 +36,7 @@
 package System.CRTL is
    pragma Preelaborate;
 
---   subtype chars is System.Address;
+   subtype chars is System.Address;
    --  Pointer to null-terminated array of characters
    --  Should use Interfaces.C.Strings types instead, but this causes bootstrap
    --  issues as i-c contains Ada 2005 specific features, not compatible with
@@ -47,9 +47,9 @@ package System.CRTL is
 --
 --   subtype FILEs is System.Address;
 --   --  Corresponds to the C type FILE*
---
---   subtype int is Integer;
---
+
+   subtype int is Integer;
+
 --   type unsigned is mod 2 ** 32;
 --   for unsigned'Size use 32;
 --
@@ -60,8 +60,8 @@ package System.CRTL is
 
    type size_t is mod System.Memory_Size;
 
---   type ssize_t is range -Memory_Size / 2 .. Memory_Size / 2 - 1;
---
+   type ssize_t is range -Memory_Size / 2 .. Memory_Size / 2 - 1;
+
 --   type int64 is new Long_Long_Integer;
 --   --  Note: we use Long_Long_Integer'First instead of -2 ** 63 to allow this
 --   --  unit to compile when using custom target configuration files where the
@@ -232,13 +232,13 @@ package System.CRTL is
 --
 --   function close (fd : int) return int;
 --   pragma Import (C, close, "close");
---
---   function read (fd : int; buffer : chars; count : size_t) return ssize_t;
---   pragma Inline (read);
---   --  Different return types on Windows and Posix, requires body
---
---   function write (fd : int; buffer : chars; count : size_t) return ssize_t;
---   pragma Inline (write);
---   --  Different return types on Windows and Posix, requires body
+
+   function read (fd : int; buffer : chars; count : size_t) return ssize_t;
+   pragma Inline (read);
+   --  Different return types on Windows and Posix, requires body
+
+   function write (fd : int; buffer : chars; count : size_t) return ssize_t;
+   pragma Inline (write);
+   --  Different return types on Windows and Posix, requires body
 
 end System.CRTL;

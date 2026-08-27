@@ -32,14 +32,14 @@
 --  This package contains all the GNULL primitives that interface directly with
 --  the underlying OS.
 
---  with System.OS_Interface;
+with System.OS_Interface;
 with System.Parameters;
 with System.Tasking;
 
 package System.Task_Primitives.Operations is
    pragma Preelaborate;
 
---   package OSI renames System.OS_Interface;
+   package OSI renames System.OS_Interface;
    package ST  renames System.Tasking;
 
    procedure Initialize (Environment_Task : ST.Task_Id);
@@ -488,35 +488,35 @@ package System.Task_Primitives.Operations is
    pragma Inline (Check_No_Locks);
    --  Check that current task is holding no locks
 
---   function Suspend_Task
---     (T           : ST.Task_Id;
---      Thread_Self : OSI.Thread_Id) return Boolean;
+   function Suspend_Task
+     (T           : ST.Task_Id;
+      Thread_Self : OSI.Thread_Id) return Boolean;
    --  Suspend a specific task when the underlying thread library provides this
    --  functionality, unless the thread associated with T is Thread_Self. Such
    --  functionality is needed by gdb on some targets (e.g VxWorks) Return True
    --  is the operation is successful. On targets where this operation is not
    --  available, a dummy body is present which always returns False.
 
---   function Resume_Task
---     (T           : ST.Task_Id;
---      Thread_Self : OSI.Thread_Id) return Boolean;
+   function Resume_Task
+     (T           : ST.Task_Id;
+      Thread_Self : OSI.Thread_Id) return Boolean;
    --  Resume a specific task when the underlying thread library provides
    --  such functionality, unless the thread associated with T is Thread_Self.
    --  Such functionality is needed by gdb on some targets (e.g VxWorks)
    --  Return True is the operation is successful
 
---   procedure Stop_All_Tasks;
+   procedure Stop_All_Tasks;
    --  Stop all tasks when the underlying thread library provides such
    --  functionality. Such functionality is needed by gdb on some targets (e.g
    --  VxWorks) This function can be run from an interrupt handler. Return True
    --  is the operation is successful
 
---   function Stop_Task (T : ST.Task_Id) return Boolean;
+   function Stop_Task (T : ST.Task_Id) return Boolean;
    --  Stop a specific task when the underlying thread library provides
    --  such functionality. Such functionality is needed by gdb on some targets
    --  (e.g VxWorks). Return True is the operation is successful.
 
---   function Continue_Task (T : ST.Task_Id) return Boolean;
+   function Continue_Task (T : ST.Task_Id) return Boolean;
    --  Continue a specific task when the underlying thread library provides
    --  such functionality. Such functionality is needed by gdb on some targets
    --  (e.g VxWorks) Return True is the operation is successful
