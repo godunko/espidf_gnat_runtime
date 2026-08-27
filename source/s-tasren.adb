@@ -6,7 +6,7 @@
 --                                                                          --
 --                                 B o d y                                  --
 --                                                                          --
---         Copyright (C) 1992-2025, Free Software Foundation, Inc.          --
+--         Copyright (C) 1992-2026, Free Software Foundation, Inc.          --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -194,8 +194,8 @@ package body System.Tasking.Rendezvous is
 --         if Self_Id.Common.Call /= null then
 --            Caller := Self_Id.Common.Call.Self;
 --
---            pragma Assert (Caller.ATC_Nesting_Level >
---  Level_No_ATC_Occurring);
+--            pragma Assert
+--  (Caller.ATC_Nesting_Level > Level_No_ATC_Occurring);
 --
 --            Uninterpreted_Data :=
 --              Caller.Entry_Calls
