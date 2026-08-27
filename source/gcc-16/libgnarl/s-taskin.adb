@@ -6,7 +6,7 @@
 --                                                                          --
 --                                  B o d y                                 --
 --                                                                          --
---          Copyright (C) 1992-2025, Free Software Foundation, Inc.         --
+--          Copyright (C) 1992-2026, Free Software Foundation, Inc.         --
 --                                                                          --
 -- GNARL is free software; you can  redistribute it  and/or modify it under --
 -- terms of the  GNU General Public License as published  by the Free Soft- --
@@ -51,14 +51,14 @@ package body System.Tasking is
       return GL_Detect_Blocking = 1;
    end Detect_Blocking;
 
---   -----------------------
---   -- Number_Of_Entries --
---   -----------------------
---
---   function Number_Of_Entries (Self_Id : Task_Id) return Entry_Index is
---   begin
---      return Entry_Index (Self_Id.Entry_Num);
---   end Number_Of_Entries;
+   -----------------------
+   -- Number_Of_Entries --
+   -----------------------
+
+   function Number_Of_Entries (Self_Id : Task_Id) return Entry_Index is
+   begin
+      return Entry_Index (Self_Id.Entry_Num);
+   end Number_Of_Entries;
 
    ----------
    -- Self --
@@ -66,33 +66,33 @@ package body System.Tasking is
 
    function Self return Task_Id renames STPO.Self;
 
---   ------------------
---   -- Storage_Size --
---   ------------------
---
---   function Storage_Size (T : Task_Id) return System.Parameters.Size_Type is
---   begin
---      return
---         System.Parameters.Size_Type
---           (T.Common.Compiler_Data.Pri_Stack_Info.Size);
---   end Storage_Size;
+   ------------------
+   -- Storage_Size --
+   ------------------
+
+   function Storage_Size (T : Task_Id) return System.Parameters.Size_Type is
+   begin
+      return
+         System.Parameters.Size_Type
+           (T.Common.Compiler_Data.Pri_Stack_Info.Size);
+   end Storage_Size;
 
    ---------------------
    -- Initialize_ATCB --
    ---------------------
 
    procedure Initialize_ATCB
-     (Self_ID          : Task_Id with Unreferenced;
-      Task_Entry_Point : Task_Procedure_Access with Unreferenced;
-      Task_Arg         : System.Address with Unreferenced;
-      Parent           : Task_Id with Unreferenced;
-      Elaborated       : Access_Boolean with Unreferenced;
-      Base_Priority    : System.Any_Priority with Unreferenced;
-      Base_CPU         : System.Multiprocessors.CPU_Range with Unreferenced;
-      CPU_Is_Explicit  : Boolean with Unreferenced;
-      Domain           : Dispatching_Domain_Access with Unreferenced;
-      Task_Info        : System.Task_Info.Task_Info_Type with Unreferenced;
-      Stack_Size       : System.Parameters.Size_Type with Unreferenced;
+     (Self_ID          : Task_Id;
+      Task_Entry_Point : Task_Procedure_Access;
+      Task_Arg         : System.Address;
+      Parent           : Task_Id;
+      Elaborated       : Access_Boolean;
+      Base_Priority    : System.Any_Priority;
+      Base_CPU         : System.Multiprocessors.CPU_Range;
+      CPU_Is_Explicit  : Boolean;
+      Domain           : Dispatching_Domain_Access;
+      Task_Info        : System.Task_Info.Task_Info_Type;
+      Stack_Size       : System.Parameters.Size_Type;
       T                : Task_Id;
       Success          : out Boolean) is
    begin
@@ -112,36 +112,36 @@ package body System.Tasking is
 
       T.Common.Parent := Parent;
       T.Common.Base_Priority := Base_Priority;
---      T.Common.CPU_Is_Explicit := CPU_Is_Explicit;
+      T.Common.CPU_Is_Explicit := CPU_Is_Explicit;
       T.Common.Base_CPU := Base_CPU;
 
       --  The Domain defaults to that of the activator. But that can be null in
       --  the case of foreign threads (see Register_Foreign_Thread), in which
       --  case we default to the System_Domain.
 
---      if Domain /= null then
---         T.Common.Domain := Domain;
---      elsif Self_ID.Common.Domain /= null then
---         T.Common.Domain := Self_ID.Common.Domain;
---      else
---         T.Common.Domain := System_Domain;
---      end if;
---      pragma Assert (T.Common.Domain /= null);
+      if Domain /= null then
+         T.Common.Domain := Domain;
+      elsif Self_ID.Common.Domain /= null then
+         T.Common.Domain := Self_ID.Common.Domain;
+      else
+         T.Common.Domain := System_Domain;
+      end if;
+      pragma Assert (T.Common.Domain /= null);
 
       T.Common.Current_Priority         := Priority'First;
       T.Common.Protected_Action_Nesting := 0;
---      T.Common.Call                     := null;
+      T.Common.Call                     := null;
       T.Common.Task_Arg                 := Task_Arg;
       T.Common.Task_Entry_Point         := Task_Entry_Point;
       T.Common.Activator                := Self_ID;
       T.Common.Wait_Count               := 0;
---      T.Common.Elaborated               := Elaborated;
---      T.Common.Activation_Failed        := False;
---      T.Common.Task_Info                := Task_Info;
+      T.Common.Elaborated               := Elaborated;
+      T.Common.Activation_Failed        := False;
+      T.Common.Task_Info                := Task_Info;
       T.Common.Global_Task_Lock_Nesting := 0;
       T.Common.Fall_Back_Handler        := null;
       T.Common.Specific_Handler         := null;
---      T.Common.Debug_Events             := [others => False];
+      T.Common.Debug_Events             := [others => False];
       T.Common.Task_Image_Len           := 0;
 
       if T.Common.Parent = null then
@@ -195,7 +195,7 @@ package body System.Tasking is
       Base_CPU      : System.Multiprocessors.CPU_Range;
       Success       : Boolean;
 
---      use type System.Multiprocessors.CPU_Range;
+      use type System.Multiprocessors.CPU_Range;
 
    begin
       if Initialized then
@@ -250,20 +250,20 @@ package body System.Tasking is
       T.Common.Task_Image_Len := Main_Task_Image'Length;
       T.Common.Task_Image (Main_Task_Image'Range) := Main_Task_Image;
 
---      Dispatching_Domain_Tasks :=
---        new Array_Allocated_Tasks'
---          (Multiprocessors.CPU'First .. Multiprocessors.Number_Of_CPUs => 0);
+      Dispatching_Domain_Tasks :=
+        new Array_Allocated_Tasks'
+          (Multiprocessors.CPU'First .. Multiprocessors.Number_Of_CPUs => 0);
 
       --  Signal that this task is being allocated to a processor
 
---      if Base_CPU /= System.Multiprocessors.Not_A_Specific_CPU then
---
---         --  Increase the number of tasks attached to the CPU to which this
---         --  task is allocated.
---
---         Dispatching_Domain_Tasks (Base_CPU) :=
---           Dispatching_Domain_Tasks (Base_CPU) + 1;
---      end if;
+      if Base_CPU /= System.Multiprocessors.Not_A_Specific_CPU then
+
+         --  Increase the number of tasks attached to the CPU to which this
+         --  task is allocated.
+
+         Dispatching_Domain_Tasks (Base_CPU) :=
+           Dispatching_Domain_Tasks (Base_CPU) + 1;
+      end if;
 
       --  The full initialization of the environment task's Entry_Calls array
       --  is deferred to Init_RTS because only the first element of the array

@@ -35,12 +35,12 @@
 --  Any changes to this interface may require corresponding compiler changes.
 
 with Ada.Exceptions;
---  with Ada.Unchecked_Conversion;
+with Ada.Unchecked_Conversion;
 
 with System.Multiprocessors;
 with System.Parameters;
 with System.Soft_Links;
---  with System.Stack_Usage;
+with System.Stack_Usage;
 with System.Task_Info;
 with System.Task_Primitives;
 
@@ -118,12 +118,12 @@ package System.Tasking is
    --  This is the compiler interface version of this function. Do not call
    --  from the run-time system.
 
---   function To_Task_Id is
---     new Ada.Unchecked_Conversion
---       (System.Task_Primitives.Task_Address, Task_Id);
---   function To_Address is
---     new Ada.Unchecked_Conversion
---       (Task_Id, System.Task_Primitives.Task_Address);
+   function To_Task_Id is
+     new Ada.Unchecked_Conversion
+       (System.Task_Primitives.Task_Address, Task_Id);
+   function To_Address is
+     new Ada.Unchecked_Conversion
+       (Task_Id, System.Task_Primitives.Task_Address);
 
    -----------------------
    -- Enumeration types --
@@ -215,7 +215,7 @@ package System.Tasking is
    type Call_Modes is
      (Simple_Call, Conditional_Call, Asynchronous_Call, Timed_Call);
 
---   type Select_Modes is (Simple_Mode, Else_Mode, Terminate_Mode, Delay_Mode);
+   type Select_Modes is (Simple_Mode, Else_Mode, Terminate_Mode, Delay_Mode);
 
    subtype Delay_Modes is Integer;
 
@@ -229,7 +229,7 @@ package System.Tasking is
 
    Interrupt_Entry : constant := -2;
 
---   Cancelled_Entry : constant := -1;
+   Cancelled_Entry : constant := -1;
 
    type Entry_Index is range Interrupt_Entry .. Max_Entry;
 
@@ -255,7 +255,7 @@ package System.Tasking is
    --  A data structure which contains the string names of entries and entry
    --  family members.
 
---   type String_Access is access all String;
+   type String_Access is access all String;
 
    ----------------------------------
    -- Entry_Call_Record definition --
@@ -315,35 +315,35 @@ package System.Tasking is
    --      whether it is OK to advance to the abortable part of an
    --      async. select statement does not need to lock anything.
 
---   type Restricted_Entry_Call_Record is record
---      Self : Task_Id;
---      --  ID of the caller
---
---      Mode : Call_Modes;
---
---      State : Entry_Call_State;
---      pragma Atomic (State);
---      --  Indicates part of the state of the call.
---      --
---      --  Protection: If the call is not on a queue, it should only be
---      --  accessed by Self, and Self does not need any lock to modify this
---      --  field.
---      --
---      --  Once the call is on a queue, the value should be something other
---      --  than Done unless it is cancelled, and access is controller by the
---      --  "server" of the queue -- i.e., the lock of Checked_To_Protection
---      --  (Call_Target) if the call record is on the queue of a PO, or the
---      --  lock of Called_Target if the call is on the queue of a task. See
---      --  comments on type declaration for more details.
---
---      Uninterpreted_Data : System.Address;
---      --  Data passed by the compiler
---
---      Exception_To_Raise : Ada.Exceptions.Exception_Id;
---      --  The exception to raise once this call has been completed without
---      --  being aborted.
---   end record;
---   pragma Suppress_Initialization (Restricted_Entry_Call_Record);
+   type Restricted_Entry_Call_Record is record
+      Self : Task_Id;
+      --  ID of the caller
+
+      Mode : Call_Modes;
+
+      State : Entry_Call_State;
+      pragma Atomic (State);
+      --  Indicates part of the state of the call.
+      --
+      --  Protection: If the call is not on a queue, it should only be
+      --  accessed by Self, and Self does not need any lock to modify this
+      --  field.
+      --
+      --  Once the call is on a queue, the value should be something other
+      --  than Done unless it is cancelled, and access is controller by the
+      --  "server" of the queue -- i.e., the lock of Checked_To_Protection
+      --  (Call_Target) if the call record is on the queue of a PO, or the
+      --  lock of Called_Target if the call is on the queue of a task. See
+      --  comments on type declaration for more details.
+
+      Uninterpreted_Data : System.Address;
+      --  Data passed by the compiler
+
+      Exception_To_Raise : Ada.Exceptions.Exception_Id;
+      --  The exception to raise once this call has been completed without
+      --  being aborted.
+   end record;
+   pragma Suppress_Initialization (Restricted_Entry_Call_Record);
 
    -------------------------------------------
    -- Task termination procedure definition --
@@ -395,7 +395,7 @@ package System.Tasking is
    --  We use a pointer which creates the actual variable for the reasons
    --  explained below in Dispatching_Domain_Tasks.
 
---   Dispatching_Domains_Frozen : Boolean := False;
+   Dispatching_Domains_Frozen : Boolean := False;
    --  True when the main procedure has been called. Hence, no new dispatching
    --  domains can be created when this flag is True.
 
@@ -461,9 +461,9 @@ package System.Tasking is
 
    subtype Debug_Event_Array is Bit_Array (1 .. 16);
 
---   Global_Task_Debug_Event_Set : Boolean := False;
---   --  Set True when running under debugger control and a task debug event
---   --  signal has been requested.
+   Global_Task_Debug_Event_Set : Boolean := False;
+   --  Set True when running under debugger control and a task debug event
+   --  signal has been requested.
 
    ----------------------------------------------
    -- Ada_Task_Control_Block (ATCB) definition --
@@ -680,8 +680,8 @@ package System.Tasking is
       --  System-specific attributes of the task as specified by the
       --  Task_Info pragma.
 
---      Analyzer : System.Stack_Usage.Stack_Analyzer;
---      --  For storing information used to measure the stack usage
+      Analyzer : System.Stack_Usage.Stack_Analyzer;
+      --  For storing information used to measure the stack usage
 
       Global_Task_Lock_Nesting : Natural;
       --  This is the current nesting level of calls to
@@ -730,22 +730,22 @@ package System.Tasking is
    --  Note that the restricted GNARLI should only access fields that are
    --  present in the Restricted_Ada_Task_Control_Block structure.
 
---   type Restricted_Ada_Task_Control_Block (Entry_Num : Task_Entry_Index) is
---   limited record
---      Common : Common_ATCB;
---      --  The common part between various tasking implementations
---
---      Entry_Call : aliased Restricted_Entry_Call_Record;
---      --  Protection: This field is used on entry call "queues" associated
---      --  with protected objects, and is protected by the protected object
---      --  lock.
---   end record;
---   pragma Suppress_Initialization (Restricted_Ada_Task_Control_Block);
---
---   Interrupt_Manager_ID : Task_Id;
---   --  This task ID is declared here to break circular dependencies.
---   --  Also declare Interrupt_Manager_ID after Task_Id is known, to avoid
---   --  generating unneeded finalization code.
+   type Restricted_Ada_Task_Control_Block (Entry_Num : Task_Entry_Index) is
+   limited record
+      Common : Common_ATCB;
+      --  The common part between various tasking implementations
+
+      Entry_Call : aliased Restricted_Entry_Call_Record;
+      --  Protection: This field is used on entry call "queues" associated
+      --  with protected objects, and is protected by the protected object
+      --  lock.
+   end record;
+   pragma Suppress_Initialization (Restricted_Ada_Task_Control_Block);
+
+   Interrupt_Manager_ID : Task_Id;
+   --  This task ID is declared here to break circular dependencies.
+   --  Also declare Interrupt_Manager_ID after Task_Id is known, to avoid
+   --  generating unneeded finalization code.
 
    -----------------------
    -- List of all Tasks --
@@ -763,7 +763,7 @@ package System.Tasking is
    --------------------------------
 
    subtype Master_Level is Integer;
---   subtype Master_ID is Master_Level;
+   subtype Master_ID is Master_Level;
 
    --  Normally, a task starts out with internal master nesting level one
    --  larger than external master nesting level. It is incremented by one by
@@ -775,9 +775,9 @@ package System.Tasking is
    --  the run-time have a level of 0, allowing these tasks to be easily
    --  distinguished if needed.
 
---   Foreign_Task_Level     : constant Master_Level := 0;
+   Foreign_Task_Level     : constant Master_Level := 0;
    Environment_Task_Level : constant Master_Level := 1;
---   Independent_Task_Level : constant Master_Level := 2;
+   Independent_Task_Level : constant Master_Level := 2;
    Library_Task_Level     : constant Master_Level := 3;
    --  Note that the value of Library_Task_Level is also hard coded in the
    --  compiler, see Rtsfind.Library_Task_Level. The two should be kept in
@@ -947,23 +947,23 @@ package System.Tasking is
       --  Tell caller whether the call may be aborted
       --  ??? consider merging this with Was_Abortable state
 
---      Needs_Requeue : Boolean := False;
---      --  Temporary to tell acceptor of task entry call that
---      --  Exceptional_Complete_Rendezvous needs to do requeue.
+      Needs_Requeue : Boolean := False;
+      --  Temporary to tell acceptor of task entry call that
+      --  Exceptional_Complete_Rendezvous needs to do requeue.
    end record;
 
---   ------------------------------------
---   -- Task related other definitions --
---   ------------------------------------
---
---   type Access_Address is access all System.Address;
---   --  Anonymous pointer used to implement task attributes (see s-tataat.adb
---   --  and a-tasatt.adb)
---
---   pragma No_Strict_Aliasing (Access_Address);
---   --  This type is used in contexts where aliasing may be an issue (see
---   --  for example s-tataat.adb), so we avoid any incorrect aliasing
---   --  assumptions.
+   ------------------------------------
+   -- Task related other definitions --
+   ------------------------------------
+
+   type Access_Address is access all System.Address;
+   --  Anonymous pointer used to implement task attributes (see s-tataat.adb
+   --  and a-tasatt.adb)
+
+   pragma No_Strict_Aliasing (Access_Address);
+   --  This type is used in contexts where aliasing may be an issue (see
+   --  for example s-tataat.adb), so we avoid any incorrect aliasing
+   --  assumptions.
 
    ----------------------------------------------
    -- Ada_Task_Control_Block (ATCB) definition --
@@ -972,14 +972,14 @@ package System.Tasking is
    type Entry_Call_Array is array (ATC_Level_Index) of
      aliased Entry_Call_Record;
 
---   type Attribute_Array is
---     array (1 .. Parameters.Max_Attribute_Count) of System.Address;
---   pragma Atomic_Components (Attribute_Array);
---   --  Array of task attributes. The value (System.Address) will either be
---   --  converted to a task attribute if it fits, or to a pointer to a record
---   --  by Ada.Task_Attributes.
---
---   type Task_Serial_Number is mod 2 ** Long_Long_Integer'Size;
+   type Attribute_Array is
+     array (1 .. Parameters.Max_Attribute_Count) of System.Address;
+   pragma Atomic_Components (Attribute_Array);
+   --  Array of task attributes. The value (System.Address) will either be
+   --  converted to a task attribute if it fits, or to a pointer to a record
+   --  by Ada.Task_Attributes.
+
+   type Task_Serial_Number is mod 2 ** Long_Long_Integer'Size;
    --  Used to give each task a unique serial number. We want 64-bits for this
    --  type to get as much uniqueness as possible (2**64 is operationally
    --  infinite in this context, but 2**32 perhaps could recycle). We use
@@ -1078,13 +1078,13 @@ package System.Tasking is
       Callable : Boolean := True;
       --  It is OK to call entries of this task
 
---      Dependents_Aborted : Boolean := False;
---      --  This is set to True by whichever task takes responsibility for
---      --  aborting the dependents of this task.
---      --
---      --  Protection: Self.L
---
---      Interrupt_Entry : Boolean := False;
+      Dependents_Aborted : Boolean := False;
+      --  This is set to True by whichever task takes responsibility for
+      --  aborting the dependents of this task.
+      --
+      --  Protection: Self.L
+
+      Interrupt_Entry : Boolean := False;
       --  Indicates if one or more Interrupt Entries are attached to the task.
       --  This flag is needed for cleaning up the Interrupt Entry bindings.
 
@@ -1154,24 +1154,24 @@ package System.Tasking is
       --
       --  Protection: Self.L
 
---      Serial_Number : Task_Serial_Number;
+      Serial_Number : Task_Serial_Number;
       --  Monotonic counter to provide some way to check locking rules/ordering
 
---      Known_Tasks_Index : Integer := -1;
---      --  Index in the System.Tasking.Debug.Known_Tasks array
---
---      User_State : Long_Integer := 0;
+      Known_Tasks_Index : Integer := -1;
+      --  Index in the System.Tasking.Debug.Known_Tasks array
+
+      User_State : Long_Integer := 0;
       --  User-writeable location, for use in debugging tasks; also provides a
       --  simple task specific data.
 
---      Free_On_Termination : Boolean := False;
---      --  Deallocate the ATCB when the task terminates. This flag is normally
---      --  False, and is set True when Unchecked_Deallocation is called on a
---      --  non-terminated task so that the associated storage is automatically
---      --  reclaimed when the task terminates.
---
---      Attributes : Attribute_Array := [others => Null_Address];
---      --  Task attributes
+      Free_On_Termination : Boolean := False;
+      --  Deallocate the ATCB when the task terminates. This flag is normally
+      --  False, and is set True when Unchecked_Deallocation is called on a
+      --  non-terminated task so that the associated storage is automatically
+      --  reclaimed when the task terminates.
+
+      Attributes : Attribute_Array := [others => Null_Address];
+      --  Task attributes
 
       --  IMPORTANT Note: the Entry_Queues field is last for efficiency of
       --  access to other fields, do not put new fields after this one.
