@@ -972,13 +972,13 @@ package System.Tasking is
    type Entry_Call_Array is array (ATC_Level_Index) of
      aliased Entry_Call_Record;
 
---   type Attribute_Array is
---     array (1 .. Parameters.Max_Attribute_Count) of System.Address;
---   pragma Atomic_Components (Attribute_Array);
---   --  Array of task attributes. The value (System.Address) will either be
---   --  converted to a task attribute if it fits, or to a pointer to a record
---   --  by Ada.Task_Attributes.
---
+   type Attribute_Array is
+     array (1 .. Parameters.Max_Attribute_Count) of System.Address;
+   pragma Atomic_Components (Attribute_Array);
+   --  Array of task attributes. The value (System.Address) will either be
+   --  converted to a task attribute if it fits, or to a pointer to a record
+   --  by Ada.Task_Attributes.
+
 --   type Task_Serial_Number is mod 2 ** Long_Long_Integer'Size;
    --  Used to give each task a unique serial number. We want 64-bits for this
    --  type to get as much uniqueness as possible (2**64 is operationally
@@ -1169,9 +1169,9 @@ package System.Tasking is
 --      --  False, and is set True when Unchecked_Deallocation is called on a
 --      --  non-terminated task so that the associated storage is automatically
 --      --  reclaimed when the task terminates.
---
---      Attributes : Attribute_Array := [others => Null_Address];
---      --  Task attributes
+
+      Attributes : Attribute_Array := [others => Null_Address];
+      --  Task attributes
 
       --  IMPORTANT Note: the Entry_Queues field is last for efficiency of
       --  access to other fields, do not put new fields after this one.
