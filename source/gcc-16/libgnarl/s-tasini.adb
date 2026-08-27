@@ -36,10 +36,10 @@ pragma Style_Checks (All_Checks);
 with System.OS_Locks;
 with System.Soft_Links;
 with System.Soft_Links.Tasking;
---  with System.Task_Primitives;
+with System.Task_Primitives;
 with System.Task_Primitives.Operations;
---  with System.Tasking.Debug;
---  with System.Tasking.Task_Attributes;
+with System.Tasking.Debug;
+with System.Tasking.Task_Attributes;
 
 with System.Secondary_Stack;
 pragma Elaborate_All (System.Secondary_Stack);
@@ -324,8 +324,8 @@ package body System.Tasking.Initialization is
             if Self_ID.Pending_ATC_Level < Self_ID.ATC_Nesting_Level then
                if not Self_ID.Aborting then
                   Self_ID.Aborting := True;
---                  pragma Debug
---                    (Debug.Trace (Self_ID, "raise Abort_Signal", 'B'));
+                  pragma Debug
+                    (Debug.Trace (Self_ID, "raise Abort_Signal", 'B'));
                   raise Standard'Abort_Signal;
 
                   pragma Assert (not Self_ID.ATC_Hack);
@@ -341,9 +341,9 @@ package body System.Tasking.Initialization is
 
                   Self_ID.ATC_Hack := False;
 
---                  pragma Debug
---                    (Debug.Trace
---                     (Self_ID, "raise Abort_Signal (ATC hack)", 'B'));
+                  pragma Debug
+                    (Debug.Trace
+                     (Self_ID, "raise Abort_Signal (ATC hack)", 'B'));
                   raise Standard'Abort_Signal;
                end if;
             end if;
@@ -366,11 +366,11 @@ package body System.Tasking.Initialization is
    --  reference to the ATCB after the lock is released. See also comments on
    --  Terminate_Task and Unlock.
 
---   procedure Final_Task_Unlock (Self_ID : Task_Id) is
---   begin
---      pragma Assert (Self_ID.Common.Global_Task_Lock_Nesting = 1);
---      Unlock (Global_Task_Lock'Access);
---   end Final_Task_Unlock;
+   procedure Final_Task_Unlock (Self_ID : Task_Id) is
+   begin
+      pragma Assert (Self_ID.Common.Global_Task_Lock_Nesting = 1);
+      Unlock (Global_Task_Lock'Access);
+   end Final_Task_Unlock;
 
    --------------
    -- Init_RTS --
@@ -593,37 +593,37 @@ package body System.Tasking.Initialization is
       end if;
    end Locked_Abort_To_Level;
 
---   --------------------------------
---   -- Remove_From_All_Tasks_List --
---   --------------------------------
---
---   procedure Remove_From_All_Tasks_List (T : Task_Id) is
---      C        : Task_Id;
---      Previous : Task_Id;
---
---   begin
---      pragma Debug
---        (Debug.Trace (Self, "Remove_From_All_Tasks_List", 'C'));
---
---      Previous := Null_Task;
---      C := All_Tasks_List;
---      while C /= Null_Task loop
---         if C = T then
---            if Previous = Null_Task then
---               All_Tasks_List := All_Tasks_List.Common.All_Tasks_Link;
---            else
---               Previous.Common.All_Tasks_Link := C.Common.All_Tasks_Link;
---            end if;
---
---            return;
---         end if;
---
---         Previous := C;
---         C := C.Common.All_Tasks_Link;
---      end loop;
---
---      pragma Assert (Standard.False);
---   end Remove_From_All_Tasks_List;
+   --------------------------------
+   -- Remove_From_All_Tasks_List --
+   --------------------------------
+
+   procedure Remove_From_All_Tasks_List (T : Task_Id) is
+      C        : Task_Id;
+      Previous : Task_Id;
+
+   begin
+      pragma Debug
+        (Debug.Trace (Self, "Remove_From_All_Tasks_List", 'C'));
+
+      Previous := Null_Task;
+      C := All_Tasks_List;
+      while C /= Null_Task loop
+         if C = T then
+            if Previous = Null_Task then
+               All_Tasks_List := All_Tasks_List.Common.All_Tasks_Link;
+            else
+               Previous.Common.All_Tasks_Link := C.Common.All_Tasks_Link;
+            end if;
+
+            return;
+         end if;
+
+         Previous := C;
+         C := C.Common.All_Tasks_Link;
+      end loop;
+
+      pragma Assert (Standard.False);
+   end Remove_From_All_Tasks_List;
 
    ---------------
    -- Task_Lock --
@@ -817,8 +817,8 @@ package body System.Tasking.Initialization is
       Caller : constant Task_Id := Entry_Call.Self;
 
    begin
---      pragma Debug (Debug.Trace
---        (Self_ID, "Wakeup_Entry_Caller", 'E', Caller));
+      pragma Debug (Debug.Trace
+        (Self_ID, "Wakeup_Entry_Caller", 'E', Caller));
       pragma Assert (New_State = Done or else New_State = Cancelled);
 
       pragma Assert (Caller.Common.State /= Unactivated);
@@ -839,23 +839,23 @@ package body System.Tasking.Initialization is
       end if;
    end Wakeup_Entry_Caller;
 
---   -------------------------
---   -- Finalize_Attributes --
---   -------------------------
---
---   procedure Finalize_Attributes (T : Task_Id) is
---      Attr : System.Address;
---
---   begin
---      for J in T.Attributes'Range loop
---         Attr := T.Attributes (J);
---
---         if Attr /= 0 and then Task_Attributes.Require_Finalization (J) then
---            Task_Attributes.To_Attribute (Attr).Free (Attr);
---            T.Attributes (J) := 0;
---         end if;
---      end loop;
---   end Finalize_Attributes;
+   -------------------------
+   -- Finalize_Attributes --
+   -------------------------
+
+   procedure Finalize_Attributes (T : Task_Id) is
+      Attr : System.Address;
+
+   begin
+      for J in T.Attributes'Range loop
+         Attr := T.Attributes (J);
+
+         if Attr /= 0 and then Task_Attributes.Require_Finalization (J) then
+            Task_Attributes.To_Attribute (Attr).Free (Attr);
+            T.Attributes (J) := 0;
+         end if;
+      end loop;
+   end Finalize_Attributes;
 
 begin
    Init_RTS;

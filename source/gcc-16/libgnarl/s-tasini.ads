@@ -34,13 +34,13 @@
 
 package System.Tasking.Initialization is
 
---   procedure Remove_From_All_Tasks_List (T : Task_Id);
---   --  Remove T from All_Tasks_List. Call this function with RTS_Lock taken
---
---   procedure Finalize_Attributes (T : Task_Id);
---   --  Finalize all attributes from T. This is to be called just before the
---   --  ATCB is deallocated. It relies on the caller holding T.L write-lock
---   --  on entry.
+   procedure Remove_From_All_Tasks_List (T : Task_Id);
+   --  Remove T from All_Tasks_List. Call this function with RTS_Lock taken
+
+   procedure Finalize_Attributes (T : Task_Id);
+   --  Finalize all attributes from T. This is to be called just before the
+   --  ATCB is deallocated. It relies on the caller holding T.L write-lock
+   --  on entry.
 
    ---------------------------------
    -- Tasking-Specific Soft Links --
@@ -137,14 +137,14 @@ package System.Tasking.Initialization is
    --  These are versions of Lock_Task and Unlock_Task created for use
    --  within the GNARL.
 
---   procedure Final_Task_Unlock (Self_ID : Task_Id);
---   --  This version is only for use in Terminate_Task, when the task is
---   --  relinquishing further rights to its own ATCB. There is a very
---   --  interesting potential race condition there, where the old task may run
---   --  concurrently with a new task that is allocated the old tasks (now
---   --  reused) ATCB. The critical thing here is to not make any reference to
---   --  the ATCB after the lock is released. See also comments on
---   --  Terminate_Task and Unlock.
+   procedure Final_Task_Unlock (Self_ID : Task_Id);
+   --  This version is only for use in Terminate_Task, when the task is
+   --  relinquishing further rights to its own ATCB. There is a very
+   --  interesting potential race condition there, where the old task may run
+   --  concurrently with a new task that is allocated the old tasks (now
+   --  reused) ATCB. The critical thing here is to not make any reference to
+   --  the ATCB after the lock is released. See also comments on
+   --  Terminate_Task and Unlock.
 
    procedure Wakeup_Entry_Caller
      (Self_ID    : Task_Id;
