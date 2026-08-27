@@ -78,9 +78,9 @@ package System.Soft_Links is
 --   type Set_Address_Call2 is access procedure
 --     (Self_ID : Address; Addr : Address);
 --   pragma Favor_Top_Level (Set_Address_Call2);
---
---   type Get_Integer_Call  is access function return Integer;
---   pragma Favor_Top_Level (Get_Integer_Call);
+
+   type Get_Integer_Call  is access function return Integer;
+   pragma Favor_Top_Level (Get_Integer_Call);
 --   type Set_Integer_Call  is access procedure (Len : Integer);
 --   pragma Favor_Top_Level (Set_Integer_Call);
 
@@ -121,7 +121,7 @@ package System.Soft_Links is
 --   pragma Suppress (Access_Check, Get_Address_Call);
    pragma Suppress (Access_Check, Set_Address_Call);
 --   pragma Suppress (Access_Check, Set_Address_Call2);
---   pragma Suppress (Access_Check, Get_Integer_Call);
+   pragma Suppress (Access_Check, Get_Integer_Call);
 --   pragma Suppress (Access_Check, Set_Integer_Call);
    pragma Suppress (Access_Check, Get_EOA_Call);
 --   pragma Suppress (Access_Check, Set_EOA_Call);
@@ -152,9 +152,9 @@ package System.Soft_Links is
    --  Handle task abort (non-tasking case, does nothing). Currently, no port
    --  makes use of this, but we retain the interface for possible future use.
 
---   function Check_Abort_Status_NT return Integer;
---   --  Returns Boolean'Pos (True) iff abort signal should raise
---   --  Standard'Abort_Signal.
+   function Check_Abort_Status_NT return Integer;
+   --  Returns Boolean'Pos (True) iff abort signal should raise
+   --  Standard'Abort_Signal.
 
    procedure Task_Lock_NT;
    --  Lock out other tasks (non-tasking case, does nothing)
@@ -179,10 +179,10 @@ package System.Soft_Links is
 
 --   Abort_Handler : No_Param_Proc := Abort_Handler_NT'Access;
 --   --  Handle task abort (task/non-task case as appropriate)
---
---   Check_Abort_Status : Get_Integer_Call := Check_Abort_Status_NT'Access;
---   --  Called when Abort_Signal is delivered to the process.  Checks to
---   --  see if signal should result in raising Standard'Abort_Signal.
+
+   Check_Abort_Status : Get_Integer_Call := Check_Abort_Status_NT'Access;
+   --  Called when Abort_Signal is delivered to the process.  Checks to
+   --  see if signal should result in raising Standard'Abort_Signal.
 
    Lock_Task : No_Param_Proc := Task_Lock_NT'Access;
    --  Locks out other tasks. Preceding a section of code by Task_Lock and

@@ -91,15 +91,15 @@ package body System.Soft_Links is
       end if;
    end Adafinal_NT;
 
---   ---------------------------
---   -- Check_Abort_Status_NT --
---   ---------------------------
---
---   function Check_Abort_Status_NT return Integer is
---   begin
---      return Boolean'Pos (False);
---   end Check_Abort_Status_NT;
---
+   ---------------------------
+   -- Check_Abort_Status_NT --
+   ---------------------------
+
+   function Check_Abort_Status_NT return Integer is
+   begin
+      return Boolean'Pos (False);
+   end Check_Abort_Status_NT;
+
 --   ------------------------
 --   -- Complete_Master_NT --
 --   ------------------------

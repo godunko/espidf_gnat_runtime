@@ -114,9 +114,9 @@ package System.Tasking.Initialization is
    --  although in the case of e.g. No_Abort restriction, it can be necessary
    --  to force execution of pending actions.
 
---   function Check_Abort_Status return Integer;
---   --  Returns Boolean'Pos (True) iff abort signal should raise
---   --  Standard'Abort_Signal. Only used by RTEMS currently.
+   function Check_Abort_Status return Integer;
+   --  Returns Boolean'Pos (True) iff abort signal should raise
+   --  Standard'Abort_Signal. Only used by RTEMS currently.
 
    --------------------------
    -- Change Base Priority --

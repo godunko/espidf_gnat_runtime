@@ -137,23 +137,23 @@ package body System.Tasking.Initialization is
       end if;
    end Change_Base_Priority;
 
---   ------------------------
---   -- Check_Abort_Status --
---   ------------------------
---
---   function Check_Abort_Status return Integer is
---      Self_ID : constant Task_Id := Self;
---   begin
---      if Self_ID /= null
---        and then Self_ID.Deferral_Level = 0
---        and then Self_ID.Pending_ATC_Level < Self_ID.ATC_Nesting_Level
---        and then not Self_ID.Aborting
---      then
---         return 1;
---      else
---         return 0;
---      end if;
---   end Check_Abort_Status;
+   ------------------------
+   -- Check_Abort_Status --
+   ------------------------
+
+   function Check_Abort_Status return Integer is
+      Self_ID : constant Task_Id := Self;
+   begin
+      if Self_ID /= null
+        and then Self_ID.Deferral_Level = 0
+        and then Self_ID.Pending_ATC_Level < Self_ID.ATC_Nesting_Level
+        and then not Self_ID.Aborting
+      then
+         return 1;
+      else
+         return 0;
+      end if;
+   end Check_Abort_Status;
 
    -----------------
    -- Defer_Abort --
@@ -421,7 +421,7 @@ package body System.Tasking.Initialization is
 
       SSL.Lock_Task          := Task_Lock'Access;
       SSL.Unlock_Task        := Task_Unlock'Access;
---      SSL.Check_Abort_Status := Check_Abort_Status'Access;
+      SSL.Check_Abort_Status := Check_Abort_Status'Access;
       SSL.Task_Name          := Task_Name'Access;
       SSL.Get_Current_Excep  := Get_Current_Excep'Access;
 
