@@ -46,15 +46,15 @@ package System.Tasking.Entry_Calls is
    --  Abortion must be deferred when calling this procedure.
    --  Call this only when holding Self (= Entry_Call.Self) or global RTS lock.
 
---   procedure Wait_For_Completion_With_Timeout
---     (Entry_Call  : Entry_Call_Link;
---      Wakeup_Time : Duration;
---      Mode        : Delay_Modes;
---      Yielded     : out Boolean);
---   --  Same as Wait_For_Completion but wait for a timeout with the value
---   --  specified in Wakeup_Time as well.
---   --  On return, Yielded indicates whether the wait has performed a yield.
---   --  Check_Exception must be called after calling this procedure.
+   procedure Wait_For_Completion_With_Timeout
+     (Entry_Call  : Entry_Call_Link;
+      Wakeup_Time : Duration;
+      Mode        : Delay_Modes;
+      Yielded     : out Boolean);
+   --  Same as Wait_For_Completion but wait for a timeout with the value
+   --  specified in Wakeup_Time as well.
+   --  On return, Yielded indicates whether the wait has performed a yield.
+   --  Check_Exception must be called after calling this procedure.
 
    procedure Wait_Until_Abortable
      (Self_ID : Task_Id;
@@ -63,21 +63,21 @@ package System.Tasking.Entry_Calls is
    --  call is queued abortably or completes.
    --  Abortion must be deferred when calling this procedure.
 
---   procedure Try_To_Cancel_Entry_Call (Succeeded : out Boolean);
---   pragma Inline (Try_To_Cancel_Entry_Call);
---   --  Try to cancel async. entry call.
---   --  Effect includes Abort_To_Level and Wait_For_Completion.
---   --  Cancelled = True iff the cancellation was successful, i.e.,
---   --  the call was not Done before this call.
---   --  On return, the call is off-queue and the ATC level is reduced by one.
---
---   procedure Reset_Priority
---     (Acceptor               : Task_Id;
---      Acceptor_Prev_Priority : Rendezvous_Priority);
---   pragma Inline (Reset_Priority);
---   --  Reset the priority of a task completing an accept statement to
---   --  the value it had before the call.
---   --  Acceptor should always be equal to Self.
+   procedure Try_To_Cancel_Entry_Call (Succeeded : out Boolean);
+   pragma Inline (Try_To_Cancel_Entry_Call);
+   --  Try to cancel async. entry call.
+   --  Effect includes Abort_To_Level and Wait_For_Completion.
+   --  Cancelled = True iff the cancellation was successful, i.e.,
+   --  the call was not Done before this call.
+   --  On return, the call is off-queue and the ATC level is reduced by one.
+
+   procedure Reset_Priority
+     (Acceptor               : Task_Id;
+      Acceptor_Prev_Priority : Rendezvous_Priority);
+   pragma Inline (Reset_Priority);
+   --  Reset the priority of a task completing an accept statement to
+   --  the value it had before the call.
+   --  Acceptor should always be equal to Self.
 
    procedure Check_Exception
      (Self_ID    : Task_Id;

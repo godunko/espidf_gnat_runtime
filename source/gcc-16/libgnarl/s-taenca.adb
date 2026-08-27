@@ -274,70 +274,70 @@ package body System.Tasking.Entry_Calls is
       end if;
    end Poll_Base_Priority_Change_At_Entry_Call;
 
---   --------------------
---   -- Reset_Priority --
---   --------------------
---
---   procedure Reset_Priority
---     (Acceptor               : Task_Id;
---      Acceptor_Prev_Priority : Rendezvous_Priority)
---   is
---   begin
---      pragma Assert (Acceptor = STPO.Self);
---
---      --  Since we limit this kind of "active" priority change to be done
---      --  by the task for itself, we don't need to lock Acceptor.
---
---      if Acceptor_Prev_Priority /= Priority_Not_Boosted then
---         STPO.Set_Priority (Acceptor, Acceptor_Prev_Priority,
---           Loss_Of_Inheritance => True);
---      end if;
---   end Reset_Priority;
---
---   ------------------------------
---   -- Try_To_Cancel_Entry_Call --
---   ------------------------------
---
---   procedure Try_To_Cancel_Entry_Call (Succeeded : out Boolean) is
---      Entry_Call : Entry_Call_Link;
---      Self_ID    : constant Task_Id := STPO.Self;
---
---      use type Ada.Exceptions.Exception_Id;
---
---   begin
---      Entry_Call := Self_ID.Entry_Calls (Self_ID.ATC_Nesting_Level)'Access;
---
---      --  Experimentation has shown that abort is sometimes (but not
---      --  always) already deferred when Cancel_xxx_Entry_Call is called.
---      --  That may indicate an error. Find out what is going on. ???
---
---      pragma Assert (Entry_Call.Mode = Asynchronous_Call);
---      Initialization.Defer_Abort_Nestable (Self_ID);
---      STPO.Write_Lock (Self_ID);
---      Entry_Call.Cancellation_Attempted := True;
---
---      if Self_ID.Pending_ATC_Level >= Entry_Call.Level then
---         Self_ID.Pending_ATC_Level := Entry_Call.Level - 1;
---      end if;
---
---      Entry_Calls.Wait_For_Completion (Entry_Call);
---      STPO.Unlock (Self_ID);
---      Succeeded := Entry_Call.State = Cancelled;
---      Initialization.Undefer_Abort_Nestable (Self_ID);
---
---      --  Ideally, abort should no longer be deferred at this point, so we
---      --  should be able to call Check_Exception. The loop below should be
---      --  considered temporary, to work around the possibility that abort
---      --  may be deferred more than one level deep ???
---
---      if Entry_Call.Exception_To_Raise /= Ada.Exceptions.Null_Id then
---         while Self_ID.Deferral_Level > 0 loop
---            System.Tasking.Initialization.Undefer_Abort_Nestable (Self_ID);
---         end loop;
---
---         Entry_Calls.Check_Exception (Self_ID, Entry_Call);
---      end if;
---   end Try_To_Cancel_Entry_Call;
+   --------------------
+   -- Reset_Priority --
+   --------------------
+
+   procedure Reset_Priority
+     (Acceptor               : Task_Id;
+      Acceptor_Prev_Priority : Rendezvous_Priority)
+   is
+   begin
+      pragma Assert (Acceptor = STPO.Self);
+
+      --  Since we limit this kind of "active" priority change to be done
+      --  by the task for itself, we don't need to lock Acceptor.
+
+      if Acceptor_Prev_Priority /= Priority_Not_Boosted then
+         STPO.Set_Priority (Acceptor, Acceptor_Prev_Priority,
+           Loss_Of_Inheritance => True);
+      end if;
+   end Reset_Priority;
+
+   ------------------------------
+   -- Try_To_Cancel_Entry_Call --
+   ------------------------------
+
+   procedure Try_To_Cancel_Entry_Call (Succeeded : out Boolean) is
+      Entry_Call : Entry_Call_Link;
+      Self_ID    : constant Task_Id := STPO.Self;
+
+      use type Ada.Exceptions.Exception_Id;
+
+   begin
+      Entry_Call := Self_ID.Entry_Calls (Self_ID.ATC_Nesting_Level)'Access;
+
+      --  Experimentation has shown that abort is sometimes (but not
+      --  always) already deferred when Cancel_xxx_Entry_Call is called.
+      --  That may indicate an error. Find out what is going on. ???
+
+      pragma Assert (Entry_Call.Mode = Asynchronous_Call);
+      Initialization.Defer_Abort_Nestable (Self_ID);
+      STPO.Write_Lock (Self_ID);
+      Entry_Call.Cancellation_Attempted := True;
+
+      if Self_ID.Pending_ATC_Level >= Entry_Call.Level then
+         Self_ID.Pending_ATC_Level := Entry_Call.Level - 1;
+      end if;
+
+      Entry_Calls.Wait_For_Completion (Entry_Call);
+      STPO.Unlock (Self_ID);
+      Succeeded := Entry_Call.State = Cancelled;
+      Initialization.Undefer_Abort_Nestable (Self_ID);
+
+      --  Ideally, abort should no longer be deferred at this point, so we
+      --  should be able to call Check_Exception. The loop below should be
+      --  considered temporary, to work around the possibility that abort
+      --  may be deferred more than one level deep ???
+
+      if Entry_Call.Exception_To_Raise /= Ada.Exceptions.Null_Id then
+         while Self_ID.Deferral_Level > 0 loop
+            System.Tasking.Initialization.Undefer_Abort_Nestable (Self_ID);
+         end loop;
+
+         Entry_Calls.Check_Exception (Self_ID, Entry_Call);
+      end if;
+   end Try_To_Cancel_Entry_Call;
 
    ------------------------------
    -- Unlock_And_Update_Server --
@@ -422,20 +422,20 @@ package body System.Tasking.Entry_Calls is
       Utilities.Exit_One_ATC_Level (Self_Id);
    end Wait_For_Completion;
 
---   --------------------------------------
---   -- Wait_For_Completion_With_Timeout --
---   --------------------------------------
---
---   procedure Wait_For_Completion_With_Timeout
---     (Entry_Call  : Entry_Call_Link;
---      Wakeup_Time : Duration;
---      Mode        : Delay_Modes;
---      Yielded     : out Boolean)
---   is
---      Self_Id  : constant Task_Id := Entry_Call.Self;
---      Timedout : Boolean := False;
---
---   begin
+   --------------------------------------
+   -- Wait_For_Completion_With_Timeout --
+   --------------------------------------
+
+   procedure Wait_For_Completion_With_Timeout
+     (Entry_Call  : Entry_Call_Link;
+      Wakeup_Time : Duration;
+      Mode        : Delay_Modes;
+      Yielded     : out Boolean)
+   is
+      Self_Id  : constant Task_Id := Entry_Call.Self;
+      Timedout : Boolean := False;
+
+   begin
       --  This procedure waits for the entry call to be served, with a timeout.
       --  It tries to cancel the call if the timeout expires before the call is
       --  served.
@@ -458,10 +458,10 @@ package body System.Tasking.Entry_Calls is
       --  The original call may have become abortable after waking up. We want
       --  to check Check_Pending_Actions_For_Entry_Call again in any case.
 
---      pragma Assert (Entry_Call.Mode = Timed_Call);
---
---      Yielded := False;
---      Self_Id.Common.State := Entry_Caller_Sleep;
+      pragma Assert (Entry_Call.Mode = Timed_Call);
+
+      Yielded := False;
+      Self_Id.Common.State := Entry_Caller_Sleep;
 
       --  Looping is necessary in case the task wakes up early from the timed
       --  sleep, due to a "spurious wakeup". Spurious wakeups are a weakness of
@@ -469,54 +469,54 @@ package body System.Tasking.Entry_Calls is
       --  is allowed to wake up at any time, not just when the condition is
       --  signaled. See same loop in the ordinary Wait_For_Completion, above.
 
---      loop
---         Check_Pending_Actions_For_Entry_Call (Self_Id, Entry_Call);
---         exit when Entry_Call.State >= Done;
---
---         STPO.Timed_Sleep (Self_Id, Wakeup_Time, Mode,
---           Entry_Caller_Sleep, Timedout, Yielded);
---
---         if Timedout then
---            --  Try to cancel the call (see Try_To_Cancel_Entry_Call for
---            --  corresponding code in the ATC case).
---
---            Entry_Call.Cancellation_Attempted := True;
+      loop
+         Check_Pending_Actions_For_Entry_Call (Self_Id, Entry_Call);
+         exit when Entry_Call.State >= Done;
+
+         STPO.Timed_Sleep (Self_Id, Wakeup_Time, Mode,
+           Entry_Caller_Sleep, Timedout, Yielded);
+
+         if Timedout then
+            --  Try to cancel the call (see Try_To_Cancel_Entry_Call for
+            --  corresponding code in the ATC case).
+
+            Entry_Call.Cancellation_Attempted := True;
 
             --  Reset Entry_Call.State so that the call is marked as cancelled
             --  by Check_Pending_Actions_For_Entry_Call below.
 
---            if Entry_Call.State < Was_Abortable then
---               Entry_Call.State := Now_Abortable;
---            end if;
---
---            if Self_Id.Pending_ATC_Level >= Entry_Call.Level then
---               Self_Id.Pending_ATC_Level := Entry_Call.Level - 1;
---            end if;
---
---            --  The following loop is the same as the loop and exit code
---            --  from the ordinary Wait_For_Completion. If we get here, we
---            --  have timed out but we need to keep waiting until the call
---            --  has actually completed or been cancelled successfully.
---
---            loop
---               Check_Pending_Actions_For_Entry_Call (Self_Id, Entry_Call);
---               exit when Entry_Call.State >= Done;
---               STPO.Sleep (Self_Id, Entry_Caller_Sleep);
---            end loop;
---
---            Self_Id.Common.State := Runnable;
---            Utilities.Exit_One_ATC_Level (Self_Id);
---
---            return;
---         end if;
---      end loop;
---
---      --  This last part is the same as ordinary Wait_For_Completion,
---      --  and is only executed if the call completed without timing out.
---
---      Self_Id.Common.State := Runnable;
---      Utilities.Exit_One_ATC_Level (Self_Id);
---   end Wait_For_Completion_With_Timeout;
+            if Entry_Call.State < Was_Abortable then
+               Entry_Call.State := Now_Abortable;
+            end if;
+
+            if Self_Id.Pending_ATC_Level >= Entry_Call.Level then
+               Self_Id.Pending_ATC_Level := Entry_Call.Level - 1;
+            end if;
+
+            --  The following loop is the same as the loop and exit code
+            --  from the ordinary Wait_For_Completion. If we get here, we
+            --  have timed out but we need to keep waiting until the call
+            --  has actually completed or been cancelled successfully.
+
+            loop
+               Check_Pending_Actions_For_Entry_Call (Self_Id, Entry_Call);
+               exit when Entry_Call.State >= Done;
+               STPO.Sleep (Self_Id, Entry_Caller_Sleep);
+            end loop;
+
+            Self_Id.Common.State := Runnable;
+            Utilities.Exit_One_ATC_Level (Self_Id);
+
+            return;
+         end if;
+      end loop;
+
+      --  This last part is the same as ordinary Wait_For_Completion,
+      --  and is only executed if the call completed without timing out.
+
+      Self_Id.Common.State := Runnable;
+      Utilities.Exit_One_ATC_Level (Self_Id);
+   end Wait_For_Completion_With_Timeout;
 
    --------------------------
    -- Wait_Until_Abortable --
