@@ -5,7 +5,7 @@ version = "0.1.0-dev"
 authors = ["Vadim Godunko"]
 maintainers = ["Vadim Godunko <vgodunko@gmail.com>"]
 maintainers-logins = ["godunko"]
-licenses = "Apache-2.0 WITH LLVM-exception"
+licenses = "GPL-3.0-or-later WITH GCC-exception-3.1"
 tags = ["embedded", "esp32", "espidf", "runtime"]
 
 [configuration]
