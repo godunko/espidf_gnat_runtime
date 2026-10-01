@@ -2,91 +2,12 @@
   "dt:&cpu0:compatible": "espressif,xtensa-lx7",
   "dt:&cpu0:clock-frequency": "240_000_000",
 
+  "include": "runtime-espidf.json",
+
   "runtime":
   {
-    "languages": ["ada", "c"],
     "common_required_switches": ["-mlongcalls"],
     "linker_required_switches": ["-nostartfiles", "-nolibc"],
-    "system":
-    {
-      "parameters":
-      {
-        "Preallocated_Stacks": false,
-        "Suppress_Standard_Library": false
-      },
-      "restrictions":
-      {
-        "No_Finalization": false,
-        "No_Exception_Propagation": false,
-        "No_Implicit_Dynamic_Code": false
-      },
-      "interrupt_priority_values": 7,
-      "priority_values": 25
-    },
-    "files":
-    {
-      "a-textio.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/system_io/a-textio.adb" },
-      "s-atopri.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/atomics/32/s-atopri.ads" },
-      "s-macres.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-macres.adb" },
-      "s-textio.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-textio.adb" },
-
-      "s-lidosq.adb": { },  //  Replace to preven infinite recursion in default implementation
-      "s-lidosq.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-lidosq.ads" },
-      "s-lisisq.adb": { },  //  Replace to preven infinite recursion in default implementation
-      "s-lisisq.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-lisisq.ads" },
-
-      //  Files below are necessary for "embedded"
-      "a-calclo.adb": { "crate": "espidf_gnat_runtime", "path": "source/a-calclo.adb" },
-      "a-nllefu.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/math/long_long_64bit/a-nllefu.ads" },
-      "a-reatim.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-reatim.adb" },
-      "a-reatim.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-reatim.ads" },
-      "g-eacodu.adb": { "crate": "espidf_gnat_runtime", "path": "source/g-eacodu__dummy.adb" },
-      "g-excact.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnat/g-excact.adb" },
-      "g-excact.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnat/g-excact.ads" },
-      "s-crtl.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnat/s-crtl.adb" },
-      "s-crtl.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-crtl.ads" },
-      "s-excmac.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/zcx-dw2/s-excmac.adb" },
-      "s-excmac.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/zcx-dw2/s-excmac.ads" },
-      "s-freert.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-freert.adb" },
-      "s-freert.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-freert.ads" },
-      "s-inifin.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-inifin.adb" },
-      "s-inifin.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-inifin.ads" },
-      "s-init.adb": {},
-      "s-init.ads": {},
-      "s-memory.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnat/s-memory.adb" },
-      "s-multip.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-multip.adb" },
-      "s-multip.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-multip.ads" },
-      "s-osinte.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-osinte__espidf.adb" },
-      "s-osinte.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-osinte__espidf.ads" },
-      "s-oslock.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-oslock__freertos.ads" },
-      "s-osprim.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-osprim.ads" },
-      "s-parame.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-parame__espidf.adb" },
-      "s-parame.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-parame__espidf.ads" },
-      "s-secsta.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnat/s-secsta.adb" },
-      "s-secsta.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnat/s-secsta.ads" },
-      "s-soflin.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-soflin.adb" },
-      "s-soflin.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-soflin.ads" },
-      "s-soliin.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnat/s-soliin.adb" },
-      "s-soliin.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnat/s-soliin.ads" },
-      "s-solita.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-solita.adb" },
-      "s-solita.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-solita.ads" },
-      "s-taprop.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-taprop__freertos.adb" },
-      "s-taprop.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-taprop.ads" },
-      "s-tasdeb.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tasdeb.adb" },
-      "s-tasdeb.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tasdeb.ads" },
-      "s-tasinf.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-tasinf.ads" },
-      "s-tasini.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tasini.adb" },
-      "s-tasini.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tasini.ads" },
-      "s-taskin.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-taskin.adb" },
-      "s-taskin.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-taskin.ads" },
-      "s-taspri.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-taspri__freertos.ads" },
-      "s-tpoaal.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tpoaal.adb" },
-      "s-tpopsp.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tpopsp__tls.adb" },
-      "s-tporft.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tporft.adb" },
-      "s-traceb.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-traceb.adb" },
-      "s-traceb.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnat/s-traceb.ads" },
-      "freertos.c": { "crate": "espidf_gnat_runtime", "path": "source/freertos.c" },
-    }
   },
 
   "tasking":
