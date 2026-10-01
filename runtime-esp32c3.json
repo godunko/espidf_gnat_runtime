@@ -12,43 +12,9 @@
 
   "tasking":
   {
-    "kernel": "custom",
     "files":
     {
-      "a-interr.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-interr.adb" },  //  Dummy version
-      "a-interr.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-interr.ads" },  //  Same as in GCC
       "a-intnam.ads": { "crate": "espidf_gnat_runtime", "path": "source/a-intnam__esp32c3.ads" },
-      "a-sytaco.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/a-sytaco.adb" },
-      "a-sytaco.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/a-sytaco.ads" },
-      "a-taside.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/a-taside.adb" },
-      "a-taside.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/a-taside.ads" },
-      "a-taster.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/a-taster.adb" },
-      "a-taster.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/a-taster.ads" },
-      "s-espidf.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-espidf.adb" },
-      "s-espidf.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-espidf.ads" },
-      "s-interr.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-interr__espidf.adb" },
-      "s-interr.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-interr.ads" },
-      "s-reldel.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-reldel.adb" },
-      "s-reldel.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/full/extended/s-reldel.ads" },
-      "s-taenca.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-taenca.adb" },
-      "s-taenca.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-taenca.ads" },
-      "s-taprob.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-taprob.adb" },
-      "s-taprob.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-taprob.ads" },
-      "s-tarest.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tarest.adb" },
-      "s-tarest.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tarest.ads" },
-      "s-tasque.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tasque.adb" },
-      "s-tasque.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tasque.ads" },
-      "s-tasren.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tasren.adb" },
-      "s-tasren.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tasren.ads" },
-      "s-tasres.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tasres.ads" },
-      "s-tasuti.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tasuti.adb" },
-      "s-tasuti.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tasuti.ads" },
-      "s-tataat.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tataat.adb" },
-      "s-tataat.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tataat.ads" },
-      "s-tpoben.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tpoben.adb" },
-      "s-tpoben.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tpoben.ads" },
-      "s-tpobop.adb": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tpobop.adb" },
-      "s-tpobop.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnarl/s-tpobop.ads" },
     }
   },
 
