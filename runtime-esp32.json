@@ -15,49 +15,11 @@
     "files":
     {
       "a-intnam.ads": { "crate": "espidf_gnat_runtime", "path": "source/a-intnam__esp32.ads" },
-    }
+    },
   },
 
   "scenarios":
   {
-    "RTS_Profile": "embedded",
-//    "Target_Word_Size": "32",
-//    "Has_Compare_And_Swap": "yes",
-//    "Has_CHERI": "no",
-//    "Certifiable_Packages": "yes",
-//    "Has_libc": "yes",
-    "Memory_Profile": "large",
-//    "Text_IO": "serial",
-
-    //  Scenarios below must be specified for "embedded"
-//    "Has_FMA": "yes",  //  It is not clear what to set
-    "Compiler_Backend": "gcc",
-    "Add_Arith64": "yes",
-    "Add_Case_Util": "yes",
-    "Add_Complex_Type_Support": "yes",
-    "Add_Exponent_Float": "yes",
-    "Add_Exponent_Int": "yes",
-    "Add_Exponent_LL_Int": "yes",
-    "Add_Exponent_Modular": "yes",
-    "Add_Float_Util": "yes",
-    "Add_Image_Char": "yes",
-    "Add_Image_Decimal": "yes",
-    "Add_Image_Fixed": "yes",
-    "Add_Image_Float": "yes",
-    "Add_Image_LL_Fixed": "yes",
-    "Add_Image_Util": "yes",
-    "Add_Image_Wide_Char": "yes",
-    "Add_IO_Exceptions": "yes",
     "Add_Math_Lib": "hardfloat",
-    "Add_Streams": "yes",
-    "Add_Value_Bool": "yes",
-    "Add_Value_Char": "yes",
-    "Add_Value_Enum": "yes",
-    "Add_Value_Int": "yes",
-    "Add_Value_LL_Int": "yes",
-    "Add_Value_LL_Spec": "yes",
-    "Add_Value_Spec": "yes",
-    "Add_Value_Utils": "yes",
-    "Add_Value_Wide_Char": "yes"
-  }
+  },
 }
