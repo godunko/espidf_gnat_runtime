@@ -46,7 +46,7 @@ package body System.Task_Primitives.Operations is
       T.Common.LL.Thread := OSI.Thread_Create
         (Wrapper, To_Address (T),
          T.Common.Compiler_Data.Pri_Stack_Info.Start_Address,
-         T.Common.LL.TCB'Address,
+         T.Common.LL.TCB,
          Storage_Elements.Storage_Offset (Stack_Size), Priority, Base_CPU);
       Succeeded := T.Common.LL.Thread /= OSI.Null_TaskHandle_t;
    end Create_Task;

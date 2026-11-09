@@ -17,6 +17,8 @@ package System.OS_Interface is
    pdFALSE : constant BaseType_t := 0;
    pdTRUE  : constant BaseType_t := 1;
 
+   tskNO_AFFINITY : constant BaseType_t := 16#7FFF_FFFF#;
+
    type UBaseType_t is new Interfaces.C.unsigned;
 
    type TickType_t is new uint32_t;
@@ -27,6 +29,9 @@ package System.OS_Interface is
    Null_TaskHandle_t : constant TaskHandle_t := TaskHandle_t (Null_Address);
    type StaticSemaphore_t is private;
    type SemaphoreHandle_t is new System.Address;
+
+   type TaskFunction_t is access procedure (Arg : System.Address)
+   with Convention => C;
 
    subtype Thread_Id is TaskHandle_t;
    --  Compatibility name used by the upstream task-primitives specification.
@@ -41,7 +46,8 @@ package System.OS_Interface is
    procedure Initialize;
    function Thread_Self return TaskHandle_t;
    function Thread_Create
-     (Code, Arg, Stack, Task_Buffer : Address;
+     (Code, Arg, Stack : Address;
+      Task_Buffer : out StaticTask_t;
       Stack_Size                    : Storage_Elements.Storage_Offset;
       Priority                      : System.Any_Priority;
       Base_CPU                      : Multiprocessors.CPU_Range)
@@ -70,6 +76,20 @@ package System.OS_Interface is
      (xSemaphore : SemaphoreHandle_t; xTicksToWait : TickType_t)
       return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_xSemaphoreTake";
+
+   function xTaskCreateStaticPinnedToCore
+     (pxTaskCode     : not null TaskFunction_t;
+      pcName         : access constant Interfaces.C.char;
+      ulStackDepth   : uint32_t;
+      pvParameters   : System.Address;
+      uxPriority     : UBaseType_t;
+      puxStackBuffer : System.Address;
+      pxTaskBuffer   : out StaticTask_t;
+      xCoreID        : BaseType_t) return TaskHandle_t
+   with
+     Import,
+     Convention    => C,
+     External_Name => "xTaskCreateStaticPinnedToCore";
 
    function xTaskGetCurrentTaskHandle return TaskHandle_t
    with Import, Convention => C, External_Name => "xTaskGetCurrentTaskHandle";
