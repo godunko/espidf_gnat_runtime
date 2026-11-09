@@ -45,6 +45,7 @@ void __gnat_embedded_rts_unlock(void)
     BaseType_t ok = xSemaphoreGiveRecursive(rts_lock);
     configASSERT(ok == pdTRUE);
 }
+
 SemaphoreHandle_t __gnat_xSemaphoreCreateBinaryStatic(StaticSemaphore_t *storage)
 {
     configASSERT(storage);

@@ -45,15 +45,17 @@ package System.OS_Interface is
    procedure Delay_Until (T : Time);
    procedure Initialize;
    function Thread_Self return TaskHandle_t;
-   function Thread_Create
-     (Code, Arg, Stack : Address;
-      Task_Buffer : out StaticTask_t;
-      Stack_Size                    : Storage_Elements.Storage_Offset;
-      Priority                      : System.Any_Priority;
-      Base_CPU                      : Multiprocessors.CPU_Range)
-      return TaskHandle_t;
    procedure Set_Priority (Priority : System.Any_Priority);
    function Is_Task_Context return Boolean;
+
+   function Thread_Create
+     (Code         : not null TaskFunction_t;
+      Arg          : System.Address;
+      Task_Storage : out StaticTask_t;
+      Stack        : System.Address;
+      Stack_Size   : System.Storage_Elements.Storage_Offset;
+      Priority     : System.Any_Priority;
+      Base_CPU     : System.Multiprocessors.CPU_Range) return TaskHandle_t;
 
    function To_Priority (Priority : System.Any_Priority) return UBaseType_t;
    --  Convert an Ada priority to the corresponding FreeRTOS priority. Value

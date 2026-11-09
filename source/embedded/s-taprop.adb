@@ -35,40 +35,6 @@ package body System.Task_Primitives.Operations is
       Wakeup (Environment_Task, ST.Activator_Sleep);
       Enter_Task (Environment_Task);
    end Initialize;
-   procedure Create_Task
-     (T : ST.Task_Id; Wrapper : Address;
-      Stack_Size : Parameters.Size_Type;
-      Priority : ST.Extended_Priority;
-      Base_CPU : Multiprocessors.CPU_Range;
-      Succeeded : out Boolean) is
-   begin
-      T.Common.LL.Current_Priority := Priority;
-      T.Common.LL.Thread := OSI.Thread_Create
-        (Wrapper, To_Address (T),
-         T.Common.Compiler_Data.Pri_Stack_Info.Start_Address,
-         T.Common.LL.TCB,
-         Storage_Elements.Storage_Offset (Stack_Size), Priority, Base_CPU);
-      Succeeded := T.Common.LL.Thread /= OSI.Null_TaskHandle_t;
-   end Create_Task;
-
-   ----------------
-   -- Enter_Task --
-   ----------------
-
-   procedure Enter_Task (Self_ID : ST.Task_Id) is
-   begin
-      Current_Task := Self_ID;
-
-      --  Wait for creator publication, or consume the environment's token.
-      --  An early signal is retained by the per-task wake event.
-      Sleep (Self_ID, ST.Activator_Sleep);
-
-      Self_ID.Common.LL.Lwp := Address (Self_ID.Common.LL.Thread);
-      RTS_Lock;
-      System.Tasking.Debug.Add_Task_Id (Self_ID);
-      RTS_Unlock;
-      System.OS_Interface.Set_Priority (Self_ID.Common.Base_Priority);
-   end Enter_Task;
 
    procedure Initialize_TCB (Self_ID : ST.Task_Id; Succeeded : out Boolean) is
    begin
@@ -117,5 +83,59 @@ package body System.Task_Primitives.Operations is
       --  Repeated wakeups coalesce when the binary event is already signaled.
       Result := OSI.xSemaphoreGive (T.Common.LL.CV);
    end Wakeup;
-   function Is_Task_Context return Boolean is (OSI.Is_Task_Context);
+
+   -----------------
+   -- Create_Task --
+   -----------------
+
+   procedure Create_Task
+     (T          : ST.Task_Id;
+      Wrapper    : System.Address;
+      Stack_Size : System.Parameters.Size_Type;
+      Priority   : ST.Extended_Priority;
+      Base_CPU   : System.Multiprocessors.CPU_Range;
+      Succeeded  : out Boolean)
+   is
+      function To_Task_Function is new
+        Ada.Unchecked_Conversion (Address, OSI.TaskFunction_t);
+
+   begin
+      T.Common.LL.Current_Priority := Priority;
+      T.Common.LL.Thread :=
+        OSI.Thread_Create
+          (Code         => To_Task_Function (Wrapper),
+           Arg          => To_Address (T),
+           Task_Storage => T.Common.LL.TCB,
+           Stack        => T.Common.Compiler_Data.Pri_Stack_Info.Start_Address,
+           Stack_Size   => System.Storage_Elements.Storage_Offset (Stack_Size),
+           Priority     => Priority,
+           Base_CPU     => Base_CPU);
+      Succeeded := T.Common.LL.Thread /= OSI.Null_TaskHandle_t;
+   end Create_Task;
+
+   ----------------
+   -- Enter_Task --
+   ----------------
+
+   procedure Enter_Task (Self_ID : ST.Task_Id) is
+   begin
+      Current_Task := Self_ID;
+
+      Sleep (Self_ID, ST.Activator_Sleep);
+      --  Wait for creator publication, or consume the environment's token.
+      --  An early signal is retained by the per-task wake event.
+
+      Self_ID.Common.LL.Lwp := Address (Self_ID.Common.LL.Thread);
+      RTS_Lock;
+      System.Tasking.Debug.Add_Task_Id (Self_ID);
+      RTS_Unlock;
+      System.OS_Interface.Set_Priority (Self_ID.Common.Base_Priority);
+   end Enter_Task;
+
+   ---------------------
+   -- Is_Task_Context --
+   ---------------------
+
+   function Is_Task_Context return Boolean renames OSI.Is_Task_Context;
+
 end System.Task_Primitives.Operations;
