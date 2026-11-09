@@ -21,28 +21,30 @@ package System.OS_Interface is
    portMAX_DELAY : constant TickType_t := TickType_t'Last;
 
    type StaticTask_t is private;
+   type TaskHandle_t is new System.Address;
+   Null_TaskHandle_t : constant TaskHandle_t := TaskHandle_t (Null_Address);
    type StaticSemaphore_t is private;
    type SemaphoreHandle_t is new System.Address;
 
-   type Thread_Id is new Address;
-   Null_Thread_Id   : constant Thread_Id := Thread_Id (Null_Address);
+   subtype Thread_Id is TaskHandle_t;
+   --  Compatibility name used by the upstream task-primitives specification.
+
+   Null_Thread_Id : constant Thread_Id := TaskHandle_t (Null_Address);
+
    subtype Time is Interfaces.Unsigned_64;
    subtype Time_Span is Interfaces.Integer_64;
    Ticks_Per_Second : constant := 1_000_000;
    function Clock return Time;
    procedure Delay_Until (T : Time);
-   procedure Initialize (ATCB : Address);
-   function Thread_Self return Thread_Id;
-   function Get_ATCB return Address;
+   procedure Initialize;
+   function Thread_Self return TaskHandle_t;
    function Thread_Create
      (Code, Arg, Stack, Task_Buffer : Address;
-      Stack_Size                        : Storage_Elements.Storage_Offset;
-      Priority                          : Integer;
-      Base_CPU                          : Multiprocessors.CPU_Range)
-      return Thread_Id;
+      Stack_Size                    : Storage_Elements.Storage_Offset;
+      Priority                      : Integer;
+      Base_CPU                      : Multiprocessors.CPU_Range)
+      return TaskHandle_t;
    procedure Set_Priority (Priority : Integer);
-   function Get_Affinity (Id : Thread_Id) return Multiprocessors.CPU_Range;
-   function Get_CPU (Id : Thread_Id) return Multiprocessors.CPU;
    function Is_Task_Context return Boolean;
 
    function xSemaphoreCreateBinaryStatic
@@ -53,14 +55,15 @@ package System.OS_Interface is
      External_Name => "__gnat_xSemaphoreCreateBinaryStatic";
 
    function xSemaphoreGive (xSemaphore : SemaphoreHandle_t) return BaseType_t
-   with Import, Convention => C,
-     External_Name => "__gnat_xSemaphoreGive";
+   with Import, Convention => C, External_Name => "__gnat_xSemaphoreGive";
 
    function xSemaphoreTake
      (xSemaphore : SemaphoreHandle_t; xTicksToWait : TickType_t)
       return BaseType_t
-   with Import, Convention => C,
-     External_Name => "__gnat_xSemaphoreTake";
+   with Import, Convention => C, External_Name => "__gnat_xSemaphoreTake";
+
+   function xTaskGetCurrentTaskHandle return TaskHandle_t
+   with Import, Convention => C, External_Name => "xTaskGetCurrentTaskHandle";
 
 private
 

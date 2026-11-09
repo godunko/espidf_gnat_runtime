@@ -96,12 +96,6 @@ package body System.Tasking.Restricted.Stages is
       TH : Termination_Handler := null;
 
    begin
-      --  The backend has installed Self's context. Wait until the creator has
-      --  published Thread and Runnable before Enter_Task reads these fields.
-      --  A signal sent before this wait is retained by the wake event.
-
-      Sleep (Self_ID, Activator_Sleep);
-
       --  Initialize low-level TCB components, that cannot be initialized by
       --  the creator.
 

@@ -2,7 +2,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
  */
 #include <stdint.h>
-#include <stdlib.h>
 #include <stdatomic.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -19,23 +18,12 @@ _Static_assert(sizeof(StaticSemaphore_t) == 84,
 _Static_assert(_Alignof(StaticSemaphore_t) == 4,
                "StaticSemaphore_t alignment differs from System.OS_Constants");
 
-/* Private to this C translation unit; Ada stores an opaque pointer.
- * The task TCB and wake event storage belong to the Ada ATCB. */
-struct ada_thread {
-    TaskHandle_t handle;
-    void *atcb;
-    void (*code)(void *);
-    int cpu;                       /* Ada numbering: 0 unspecified, 1..N */
-};
-static struct ada_thread environment;
-static _Thread_local struct ada_thread *current;
 static SemaphoreHandle_t rts_lock;
 static StaticSemaphore_t rts_lock_storage;
 #ifdef GNAT_EMBEDDED_TESTING
 unsigned __gnat_embedded_test_fail_create;
 unsigned __gnat_embedded_test_create_attempts;
 _Atomic unsigned __gnat_embedded_test_wakeups;
-_Atomic unsigned __gnat_embedded_test_wrapper_entries;
 #endif
 
 static UBaseType_t kernel_priority(int priority)
@@ -47,18 +35,12 @@ static UBaseType_t kernel_priority(int priority)
                                               : configMAX_PRIORITIES - 1;
 }
 
-void __gnat_embedded_init(void *atcb)
+void __gnat_embedded_init(void)
 {
-    configASSERT(!current && !xPortInIsrContext() && atcb);
+    configASSERT(!xPortInIsrContext() && !rts_lock);
     rts_lock = xSemaphoreCreateRecursiveMutexStatic(&rts_lock_storage);
     configASSERT(rts_lock);
-    environment.handle = xTaskGetCurrentTaskHandle();
-    environment.atcb = atcb;
-    environment.cpu = xPortGetCoreID() + 1;
-    current = &environment;
 }
-void *__gnat_embedded_self(void) { configASSERT(current); return current; }
-void *__gnat_embedded_atcb(void) { configASSERT(current); return current->atcb; }
 void __gnat_embedded_rts_lock(void)
 {
     configASSERT(!xPortInIsrContext() && rts_lock);
@@ -70,24 +52,11 @@ void __gnat_embedded_rts_unlock(void)
     BaseType_t ok = xSemaphoreGiveRecursive(rts_lock);
     configASSERT(ok == pdTRUE);
 }
-static void trampoline(void *arg)
+TaskHandle_t __gnat_embedded_create(TaskFunction_t code, void *atcb,
+                                    void *stack, void *task_buffer, size_t size,
+                                    int priority, int cpu)
 {
-    struct ada_thread *thread = arg;
-    current = thread;
-#ifdef GNAT_EMBEDDED_TESTING
-    atomic_fetch_add(&__gnat_embedded_test_wrapper_entries, 1);
-#endif
-    /* The Ada wrapper consumes the startup token from the ordinary wake event
-     * before reading fields published after kernel task creation. */
-    thread->code(thread->atcb);
-    /* Restricted task wrappers should not return. */
-    abort();
-}
-void *__gnat_embedded_create(void (*code)(void *), void *atcb,
-                             void *stack, void *task_buffer, size_t size,
-                             int priority, int cpu)
-{
-    configASSERT(current && code && atcb && stack && task_buffer);
+    configASSERT(!xPortInIsrContext() && code && atcb && stack && task_buffer);
     configASSERT((uintptr_t)task_buffer % _Alignof(StaticTask_t) == 0);
     configASSERT(cpu >= 0 && cpu <= portNUM_PROCESSORS);
     configASSERT(size >= configMINIMAL_STACK_SIZE);
@@ -95,26 +64,15 @@ void *__gnat_embedded_create(void (*code)(void *), void *atcb,
     if (++__gnat_embedded_test_create_attempts == __gnat_embedded_test_fail_create)
         return NULL;
 #endif
-    struct ada_thread *thread = calloc(1, sizeof(*thread));
-    if (!thread) return NULL;
-    thread->atcb = atcb;
-    thread->code = code;
-    thread->cpu = cpu;
-    thread->handle = xTaskCreateStaticPinnedToCore(trampoline, "Ada task",
-        size, thread, kernel_priority(priority), stack, task_buffer,
+    return xTaskCreateStaticPinnedToCore(code, "Ada task", size, atcb,
+        kernel_priority(priority), stack, task_buffer,
         cpu ? cpu - 1 : tskNO_AFFINITY);
-    if (!thread->handle) {
-        free(thread);
-        return NULL;
-    }
-    return thread;
 }
 void __gnat_embedded_set_priority(int priority)
 {
-    configASSERT(current && !xPortInIsrContext());
+    configASSERT(!xPortInIsrContext());
     vTaskPrioritySet(NULL, kernel_priority(priority));
 }
-int __gnat_embedded_affinity(struct ada_thread *thread) { return thread->cpu; }
 
 SemaphoreHandle_t __gnat_xSemaphoreCreateBinaryStatic(StaticSemaphore_t *storage)
 {

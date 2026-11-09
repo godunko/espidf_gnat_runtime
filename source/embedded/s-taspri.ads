@@ -28,8 +28,8 @@ package System.Task_Primitives is
 
    type Private_Data is limited record
       TCB              : aliased System.OS_Interface.StaticTask_t;
-      Thread           : aliased System.OS_Interface.Thread_Id :=
-        System.OS_Interface.Null_Thread_Id;
+      Thread           : aliased System.OS_Interface.TaskHandle_t :=
+        System.OS_Interface.Null_TaskHandle_t;
       Lwp              : aliased System.Address := System.Null_Address;
 
       Current_Priority : System.Any_Priority;

@@ -6,11 +6,14 @@ with System.Tasking.Debug;
 with System.Storage_Elements;
 
 package body System.Task_Primitives.Operations is
-   use type OSI.Thread_Id;
+   use type OSI.TaskHandle_t;
    use type OSI.SemaphoreHandle_t;
    use type OSI.BaseType_t;
    use type ST.Task_Id;
-   function To_Task_Id is new Ada.Unchecked_Conversion (Address, ST.Task_Id);
+   use type Multiprocessors.CPU_Range;
+   Current_Task : aliased ST.Task_Id := null;
+   pragma Thread_Local_Storage (Current_Task);
+
    function To_Address is new Ada.Unchecked_Conversion (ST.Task_Id, Address);
    procedure RTS_Lock
      with Import, Convention => C, External_Name => "__gnat_embedded_rts_lock";
@@ -18,13 +21,18 @@ package body System.Task_Primitives.Operations is
      with Import, Convention => C,
           External_Name => "__gnat_embedded_rts_unlock";
 
-   function Self return ST.Task_Id is (To_Task_Id (OSI.Get_ATCB));
+   function Self return ST.Task_Id is (Current_Task);
    procedure Initialize (Environment_Task : ST.Task_Id) is
    begin
-      OSI.Initialize (To_Address (Environment_Task));
+      pragma Assert (Current_Task = ST.Null_Task);
+      OSI.Initialize;
       Environment_Task.Common.LL.Thread := OSI.Thread_Self;
+      Environment_Task.Common.LL.Current_Priority :=
+        Environment_Task.Common.Base_Priority;
       Environment_Task.Common.Activation_Link := null;
       Operations.Environment_Task := Environment_Task;
+      --  The environment has no activator; provide its startup token here.
+      Wakeup (Environment_Task, ST.Activator_Sleep);
       Enter_Task (Environment_Task);
    end Initialize;
    procedure Create_Task
@@ -40,19 +48,31 @@ package body System.Task_Primitives.Operations is
          T.Common.Compiler_Data.Pri_Stack_Info.Start_Address,
          T.Common.LL.TCB'Address,
          Storage_Elements.Storage_Offset (Stack_Size), Priority, Base_CPU);
-      Succeeded := T.Common.LL.Thread /= OSI.Null_Thread_Id;
+      Succeeded := T.Common.LL.Thread /= OSI.Null_TaskHandle_t;
    end Create_Task;
+
+   ----------------
+   -- Enter_Task --
+   ----------------
+
    procedure Enter_Task (Self_ID : ST.Task_Id) is
    begin
+      Current_Task := Self_ID;
+
+      --  Wait for creator publication, or consume the environment's token.
+      --  An early signal is retained by the per-task wake event.
+      Sleep (Self_ID, ST.Activator_Sleep);
+
       Self_ID.Common.LL.Lwp := Address (Self_ID.Common.LL.Thread);
       RTS_Lock;
       System.Tasking.Debug.Add_Task_Id (Self_ID);
       RTS_Unlock;
-      Set_Priority (Self_ID, Self_ID.Common.Base_Priority);
+      System.OS_Interface.Set_Priority (Self_ID.Common.Base_Priority);
    end Enter_Task;
+
    procedure Initialize_TCB (Self_ID : ST.Task_Id; Succeeded : out Boolean) is
    begin
-      Self_ID.Common.LL.Thread := OSI.Null_Thread_Id;
+      Self_ID.Common.LL.Thread := OSI.Null_TaskHandle_t;
       Self_ID.Common.LL.Current_Priority := System.Any_Priority'First;
       Self_ID.Common.Global_Task_Lock_Nesting := 0;
       Self_ID.Common.LL.CV := OSI.xSemaphoreCreateBinaryStatic
@@ -69,9 +89,10 @@ package body System.Task_Primitives.Operations is
    function Get_Priority (T : ST.Task_Id) return ST.Extended_Priority is
      (T.Common.LL.Current_Priority);
    function Get_Affinity (T : ST.Task_Id) return Multiprocessors.CPU_Range is
-     (OSI.Get_Affinity (T.Common.LL.Thread));
+     (T.Common.Base_CPU);
    function Get_CPU (T : ST.Task_Id) return Multiprocessors.CPU is
-     (OSI.Get_CPU (T.Common.LL.Thread));
+     (if Get_Affinity (T) = 0 then Multiprocessors.CPU'First
+      else Multiprocessors.CPU (Get_Affinity (T)));
    function Get_Thread_Id (T : ST.Task_Id) return OSI.Thread_Id is
      (T.Common.LL.Thread);
    function Monotonic_Clock return Time is (Time (OSI.Clock));
