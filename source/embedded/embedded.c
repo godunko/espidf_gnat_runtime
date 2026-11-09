@@ -25,7 +25,6 @@ struct ada_thread {
     TaskHandle_t handle;
     void *atcb;
     void (*code)(void *);
-    _Atomic int priority;
     int cpu;                       /* Ada numbering: 0 unspecified, 1..N */
 };
 static struct ada_thread environment;
@@ -43,7 +42,7 @@ static UBaseType_t kernel_priority(int priority)
 {
     configASSERT(priority >= 0);
     /* Ada 0..23 -> FreeRTOS 1..24; reserve priority 0 for idle tasks.
-     * Higher Ada ceilings are tracked, but ISR masking is a later stage. */
+     * Ada tracks higher ceilings; ISR masking is a later stage. */
     return priority < configMAX_PRIORITIES - 1 ? priority + 1
                                               : configMAX_PRIORITIES - 1;
 }
@@ -101,7 +100,6 @@ void *__gnat_embedded_create(void (*code)(void *), void *atcb,
     thread->atcb = atcb;
     thread->code = code;
     thread->cpu = cpu;
-    atomic_init(&thread->priority, priority);
     thread->handle = xTaskCreateStaticPinnedToCore(trampoline, "Ada task",
         size, thread, kernel_priority(priority), stack, task_buffer,
         cpu ? cpu - 1 : tskNO_AFFINITY);
@@ -114,11 +112,8 @@ void *__gnat_embedded_create(void (*code)(void *), void *atcb,
 void __gnat_embedded_set_priority(int priority)
 {
     configASSERT(current && !xPortInIsrContext());
-    atomic_store(&current->priority, priority);
     vTaskPrioritySet(NULL, kernel_priority(priority));
 }
-int __gnat_embedded_priority(struct ada_thread *thread)
-{ return atomic_load(&thread->priority); }
 int __gnat_embedded_affinity(struct ada_thread *thread) { return thread->cpu; }
 
 SemaphoreHandle_t __gnat_xSemaphoreCreateBinaryStatic(StaticSemaphore_t *storage)

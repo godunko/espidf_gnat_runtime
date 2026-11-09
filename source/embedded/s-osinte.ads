@@ -41,7 +41,6 @@ package System.OS_Interface is
       Base_CPU                          : Multiprocessors.CPU_Range)
       return Thread_Id;
    procedure Set_Priority (Priority : Integer);
-   function Get_Priority (Id : Thread_Id) return Integer;
    function Get_Affinity (Id : Thread_Id) return Multiprocessors.CPU_Range;
    function Get_CPU (Id : Thread_Id) return Multiprocessors.CPU;
    function Is_Task_Context return Boolean;

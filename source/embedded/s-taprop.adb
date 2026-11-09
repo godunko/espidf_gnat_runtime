@@ -34,6 +34,7 @@ package body System.Task_Primitives.Operations is
       Base_CPU : Multiprocessors.CPU_Range;
       Succeeded : out Boolean) is
    begin
+      T.Common.LL.Current_Priority := Priority;
       T.Common.LL.Thread := OSI.Thread_Create
         (Wrapper, To_Address (T),
          T.Common.Compiler_Data.Pri_Stack_Info.Start_Address,
@@ -47,11 +48,12 @@ package body System.Task_Primitives.Operations is
       RTS_Lock;
       System.Tasking.Debug.Add_Task_Id (Self_ID);
       RTS_Unlock;
-      OSI.Set_Priority (Self_ID.Common.Base_Priority);
+      Set_Priority (Self_ID, Self_ID.Common.Base_Priority);
    end Enter_Task;
    procedure Initialize_TCB (Self_ID : ST.Task_Id; Succeeded : out Boolean) is
    begin
       Self_ID.Common.LL.Thread := OSI.Null_Thread_Id;
+      Self_ID.Common.LL.Current_Priority := System.Any_Priority'First;
       Self_ID.Common.Global_Task_Lock_Nesting := 0;
       Self_ID.Common.LL.CV := OSI.xSemaphoreCreateBinaryStatic
         (Self_ID.Common.LL.CV_Storage'Access);
@@ -61,10 +63,11 @@ package body System.Task_Primitives.Operations is
    procedure Set_Priority (T : ST.Task_Id; Prio : ST.Extended_Priority) is
    begin
       pragma Assert (T = Self);
+      T.Common.LL.Current_Priority := Prio;
       OSI.Set_Priority (Prio);
    end Set_Priority;
    function Get_Priority (T : ST.Task_Id) return ST.Extended_Priority is
-     (OSI.Get_Priority (T.Common.LL.Thread));
+     (T.Common.LL.Current_Priority);
    function Get_Affinity (T : ST.Task_Id) return Multiprocessors.CPU_Range is
      (OSI.Get_Affinity (T.Common.LL.Thread));
    function Get_CPU (T : ST.Task_Id) return Multiprocessors.CPU is

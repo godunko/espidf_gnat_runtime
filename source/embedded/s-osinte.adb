@@ -20,8 +20,6 @@ package body System.OS_Interface is
    procedure C_Set_Priority (Prio : int)
      with Import, Convention => C,
           External_Name => "__gnat_embedded_set_priority";
-   function C_Priority (Id : Thread_Id) return int
-     with Import, Convention => C, External_Name => "__gnat_embedded_priority";
    function C_Affinity (Id : Thread_Id) return int
      with Import, Convention => C, External_Name => "__gnat_embedded_affinity";
    function C_ISR return int
@@ -49,8 +47,6 @@ package body System.OS_Interface is
    begin
       C_Set_Priority (int (Priority));
    end Set_Priority;
-   function Get_Priority (Id : Thread_Id) return Integer is
-     (Integer (C_Priority (Id)));
    function Get_Affinity (Id : Thread_Id) return Multiprocessors.CPU_Range is
      (Multiprocessors.CPU_Range (C_Affinity (Id)));
    function Get_CPU (Id : Thread_Id) return Multiprocessors.CPU is
