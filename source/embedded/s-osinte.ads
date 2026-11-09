@@ -17,6 +17,8 @@ package System.OS_Interface is
    pdFALSE : constant BaseType_t := 0;
    pdTRUE  : constant BaseType_t := 1;
 
+   type UBaseType_t is new Interfaces.C.unsigned;
+
    type TickType_t is new uint32_t;
    portMAX_DELAY : constant TickType_t := TickType_t'Last;
 
@@ -41,11 +43,18 @@ package System.OS_Interface is
    function Thread_Create
      (Code, Arg, Stack, Task_Buffer : Address;
       Stack_Size                    : Storage_Elements.Storage_Offset;
-      Priority                      : Integer;
+      Priority                      : System.Any_Priority;
       Base_CPU                      : Multiprocessors.CPU_Range)
       return TaskHandle_t;
-   procedure Set_Priority (Priority : Integer);
+   procedure Set_Priority (Priority : System.Any_Priority);
    function Is_Task_Context return Boolean;
+
+   function To_Priority (Priority : System.Any_Priority) return UBaseType_t;
+   --  Convert an Ada priority to the corresponding FreeRTOS priority. Value
+   --  is saturated to the valid FreeRTOS priority range.
+
+   function xPortInIsrContext return BaseType_t
+   with Import, Convention => C, External_Name => "xPortInIsrContext";
 
    function xSemaphoreCreateBinaryStatic
      (pxSemaphoreBuffer : access StaticSemaphore_t) return SemaphoreHandle_t
@@ -64,6 +73,10 @@ package System.OS_Interface is
 
    function xTaskGetCurrentTaskHandle return TaskHandle_t
    with Import, Convention => C, External_Name => "xTaskGetCurrentTaskHandle";
+
+   procedure vTaskPrioritySet
+     (xTask : TaskHandle_t; uxNewPriority : UBaseType_t)
+   with Import, Convention => C, External_Name => "vTaskPrioritySet";
 
 private
 

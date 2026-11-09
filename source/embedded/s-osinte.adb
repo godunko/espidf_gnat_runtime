@@ -9,14 +9,9 @@ package body System.OS_Interface is
      with Import, Convention => C, External_Name => "__gnat_embedded_init";
    function C_Create
      (Code, Arg, Stack, Task_Buffer : Address;
-      Size : size_t; Prio, CPU : int)
+      Size : size_t; Prio : UBaseType_t; CPU : int)
       return TaskHandle_t
      with Import, Convention => C, External_Name => "__gnat_embedded_create";
-   procedure C_Set_Priority (Prio : int)
-     with Import, Convention => C,
-          External_Name => "__gnat_embedded_set_priority";
-   function C_ISR return int
-     with Import, Convention => C, External_Name => "xPortInIsrContext";
    function Clock return Time is (C_Clock);
    procedure Delay_Until (T : Time) is
       pragma Unreferenced (T);
@@ -32,13 +27,35 @@ package body System.OS_Interface is
    function Thread_Create
      (Code, Arg, Stack, Task_Buffer : Address;
       Stack_Size : Storage_Elements.Storage_Offset;
-      Priority : Integer;
+      Priority : System.Any_Priority;
       Base_CPU : Multiprocessors.CPU_Range) return TaskHandle_t is
      (C_Create (Code, Arg, Stack, Task_Buffer, size_t (Stack_Size),
-                int (Priority), int (Base_CPU)));
-   procedure Set_Priority (Priority : Integer) is
+                To_Priority (Priority), int (Base_CPU)));
+   procedure Set_Priority (Priority : System.Any_Priority) is
    begin
-      C_Set_Priority (int (Priority));
+      pragma Assert (Is_Task_Context);
+      vTaskPrioritySet (Null_TaskHandle_t, To_Priority (Priority));
    end Set_Priority;
-   function Is_Task_Context return Boolean is (C_ISR = 0);
+
+   ---------------------
+   -- Is_Task_Context --
+   ---------------------
+
+   function Is_Task_Context return Boolean is (xPortInIsrContext = pdFALSE);
+
+   -----------------
+   -- To_Priority --
+   -----------------
+
+   function To_Priority (Priority : System.Any_Priority) return UBaseType_t is
+   begin
+      --  Reserve priority zero for idle tasks. Higher Ada ceilings map to
+      --  the highest kernel priority; ISR masking is a later stage.
+
+      return
+        (if Priority < System.OS_Constants.configMAX_PRIORITIES - 1
+         then UBaseType_t (Priority + 1)
+         else UBaseType_t (System.OS_Constants.configMAX_PRIORITIES - 1));
+   end To_Priority;
+
 end System.OS_Interface;

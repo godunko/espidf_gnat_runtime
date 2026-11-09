@@ -8,6 +8,8 @@
 #include "freertos/semphr.h"
 
 /* Keep in sync with System.OS_Constants for this ESP32-S3 configuration. */
+_Static_assert(configMAX_PRIORITIES == 25,
+               "configMAX_PRIORITIES differs from System.OS_Constants");
 _Static_assert(sizeof(StaticTask_t) == 340,
                "StaticTask_t size differs from System.OS_Constants");
 _Static_assert(_Alignof(StaticTask_t) == 4,
@@ -25,15 +27,6 @@ unsigned __gnat_embedded_test_fail_create;
 unsigned __gnat_embedded_test_create_attempts;
 _Atomic unsigned __gnat_embedded_test_wakeups;
 #endif
-
-static UBaseType_t kernel_priority(int priority)
-{
-    configASSERT(priority >= 0);
-    /* Ada 0..23 -> FreeRTOS 1..24; reserve priority 0 for idle tasks.
-     * Ada tracks higher ceilings; ISR masking is a later stage. */
-    return priority < configMAX_PRIORITIES - 1 ? priority + 1
-                                              : configMAX_PRIORITIES - 1;
-}
 
 void __gnat_embedded_init(void)
 {
@@ -54,7 +47,7 @@ void __gnat_embedded_rts_unlock(void)
 }
 TaskHandle_t __gnat_embedded_create(TaskFunction_t code, void *atcb,
                                     void *stack, void *task_buffer, size_t size,
-                                    int priority, int cpu)
+                                    UBaseType_t priority, int cpu)
 {
     configASSERT(!xPortInIsrContext() && code && atcb && stack && task_buffer);
     configASSERT((uintptr_t)task_buffer % _Alignof(StaticTask_t) == 0);
@@ -65,15 +58,9 @@ TaskHandle_t __gnat_embedded_create(TaskFunction_t code, void *atcb,
         return NULL;
 #endif
     return xTaskCreateStaticPinnedToCore(code, "Ada task", size, atcb,
-        kernel_priority(priority), stack, task_buffer,
+        priority, stack, task_buffer,
         cpu ? cpu - 1 : tskNO_AFFINITY);
 }
-void __gnat_embedded_set_priority(int priority)
-{
-    configASSERT(!xPortInIsrContext());
-    vTaskPrioritySet(NULL, kernel_priority(priority));
-}
-
 SemaphoreHandle_t __gnat_xSemaphoreCreateBinaryStatic(StaticSemaphore_t *storage)
 {
     configASSERT(storage);

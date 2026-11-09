@@ -8,6 +8,8 @@ package System.OS_Constants is
 
    pragma Pure;
 
+   configMAX_PRIORITIES : constant := 25;
+
    --  Byte sizes and alignments for the tested ESP32-S3 / ESP-IDF 6.1
    --  configuration with Newlib. Keep the C assertions in embedded.c in sync.
    StaticTask_t_Size           : constant := 340;
