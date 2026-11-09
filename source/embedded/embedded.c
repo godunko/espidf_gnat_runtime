@@ -53,10 +53,16 @@ SemaphoreHandle_t __gnat_xSemaphoreCreateBinaryStatic(StaticSemaphore_t *storage
     return xSemaphoreCreateBinaryStatic(storage);
 }
 
-BaseType_t __gnat_xSemaphoreTake(SemaphoreHandle_t cv, TickType_t ticks)
+SemaphoreHandle_t __gnat_xSemaphoreCreateMutexStatic(StaticSemaphore_t *storage)
+{
+    configASSERT(!xPortInIsrContext() && storage);
+    return xSemaphoreCreateMutexStatic(storage);
+}
+
+UBaseType_t __gnat_uxSemaphoreGetCount(SemaphoreHandle_t semaphore)
 {
     configASSERT(!xPortInIsrContext());
-    return xSemaphoreTake(cv, ticks);
+    return uxSemaphoreGetCount(semaphore);
 }
 
 BaseType_t __gnat_xSemaphoreGive(SemaphoreHandle_t cv)
@@ -66,4 +72,10 @@ BaseType_t __gnat_xSemaphoreGive(SemaphoreHandle_t cv)
     atomic_fetch_add(&__gnat_embedded_test_wakeups, 1);
 #endif
     return xSemaphoreGive(cv);
+}
+
+BaseType_t __gnat_xSemaphoreTake(SemaphoreHandle_t cv, TickType_t ticks)
+{
+    configASSERT(!xPortInIsrContext());
+    return xSemaphoreTake(cv, ticks);
 }

@@ -71,6 +71,16 @@ package System.OS_Interface is
      Convention    => C,
      External_Name => "__gnat_xSemaphoreCreateBinaryStatic";
 
+   function xSemaphoreCreateMutexStatic
+     (pxMutexBuffer : access StaticSemaphore_t) return SemaphoreHandle_t
+   with Import, Convention => C,
+     External_Name => "__gnat_xSemaphoreCreateMutexStatic";
+
+   function uxSemaphoreGetCount
+     (xSemaphore : SemaphoreHandle_t) return UBaseType_t
+   with Import, Convention => C,
+     External_Name => "__gnat_uxSemaphoreGetCount";
+
    function xSemaphoreGive (xSemaphore : SemaphoreHandle_t) return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_xSemaphoreGive";
 
