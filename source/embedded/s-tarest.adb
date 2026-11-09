@@ -39,8 +39,7 @@ pragma Style_Checks (All_Checks);
 --  Turn off subprogram alpha order check, since we group soft link bodies and
 --  also separate off subprograms for restricted GNARLI.
 
---  ESP-IDF modification: explicit activation group publication for SMP.
-with System.ESPIDF_Activation;
+--  ESP-IDF modification: per-task startup using the Sleep/Wakeup event.
 with System.Task_Primitives.Operations;
 
 package body System.Tasking.Restricted.Stages is
@@ -97,6 +96,12 @@ package body System.Tasking.Restricted.Stages is
       TH : Termination_Handler := null;
 
    begin
+      --  The backend has installed Self's context. Wait until the creator has
+      --  published Thread and Runnable before Enter_Task reads these fields.
+      --  A signal sent before this wait is retained by the wake event.
+
+      Sleep (Self_ID, Activator_Sleep);
+
       --  Initialize low-level TCB components, that cannot be initialized by
       --  the creator.
 
@@ -189,16 +194,15 @@ package body System.Tasking.Restricted.Stages is
       Success : Boolean;
 
    begin
-      --  Hold new threads at the backend gate until this group is published.
+      --  Prevent created tasks from preempting the activator on its CPU.
+      --  Other CPUs may run each task once its own startup signal is sent.
 
-      System.ESPIDF_Activation.Begin_Group;
+      Set_Priority (Self_ID, System.Any_Priority'Last);
 
       --  Activate all the tasks in the chain
 
       --  Creation of the thread of control was deferred until activation.
       --  So create it now.
-
-      --  New threads cannot enter Ada code before Commit_Group.
 
       C := Chain;
       while C /= Null_Task loop
@@ -217,6 +221,11 @@ package body System.Tasking.Restricted.Stages is
 
          if Success then
             C.Common.State := Runnable;
+
+            --  Publish this task's state before it enters the body.
+            --  The startup token is consumed before ordinary Sleep/Wakeup use.
+
+            Wakeup (C, Activator_Sleep);
          else
             raise Program_Error;
          end if;
@@ -226,13 +235,9 @@ package body System.Tasking.Restricted.Stages is
 
       Self_ID.Common.State := Runnable;
 
-      --  Publish all states before allowing the group to run on either CPU.
+      --  Restore the original priority
 
-      System.ESPIDF_Activation.Commit_Group;
-   exception
-      when others =>
-         System.ESPIDF_Activation.Abort_Group;
-         raise;
+      Set_Priority (Self_ID, Self_ID.Common.Base_Priority);
    end Activate_Tasks;
 
    ------------------------------------
