@@ -1,4 +1,3 @@
-with Interfaces.C;
 --  ESP-IDF embedded backend. Copyright (C) 2026 Vadim Godunko
 --  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
 
@@ -14,7 +13,8 @@ package body System.OS_Interface is
    function C_ATCB return Address
      with Import, Convention => C, External_Name => "__gnat_embedded_atcb";
    function C_Create
-     (Code, Arg, Stack, Task_Buffer : Address; Size : size_t; Prio, CPU : int)
+     (Code, Arg, Stack, Task_Buffer : Address;
+      Size : size_t; Prio, CPU : int)
       return Thread_Id
      with Import, Convention => C, External_Name => "__gnat_embedded_create";
    procedure C_Set_Priority (Prio : int)
@@ -24,10 +24,6 @@ package body System.OS_Interface is
      with Import, Convention => C, External_Name => "__gnat_embedded_priority";
    function C_Affinity (Id : Thread_Id) return int
      with Import, Convention => C, External_Name => "__gnat_embedded_affinity";
-   procedure C_Sleep
-     with Import, Convention => C, External_Name => "__gnat_embedded_sleep";
-   procedure C_Wakeup (Id : Thread_Id)
-     with Import, Convention => C, External_Name => "__gnat_embedded_wakeup";
    function C_ISR return int
      with Import, Convention => C, External_Name => "xPortInIsrContext";
    function Clock return Time is (C_Clock);
@@ -60,13 +56,5 @@ package body System.OS_Interface is
    function Get_CPU (Id : Thread_Id) return Multiprocessors.CPU is
      (if Get_Affinity (Id) = 0 then Multiprocessors.CPU'First
       else Multiprocessors.CPU (Get_Affinity (Id)));
-   procedure Sleep is
-   begin
-      C_Sleep;
-   end Sleep;
-   procedure Wakeup (Id : Thread_Id) is
-   begin
-      C_Wakeup (Id);
-   end Wakeup;
    function Is_Task_Context return Boolean is (C_ISR = 0);
 end System.OS_Interface;

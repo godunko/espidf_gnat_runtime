@@ -7,6 +7,8 @@ with System.Storage_Elements;
 
 package body System.Task_Primitives.Operations is
    use type OSI.Thread_Id;
+   use type OSI.SemaphoreHandle_t;
+   use type OSI.BaseType_t;
    use type ST.Task_Id;
    function To_Task_Id is new Ada.Unchecked_Conversion (Address, ST.Task_Id);
    function To_Address is new Ada.Unchecked_Conversion (ST.Task_Id, Address);
@@ -51,7 +53,10 @@ package body System.Task_Primitives.Operations is
    begin
       Self_ID.Common.LL.Thread := OSI.Null_Thread_Id;
       Self_ID.Common.Global_Task_Lock_Nesting := 0;
-      Succeeded := True;
+      Self_ID.Common.LL.CV := OSI.xSemaphoreCreateBinaryStatic
+        (Self_ID.Common.LL.CV_Storage'Access);
+      Succeeded := Self_ID.Common.LL.CV /=
+        OSI.SemaphoreHandle_t (Null_Address);
    end Initialize_TCB;
    procedure Set_Priority (T : ST.Task_Id; Prio : ST.Extended_Priority) is
    begin
@@ -73,14 +78,20 @@ package body System.Task_Primitives.Operations is
    end Delay_Until;
    procedure Sleep (Self_ID : ST.Task_Id; Reason : ST.Task_States) is
       pragma Unreferenced (Reason);
+      Result : OSI.BaseType_t;
    begin
-      pragma Assert (Self_ID = Self);
-      OSI.Sleep;
+      pragma Assert (Self_ID = Self and then OSI.Is_Task_Context);
+      Result := OSI.xSemaphoreTake
+        (Self_ID.Common.LL.CV, OSI.portMAX_DELAY);
+      pragma Assert (Result = OSI.pdTRUE);
    end Sleep;
    procedure Wakeup (T : ST.Task_Id; Reason : ST.Task_States) is
-      pragma Unreferenced (Reason);
+      Result : OSI.BaseType_t;
+      pragma Unreferenced (Reason, Result);
    begin
-      OSI.Wakeup (T.Common.LL.Thread);
+      pragma Assert (OSI.Is_Task_Context);
+      --  Repeated wakeups coalesce when the binary event is already signaled.
+      Result := OSI.xSemaphoreGive (T.Common.LL.CV);
    end Wakeup;
    function Is_Task_Context return Boolean is (OSI.Is_Task_Context);
 end System.Task_Primitives.Operations;

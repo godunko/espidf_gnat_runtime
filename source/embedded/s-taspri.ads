@@ -27,10 +27,13 @@ package System.Task_Primitives is
    --  No alternate signal stack is used on this platform
 
    type Private_Data is limited record
-      TCB    : aliased System.OS_Interface.StaticTask_t;
-      Thread : aliased System.OS_Interface.Thread_Id :=
+      TCB        : aliased System.OS_Interface.StaticTask_t;
+      CV         : System.OS_Interface.SemaphoreHandle_t;
+      --  Binary event for startup and subsequent Sleep/Wakeup.
+      CV_Storage : aliased System.OS_Interface.StaticSemaphore_t;
+      Thread     : aliased System.OS_Interface.Thread_Id :=
         System.OS_Interface.Null_Thread_Id;
-      Lwp    : aliased System.Address := System.Null_Address;
+      Lwp        : aliased System.Address := System.Null_Address;
    end record;
 
 end System.Task_Primitives;
