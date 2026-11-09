@@ -601,17 +601,21 @@ package body System.Task_Primitives.Operations is
    end Write_Lock;
 
    procedure Write_Lock (L : not null access RTS_Lock) is
-      Result : BaseType_t;
    begin
-      Result := xSemaphoreTake (L.Mutex, portMAX_DELAY);
-      pragma Assert (Result = pdTRUE);
+      --  FSF GCC 16: this subprogram is called from the implementation of
+      --  Ada.Synchronous_Task_Control.Set_True, which can be called from both
+      --  task and ISR contexts.
+
+      Semaphore_Take (L.Mutex, Is_Task_Context);
    end Write_Lock;
 
    procedure Write_Lock (T : Task_Id) is
-      Result : BaseType_t;
    begin
-      Result := xSemaphoreTake (T.Common.LL.L.Mutex, portMAX_DELAY);
-      pragma Assert (Result = pdTRUE);
+      --  FSF GCC 16: this subprogram is called from the implementation of
+      --  Ada.Synchronous_Task_Control.Set_True, which can be called from both
+      --  task and ISR contexts.
+
+      Semaphore_Take (T.Common.LL.L.Mutex, Is_Task_Context);
    end Write_Lock;
 
    ---------------
@@ -635,17 +639,21 @@ package body System.Task_Primitives.Operations is
    end Unlock;
 
    procedure Unlock (L : not null access RTS_Lock) is
-      Result : BaseType_t;
    begin
-      Result := xSemaphoreGive (L.Mutex);
-      pragma Assert (Result = pdTRUE);
+      --  FSF GCC 16: this subprogram is called from the implementation of
+      --  Ada.Synchronous_Task_Control.Set_True, which can be called from both
+      --  task and ISR contexts.
+
+      Semaphore_Give (L.Mutex, Is_Task_Context);
    end Unlock;
 
    procedure Unlock (T : Task_Id) is
-      Result : BaseType_t;
    begin
-      Result := xSemaphoreGive (T.Common.LL.L.Mutex);
-      pragma Assert (Result = pdTRUE);
+      --  FSF GCC 16: this subprogram is called from the implementation of
+      --  Ada.Synchronous_Task_Control.Set_True, which can be called from both
+      --  task and ISR contexts.
+
+      Semaphore_Give (T.Common.LL.L.Mutex, Is_Task_Context);
    end Unlock;
 
    -----------------
@@ -926,10 +934,12 @@ package body System.Task_Primitives.Operations is
 
    procedure Wakeup (T : Task_Id; Reason : System.Tasking.Task_States) is
       pragma Unreferenced (Reason);
-      Result : BaseType_t;
    begin
-      Result := xSemaphoreGive (T.Common.LL.CV);
-      pragma Assert (Result = pdTRUE);
+      --  FSF GCC 16: this subprogram is called from the implementation of
+      --  Ada.Synchronous_Task_Control.Set_True, which can be called from both
+      --  task and ISR contexts.
+
+      Semaphore_Give (T.Common.LL.CV, Is_Task_Context);
    end Wakeup;
 
    -----------
