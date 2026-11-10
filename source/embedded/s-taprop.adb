@@ -11,21 +11,47 @@ package body System.Task_Primitives.Operations is
    use type OSI.BaseType_t;
    use type ST.Task_Id;
    use type Multiprocessors.CPU_Range;
+
    Current_Task : aliased ST.Task_Id := null;
    pragma Thread_Local_Storage (Current_Task);
 
+   RTS_Mutex_Storage : aliased OSI.StaticSemaphore_t;
+   RTS_Mutex         : OSI.SemaphoreHandle_t :=
+     OSI.SemaphoreHandle_t (Null_Address);
+
    function To_Address is new Ada.Unchecked_Conversion (ST.Task_Id, Address);
+   --  Keep the soft-links entry points while owning the lock in Ada.
    procedure RTS_Lock
-     with Import, Convention => C, External_Name => "__gnat_embedded_rts_lock";
+     with Export, Convention => C, External_Name => "__gnat_embedded_rts_lock";
    procedure RTS_Unlock
-     with Import, Convention => C,
+     with Export, Convention => C,
           External_Name => "__gnat_embedded_rts_unlock";
 
-   function Self return ST.Task_Id is (Current_Task);
+   procedure RTS_Lock is
+      Result : OSI.BaseType_t;
+   begin
+      pragma Assert (OSI.Is_Task_Context);
+      Result := OSI.xSemaphoreTakeRecursive (RTS_Mutex, OSI.portMAX_DELAY);
+      pragma Assert (Result = OSI.pdTRUE);
+   end RTS_Lock;
+
+   procedure RTS_Unlock is
+      Result : OSI.BaseType_t;
+   begin
+      pragma Assert (OSI.Is_Task_Context);
+      Result := OSI.xSemaphoreGiveRecursive (RTS_Mutex);
+      pragma Assert (Result = OSI.pdTRUE);
+   end RTS_Unlock;
+
    procedure Initialize (Environment_Task : ST.Task_Id) is
    begin
       pragma Assert (Current_Task = ST.Null_Task);
-      OSI.Initialize;
+      pragma Assert
+        (OSI.Is_Task_Context
+         and then RTS_Mutex = OSI.SemaphoreHandle_t (Null_Address));
+      RTS_Mutex := OSI.xSemaphoreCreateRecursiveMutexStatic
+        (RTS_Mutex_Storage'Access);
+      pragma Assert (RTS_Mutex /= OSI.SemaphoreHandle_t (Null_Address));
       Environment_Task.Common.LL.Thread := OSI.Thread_Self;
       Environment_Task.Common.LL.Current_Priority :=
         Environment_Task.Common.Base_Priority;
@@ -137,5 +163,11 @@ package body System.Task_Primitives.Operations is
    ---------------------
 
    function Is_Task_Context return Boolean renames OSI.Is_Task_Context;
+
+   ----------
+   -- Self --
+   ----------
+
+   function Self return ST.Task_Id is (Current_Task);
 
 end System.Task_Primitives.Operations;

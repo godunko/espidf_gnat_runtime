@@ -6,18 +6,12 @@ package body System.OS_Interface is
    use type Storage_Elements.Storage_Offset;
    function C_Clock return Time
      with Import, Convention => C, External_Name => "esp_timer_get_time";
-   procedure C_Init
-     with Import, Convention => C, External_Name => "__gnat_embedded_init";
    function Clock return Time is (C_Clock);
    procedure Delay_Until (T : Time) is
       pragma Unreferenced (T);
    begin
       raise Program_Error with "delays are not implemented in stage 1";
    end Delay_Until;
-   procedure Initialize is
-   begin
-      C_Init;
-   end Initialize;
    function Thread_Self return TaskHandle_t is
      (xTaskGetCurrentTaskHandle);
    procedure Set_Priority (Priority : System.Any_Priority) is

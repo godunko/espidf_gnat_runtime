@@ -43,7 +43,6 @@ package System.OS_Interface is
    Ticks_Per_Second : constant := 1_000_000;
    function Clock return Time;
    procedure Delay_Until (T : Time);
-   procedure Initialize;
    function Thread_Self return TaskHandle_t;
    procedure Set_Priority (Priority : System.Any_Priority);
    function Is_Task_Context return Boolean;
@@ -73,21 +72,43 @@ package System.OS_Interface is
 
    function xSemaphoreCreateMutexStatic
      (pxMutexBuffer : access StaticSemaphore_t) return SemaphoreHandle_t
-   with Import, Convention => C,
+   with
+     Import,
+     Convention    => C,
      External_Name => "__gnat_xSemaphoreCreateMutexStatic";
+
+   function xSemaphoreCreateRecursiveMutexStatic
+     (pxMutexBuffer : access StaticSemaphore_t) return SemaphoreHandle_t
+   with
+     Import,
+     Convention    => C,
+     External_Name => "__gnat_xSemaphoreCreateRecursiveMutexStatic";
 
    function uxSemaphoreGetCount
      (xSemaphore : SemaphoreHandle_t) return UBaseType_t
-   with Import, Convention => C,
-     External_Name => "__gnat_uxSemaphoreGetCount";
+   with Import, Convention => C, External_Name => "__gnat_uxSemaphoreGetCount";
 
    function xSemaphoreGive (xSemaphore : SemaphoreHandle_t) return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_xSemaphoreGive";
+
+   function xSemaphoreGiveRecursive
+     (xMutex : SemaphoreHandle_t) return BaseType_t
+   with
+     Import,
+     Convention    => C,
+     External_Name => "__gnat_xSemaphoreGiveRecursive";
 
    function xSemaphoreTake
      (xSemaphore : SemaphoreHandle_t; xTicksToWait : TickType_t)
       return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_xSemaphoreTake";
+
+   function xSemaphoreTakeRecursive
+     (xMutex : SemaphoreHandle_t; xTicksToWait : TickType_t) return BaseType_t
+   with
+     Import,
+     Convention    => C,
+     External_Name => "__gnat_xSemaphoreTakeRecursive";
 
    function xTaskCreateStaticPinnedToCore
      (pxTaskCode     : not null TaskFunction_t;

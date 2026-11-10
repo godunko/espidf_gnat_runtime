@@ -22,29 +22,9 @@ _Static_assert(sizeof(StaticSemaphore_t) == 84,
 _Static_assert(_Alignof(StaticSemaphore_t) == 4,
                "StaticSemaphore_t alignment differs from System.OS_Constants");
 
-static SemaphoreHandle_t rts_lock;
-static StaticSemaphore_t rts_lock_storage;
 #ifdef GNAT_EMBEDDED_TESTING
 _Atomic unsigned __gnat_embedded_test_wakeups;
 #endif
-
-void __gnat_embedded_init(void)
-{
-    configASSERT(!xPortInIsrContext() && !rts_lock);
-    rts_lock = xSemaphoreCreateRecursiveMutexStatic(&rts_lock_storage);
-    configASSERT(rts_lock);
-}
-void __gnat_embedded_rts_lock(void)
-{
-    configASSERT(!xPortInIsrContext() && rts_lock);
-    BaseType_t ok = xSemaphoreTakeRecursive(rts_lock, portMAX_DELAY);
-    configASSERT(ok == pdTRUE);
-}
-void __gnat_embedded_rts_unlock(void)
-{
-    BaseType_t ok = xSemaphoreGiveRecursive(rts_lock);
-    configASSERT(ok == pdTRUE);
-}
 
 SemaphoreHandle_t __gnat_xSemaphoreCreateBinaryStatic(StaticSemaphore_t *storage)
 {
@@ -57,6 +37,12 @@ SemaphoreHandle_t __gnat_xSemaphoreCreateMutexStatic(StaticSemaphore_t *storage)
 {
     configASSERT(!xPortInIsrContext() && storage);
     return xSemaphoreCreateMutexStatic(storage);
+}
+
+SemaphoreHandle_t __gnat_xSemaphoreCreateRecursiveMutexStatic(StaticSemaphore_t *storage)
+{
+    configASSERT(!xPortInIsrContext() && storage);
+    return xSemaphoreCreateRecursiveMutexStatic(storage);
 }
 
 UBaseType_t __gnat_uxSemaphoreGetCount(SemaphoreHandle_t semaphore)
@@ -74,8 +60,20 @@ BaseType_t __gnat_xSemaphoreGive(SemaphoreHandle_t cv)
     return xSemaphoreGive(cv);
 }
 
+BaseType_t __gnat_xSemaphoreGiveRecursive(SemaphoreHandle_t mutex)
+{
+    configASSERT(!xPortInIsrContext() && mutex);
+    return xSemaphoreGiveRecursive(mutex);
+}
+
 BaseType_t __gnat_xSemaphoreTake(SemaphoreHandle_t cv, TickType_t ticks)
 {
     configASSERT(!xPortInIsrContext());
     return xSemaphoreTake(cv, ticks);
+}
+
+BaseType_t __gnat_xSemaphoreTakeRecursive(SemaphoreHandle_t mutex, TickType_t ticks)
+{
+    configASSERT(!xPortInIsrContext() && mutex);
+    return xSemaphoreTakeRecursive(mutex, ticks);
 }
