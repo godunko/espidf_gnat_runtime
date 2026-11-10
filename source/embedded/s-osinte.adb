@@ -2,8 +2,6 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
 
 package body System.OS_Interface is
-   use type Multiprocessors.CPU_Range;
-   use type Storage_Elements.Storage_Offset;
    function C_Clock return Time
      with Import, Convention => C, External_Name => "esp_timer_get_time";
    function Clock return Time is (C_Clock);
@@ -23,43 +21,6 @@ package body System.OS_Interface is
    ---------------------
 
    function Is_Task_Context return Boolean is (xPortInIsrContext = pdFALSE);
-
-   -------------------
-   -- Thread_Create --
-   -------------------
-
-   function Thread_Create
-     (Code         : not null TaskFunction_t;
-      Arg          : System.Address;
-      Task_Storage : out StaticTask_t;
-      Stack        : System.Address;
-      Stack_Size   : System.Storage_Elements.Storage_Offset;
-      Priority     : System.Any_Priority;
-      Base_CPU     : System.Multiprocessors.CPU_Range) return TaskHandle_t
-   is
-      C_Name : aliased constant Interfaces.C.char_array :=
-        Interfaces.C.To_C ("Ada task");
-
-   begin
-      pragma Assert (Is_Task_Context);
-      pragma Assert (Arg /= Null_Address);
-      pragma Assert (Stack /= Null_Address);
-      pragma Assert (Stack_Size > 0);
-
-      return
-        xTaskCreateStaticPinnedToCore
-          (pxTaskCode     => Code,
-           pcName         => C_Name (C_Name'First)'Access,
-           ulStackDepth   => uint32_t (Stack_Size),
-           pvParameters   => Arg,
-           uxPriority     => To_Priority (Priority),
-           puxStackBuffer => Stack,
-           pxTaskBuffer   => Task_Storage,
-           xCoreID        =>
-             (if Base_CPU = 0
-              then tskNO_AFFINITY
-              else BaseType_t (Base_CPU - 1)));
-   end Thread_Create;
 
    -----------------
    -- To_Priority --

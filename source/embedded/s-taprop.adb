@@ -2,8 +2,8 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
 
 with Ada.Unchecked_Conversion;
+with Interfaces.C;
 with System.Tasking.Debug;
-with System.Storage_Elements;
 
 package body System.Task_Primitives.Operations is
    use type OSI.TaskHandle_t;
@@ -11,6 +11,7 @@ package body System.Task_Primitives.Operations is
    use type OSI.BaseType_t;
    use type ST.Task_Id;
    use type Multiprocessors.CPU_Range;
+   use type System.Parameters.Size_Type;
 
    Current_Task : aliased ST.Task_Id := null;
    pragma Thread_Local_Storage (Current_Task);
@@ -96,17 +97,31 @@ package body System.Task_Primitives.Operations is
       function To_Task_Function is new
         Ada.Unchecked_Conversion (Address, OSI.TaskFunction_t);
 
+      C_Name : aliased constant Interfaces.C.char_array :=
+        Interfaces.C.To_C ("Ada task");
+      Stack : constant Address :=
+        T.Common.Compiler_Data.Pri_Stack_Info.Start_Address;
+
    begin
+      pragma Assert (OSI.Is_Task_Context);
+      pragma Assert (T /= ST.Null_Task);
+      pragma Assert (Stack /= Null_Address);
+      pragma Assert (Stack_Size > 0);
+
       T.Common.LL.Current_Priority := Priority;
       T.Common.LL.Thread :=
-        OSI.Thread_Create
-          (Code         => To_Task_Function (Wrapper),
-           Arg          => To_Address (T),
-           Task_Storage => T.Common.LL.TCB,
-           Stack        => T.Common.Compiler_Data.Pri_Stack_Info.Start_Address,
-           Stack_Size   => System.Storage_Elements.Storage_Offset (Stack_Size),
-           Priority     => Priority,
-           Base_CPU     => Base_CPU);
+        OSI.xTaskCreateStaticPinnedToCore
+          (pxTaskCode     => To_Task_Function (Wrapper),
+           pcName         => C_Name (C_Name'First)'Access,
+           ulStackDepth   => OSI.uint32_t (Stack_Size),
+           pvParameters   => To_Address (T),
+           uxPriority     => OSI.To_Priority (Priority),
+           puxStackBuffer => Stack,
+           pxTaskBuffer   => T.Common.LL.TCB,
+           xCoreID        =>
+             (if Base_CPU = 0
+              then OSI.tskNO_AFFINITY
+              else OSI.BaseType_t (Base_CPU - 1)));
       Succeeded := T.Common.LL.Thread /= OSI.Null_TaskHandle_t;
    end Create_Task;
 
