@@ -62,7 +62,9 @@ package body System.Task_Primitives.Operations is
    function Monotonic_Clock return Time is (Time (OSI.Clock));
    procedure Delay_Until (Abs_Time : Time) is
    begin
+      Self.Common.State := ST.Delay_Sleep;
       OSI.Delay_Until (OSI.Time (Abs_Time));
+      Self.Common.State := ST.Runnable;
    end Delay_Until;
    procedure Sleep (Self_ID : ST.Task_Id; Reason : ST.Task_States) is
       pragma Unreferenced (Reason);

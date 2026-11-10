@@ -3,6 +3,7 @@
  */
 #include <stdint.h>
 #include <stdatomic.h>
+#include <sys/time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -10,6 +11,8 @@
 /* Keep in sync with System.OS_Constants for this ESP32-S3 configuration. */
 _Static_assert(tskNO_AFFINITY == 0x7FFFFFFF,
                "tskNO_AFFINITY differs from System.OS_Interface");
+_Static_assert(configTICK_RATE_HZ == 100,
+               "configTICK_RATE_HZ differs from System.OS_Constants");
 _Static_assert(configMAX_PRIORITIES == 25,
                "configMAX_PRIORITIES differs from System.OS_Constants");
 _Static_assert(sizeof(StaticTask_t) == 340,
@@ -76,4 +79,13 @@ BaseType_t __gnat_xSemaphoreTakeRecursive(SemaphoreHandle_t mutex, TickType_t ti
 {
     configASSERT(!xPortInIsrContext() && mutex);
     return xSemaphoreTakeRecursive(mutex, ticks);
+}
+
+/* Keep the SDK's timeval/time_t ABI at the C boundary. */
+int64_t __gnat_calendar_clock_usec(void)
+{
+    struct timeval now;
+    int result = gettimeofday(&now, NULL);
+    configASSERT(result == 0);
+    return (int64_t)now.tv_sec * 1000000 + now.tv_usec;
 }
