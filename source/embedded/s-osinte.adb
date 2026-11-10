@@ -12,8 +12,6 @@ package body System.OS_Interface is
    begin
       raise Program_Error with "delays are not implemented in stage 1";
    end Delay_Until;
-   function Thread_Self return TaskHandle_t is
-     (xTaskGetCurrentTaskHandle);
    procedure Set_Priority (Priority : System.Any_Priority) is
    begin
       pragma Assert (Is_Task_Context);

@@ -43,7 +43,6 @@ package System.OS_Interface is
    Ticks_Per_Second : constant := 1_000_000;
    function Clock return Time;
    procedure Delay_Until (T : Time);
-   function Thread_Self return TaskHandle_t;
    procedure Set_Priority (Priority : System.Any_Priority);
    function Is_Task_Context return Boolean;
 

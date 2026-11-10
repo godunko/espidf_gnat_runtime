@@ -32,7 +32,7 @@ package System.Task_Primitives is
         System.OS_Interface.Null_TaskHandle_t;
       Lwp              : aliased System.Address := System.Null_Address;
 
-      Current_Priority : System.Any_Priority;
+      Current_Priority : System.Any_Priority := System.Any_Priority'First;
       pragma Atomic (Current_Priority);
       --  Ada active priority before mapping to the FreeRTOS priority range.
 

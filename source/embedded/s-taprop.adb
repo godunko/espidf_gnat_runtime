@@ -43,35 +43,6 @@ package body System.Task_Primitives.Operations is
       pragma Assert (Result = OSI.pdTRUE);
    end RTS_Unlock;
 
-   procedure Initialize (Environment_Task : ST.Task_Id) is
-   begin
-      pragma Assert (Current_Task = ST.Null_Task);
-      pragma Assert
-        (OSI.Is_Task_Context
-         and then RTS_Mutex = OSI.SemaphoreHandle_t (Null_Address));
-      RTS_Mutex := OSI.xSemaphoreCreateRecursiveMutexStatic
-        (RTS_Mutex_Storage'Access);
-      pragma Assert (RTS_Mutex /= OSI.SemaphoreHandle_t (Null_Address));
-      Environment_Task.Common.LL.Thread := OSI.Thread_Self;
-      Environment_Task.Common.LL.Current_Priority :=
-        Environment_Task.Common.Base_Priority;
-      Environment_Task.Common.Activation_Link := null;
-      Operations.Environment_Task := Environment_Task;
-      --  The environment has no activator; provide its startup token here.
-      Wakeup (Environment_Task, ST.Activator_Sleep);
-      Enter_Task (Environment_Task);
-   end Initialize;
-
-   procedure Initialize_TCB (Self_ID : ST.Task_Id; Succeeded : out Boolean) is
-   begin
-      Self_ID.Common.LL.Thread := OSI.Null_TaskHandle_t;
-      Self_ID.Common.LL.Current_Priority := System.Any_Priority'First;
-      Self_ID.Common.Global_Task_Lock_Nesting := 0;
-      Self_ID.Common.LL.CV := OSI.xSemaphoreCreateBinaryStatic
-        (Self_ID.Common.LL.CV_Storage'Access);
-      Succeeded := Self_ID.Common.LL.CV /=
-        OSI.SemaphoreHandle_t (Null_Address);
-   end Initialize_TCB;
    procedure Set_Priority (T : ST.Task_Id; Prio : ST.Extended_Priority) is
    begin
       pragma Assert (T = Self);
@@ -157,6 +128,60 @@ package body System.Task_Primitives.Operations is
       RTS_Unlock;
       System.OS_Interface.Set_Priority (Self_ID.Common.Base_Priority);
    end Enter_Task;
+
+   ----------------
+   -- Initialize --
+   ----------------
+
+   procedure Initialize (Environment_Task : ST.Task_Id) is
+   begin
+      pragma Assert (Current_Task = ST.Null_Task);
+      pragma
+        Assert
+          (OSI.Is_Task_Context
+           and then RTS_Mutex = OSI.SemaphoreHandle_t (Null_Address));
+
+      --  Create the recursive mutex for task activate/sleep/wakeup operations.
+      --  The environment has no activator; provide its startup token here.
+
+      RTS_Mutex :=
+        OSI.xSemaphoreCreateRecursiveMutexStatic (RTS_Mutex_Storage'Access);
+      pragma Assert (RTS_Mutex /= OSI.SemaphoreHandle_t (Null_Address));
+      Wakeup (Environment_Task, ST.Activator_Sleep);
+
+      --  Set the thread
+
+      Environment_Task.Common.LL.Thread := OSI.xTaskGetCurrentTaskHandle;
+
+      --  Clear Activation_Link, as required by Add_Task_Id
+
+      Environment_Task.Common.Activation_Link := null;
+
+      --  Set the current priority to the base priority of the environment
+      --  task.
+
+      Environment_Task.Common.LL.Current_Priority :=
+        Environment_Task.Common.Base_Priority;
+
+      Enter_Task (Environment_Task);
+
+      --  Store the identifier for the environment task
+
+      Operations.Environment_Task := Environment_Task;
+   end Initialize;
+
+   --------------------
+   -- Initialize_TCB --
+   --------------------
+
+   procedure Initialize_TCB (Self_ID : ST.Task_Id; Succeeded : out Boolean) is
+   begin
+      Self_ID.Common.LL.CV :=
+        OSI.xSemaphoreCreateBinaryStatic (Self_ID.Common.LL.CV_Storage'Access);
+
+      Succeeded :=
+        Self_ID.Common.LL.CV /= OSI.SemaphoreHandle_t (Null_Address);
+   end Initialize_TCB;
 
    ---------------------
    -- Is_Task_Context --
