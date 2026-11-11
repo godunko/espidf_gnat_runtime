@@ -23,11 +23,16 @@ package System.OS_Interface is
    type TickType_t is new uint32_t;
    portMAX_DELAY : constant TickType_t := TickType_t'Last;
 
+   type portMUX_TYPE is private;
+
    type StaticTask_t is private;
    type TaskHandle_t is new System.Address;
    Null_TaskHandle_t : constant TaskHandle_t := TaskHandle_t (Null_Address);
+
    type StaticSemaphore_t is private;
    type SemaphoreHandle_t is new System.Address;
+   Null_SemaphoreHandle_t : constant SemaphoreHandle_t :=
+     SemaphoreHandle_t (Null_Address);
 
    type TaskFunction_t is access procedure (Arg : System.Address)
    with Convention => C;
@@ -36,6 +41,18 @@ package System.OS_Interface is
    --  Compatibility name used by the upstream task-primitives specification.
 
    Null_Thread_Id : constant Thread_Id := TaskHandle_t (Null_Address);
+
+   subtype Interrupt_Range is Integer range 0 .. 98;
+   function Try_Critical (Mux : in out portMUX_TYPE) return BaseType_t
+   with Import, Convention => C, External_Name => "__gnat_mux_try";
+   function Core_ID return BaseType_t
+   with Import, Convention => C, External_Name => "__gnat_core_id";
+   function Mask_Interrupts return UBaseType_t
+   with Import, Convention => C, External_Name => "__gnat_mask_interrupts";
+   procedure Restore_Interrupts (Mask : UBaseType_t)
+   with Import, Convention => C, External_Name => "__gnat_restore_interrupts";
+   function Give_From_ISR (CV : SemaphoreHandle_t) return BaseType_t
+   with Import, Convention => C, External_Name => "__gnat_give_from_isr";
 
    subtype Time is Interfaces.Unsigned_64;
    subtype Time_Span is Interfaces.Integer_64;
@@ -48,6 +65,21 @@ package System.OS_Interface is
    function To_Priority (Priority : System.Any_Priority) return UBaseType_t;
    --  Convert an Ada priority to the corresponding FreeRTOS priority. Value
    --  is saturated to the valid FreeRTOS priority range.
+
+   procedure portENTER_CRITICAL_SAFE (Mux : in out portMUX_TYPE)
+   with
+     Import,
+     Convention    => C,
+     External_Name => "__gnat_portENTER_CRITICAL_SAFE";
+
+   procedure portEXIT_CRITICAL_SAFE (Mux : in out portMUX_TYPE)
+   with
+     Import,
+     Convention    => C,
+     External_Name => "__gnat_portEXIT_CRITICAL_SAFE";
+
+   procedure portMUX_INITIALIZE (Mux : out portMUX_TYPE)
+   with Import, Convention => C, External_Name => "__gnat_portMUX_INITIALIZE";
 
    function xPortInIsrContext return BaseType_t
    with Import, Convention => C, External_Name => "xPortInIsrContext";
@@ -124,6 +156,11 @@ package System.OS_Interface is
    with Import, Convention => C, External_Name => "vTaskPrioritySet";
 
 private
+
+   type portMUX_TYPE is array
+     (1 .. System.OS_Constants.portMUX_TYPE_Size) of Interfaces.Unsigned_8
+     with Convention => C,
+          Alignment => System.OS_Constants.portMUX_TYPE_Alignment;
 
    type StaticTask_t is
      new System.Storage_Elements.Storage_Array

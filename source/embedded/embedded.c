@@ -15,11 +15,13 @@ _Static_assert(configTICK_RATE_HZ == 100,
                "configTICK_RATE_HZ differs from System.OS_Constants");
 _Static_assert(configMAX_PRIORITIES == 25,
                "configMAX_PRIORITIES differs from System.OS_Constants");
+
+_Static_assert(sizeof(portMUX_TYPE) == 8 && _Alignof(portMUX_TYPE) == 4,
+               "portMUX_TYPE differs from System.OS_Constants");
 _Static_assert(sizeof(StaticTask_t) == 340,
                "StaticTask_t size differs from System.OS_Constants");
 _Static_assert(_Alignof(StaticTask_t) == 4,
                "StaticTask_t alignment differs from System.OS_Constants");
-
 _Static_assert(sizeof(StaticSemaphore_t) == 84,
                "StaticSemaphore_t size differs from System.OS_Constants");
 _Static_assert(_Alignof(StaticSemaphore_t) == 4,
@@ -27,7 +29,23 @@ _Static_assert(_Alignof(StaticSemaphore_t) == 4,
 
 #ifdef GNAT_EMBEDDED_TESTING
 _Atomic unsigned __gnat_embedded_test_wakeups;
+_Atomic unsigned __gnat_embedded_isr_yields[portNUM_PROCESSORS];
 #endif
+
+void __gnat_portENTER_CRITICAL_SAFE(portMUX_TYPE *mux)
+{
+    portENTER_CRITICAL_SAFE(mux);
+}
+
+void __gnat_portEXIT_CRITICAL_SAFE(portMUX_TYPE *mux)
+{
+    portEXIT_CRITICAL_SAFE(mux);
+}
+
+void __gnat_portMUX_INITIALIZE(portMUX_TYPE *mux)
+{
+    portMUX_INITIALIZE(mux);
+}
 
 SemaphoreHandle_t __gnat_xSemaphoreCreateBinaryStatic(StaticSemaphore_t *storage)
 {
