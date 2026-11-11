@@ -56,7 +56,12 @@ package body System.Tasking.Protected_Objects is
       Object.Caller_Priority := System.Any_Priority'First;
       Object.Owner := Null_Task;
 
-      Multiprocessors.Fair_Locks.Initialize (Object.Lock);
+      if Init_Priority >= System.Interrupt_Priority'First then
+         Multiprocessors.Fair_Locks.Initialize_Interrupt_Context (Object.Lock);
+
+      else
+         Multiprocessors.Fair_Locks.Initialize_Task_Context (Object.Lock);
+      end if;
    end Initialize_Protection;
 
    ----------
@@ -81,6 +86,7 @@ package body System.Tasking.Protected_Objects is
 
       --  Preserve exact Ada priorities for ceiling checks. The kernel's
       --  mapped priority alone cannot distinguish interrupt-range ceilings.
+
       if Caller_Priority > Object.Ceiling then
          raise Program_Error;
       end if;
@@ -89,6 +95,7 @@ package body System.Tasking.Protected_Objects is
 
       --  FreeRTOS can time-slice equal-priority tasks on the same CPU.
       --  Lock on every configuration, including a single-core target.
+
       Multiprocessors.Fair_Locks.Lock (Object.Lock);
 
       --  Update the protected object's owner
