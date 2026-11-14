@@ -8,6 +8,14 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
+/* Native SDK TLS is preallocated/zeroed by uxInitialiseStackTLS. Reading
+ * it from an ISR cannot invoke emutls allocation or pthread synchronization.
+ * THREADPTR still identifies the interrupted task, including nested ISRs.
+ */
+static _Thread_local void *current_atcb;
+void *__gnat_get_current_atcb(void) { return current_atcb; }
+void __gnat_set_current_atcb(void *atcb) { current_atcb = atcb; }
+
 /* Keep in sync with System.OS_Constants for this ESP32-S3 configuration. */
 _Static_assert(tskNO_AFFINITY == 0x7FFFFFFF,
                "tskNO_AFFINITY differs from System.OS_Interface");
@@ -30,6 +38,8 @@ _Static_assert(_Alignof(StaticSemaphore_t) == 4,
 #ifdef GNAT_EMBEDDED_TESTING
 _Atomic unsigned __gnat_embedded_test_wakeups;
 _Atomic unsigned __gnat_embedded_isr_yields[portNUM_PROCESSORS];
+_Atomic unsigned __gnat_embedded_nested_yields[portNUM_PROCESSORS][3];
+_Atomic unsigned __gnat_embedded_nested_gives[portNUM_PROCESSORS][3];
 #endif
 
 void __gnat_portENTER_CRITICAL_SAFE(portMUX_TYPE *mux)
@@ -45,6 +55,11 @@ void __gnat_portEXIT_CRITICAL_SAFE(portMUX_TYPE *mux)
 void __gnat_portMUX_INITIALIZE(portMUX_TYPE *mux)
 {
     portMUX_INITIALIZE(mux);
+}
+
+void __gnat_portYIELD_FROM_ISR(BaseType_t xHigherPriorityTaskWoken)
+{
+  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 SemaphoreHandle_t __gnat_xSemaphoreCreateBinaryStatic(StaticSemaphore_t *storage)
@@ -81,6 +96,11 @@ BaseType_t __gnat_xSemaphoreGive(SemaphoreHandle_t cv)
     return xSemaphoreGive(cv);
 }
 
+BaseType_t __gnat_xSemaphoreGiveFromISR(SemaphoreHandle_t xSemaphore, BaseType_t * const pxHigherPriorityTaskWoken)
+{
+    return xSemaphoreGiveFromISR(xSemaphore, pxHigherPriorityTaskWoken);
+}
+
 BaseType_t __gnat_xSemaphoreGiveRecursive(SemaphoreHandle_t mutex)
 {
     configASSERT(!xPortInIsrContext() && mutex);
@@ -106,4 +126,59 @@ int64_t __gnat_calendar_clock_usec(void)
     int result = gettimeofday(&now, NULL);
     configASSERT(result == 0);
     return (int64_t)now.tv_sec * 1000000 + now.tv_usec;
+}
+
+/* Macro/inline ABI bridges; storage and runtime policy are owned by Ada. */
+BaseType_t __gnat_mux_try(portMUX_TYPE *mux)
+{ return xPortEnterCriticalTimeout(mux, 0); }
+BaseType_t __gnat_core_id(void) { return xPortGetCoreID(); }
+/* SDK/ISA boundary. Nesting, unlike PS.INTLEVEL, stays stable in critical
+ * sections. Levels 1..3 are the C-callable Xtensa ISR levels on ESP32-S3. */
+extern unsigned port_interruptNesting[portNUM_PROCESSORS];
+BaseType_t __gnat_interrupt_nesting(void)
+{ return port_interruptNesting[xPortGetCoreID()]; }
+BaseType_t __gnat_interrupt_level(void)
+{
+    unsigned ps;
+    __asm__ volatile ("rsr.ps %0" : "=a" (ps));
+    return ps & 0xf;
+}
+BaseType_t __gnat_give_from_isr(SemaphoreHandle_t cv)
+{
+#ifdef GNAT_EMBEDDED_TESTING
+    unsigned entry_depth = port_interruptNesting[xPortGetCoreID()];
+    configASSERT(entry_depth >= 1 && entry_depth <= 3);
+    atomic_fetch_add(&__gnat_embedded_nested_gives[xPortGetCoreID()][entry_depth - 1], 1);
+#endif
+    BaseType_t woken = pdFALSE;
+    BaseType_t result = xSemaphoreGiveFromISR(cv, &woken);
+    if (woken) {
+#ifdef GNAT_EMBEDDED_TESTING
+        atomic_fetch_add(&__gnat_embedded_isr_yields[xPortGetCoreID()], 1);
+        unsigned depth = port_interruptNesting[xPortGetCoreID()];
+        configASSERT(depth >= 1 && depth <= 3);
+        atomic_fetch_add(&__gnat_embedded_nested_yields[xPortGetCoreID()][depth - 1], 1);
+#endif
+        portYIELD_FROM_ISR();
+    }
+    return result;
+}
+
+/* Private gthread bindings for the SDK's FDE registry object. Other pthread
+ * mutexes retain their SDK implementation. All registry operations use this
+ * critical section, including first-use cache initialization.
+ */
+static portMUX_TYPE unwind_mux = portMUX_INITIALIZER_UNLOCKED;
+int __gnat_unwind_active(void) { return 0; } /* Address is the gthread probe. */
+int __gnat_unwind_lock(void *unused)
+{
+    (void)unused;
+    portENTER_CRITICAL_SAFE(&unwind_mux);
+    return 0;
+}
+int __gnat_unwind_unlock(void *unused)
+{
+    (void)unused;
+    portEXIT_CRITICAL_SAFE(&unwind_mux);
+    return 0;
 }

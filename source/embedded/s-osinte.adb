@@ -36,7 +36,9 @@ package body System.OS_Interface is
    end Delay_Until;
    procedure Set_Priority (Priority : System.Any_Priority) is
    begin
-      pragma Assert (Is_Task_Context);
+      if not Is_Task_Context then
+         return;
+      end if;
       vTaskPrioritySet (Null_TaskHandle_t, To_Priority (Priority));
    end Set_Priority;
 
@@ -53,7 +55,7 @@ package body System.OS_Interface is
    function To_Priority (Priority : System.Any_Priority) return UBaseType_t is
    begin
       --  Reserve priority zero for idle tasks. Higher Ada ceilings map to
-      --  the highest kernel priority; ISR masking is a later stage.
+      --  the highest kernel priority; protected interrupt ceilings mask IRQs.
 
       return
         (if Priority < System.OS_Constants.configMAX_PRIORITIES - 1

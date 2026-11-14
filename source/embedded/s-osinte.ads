@@ -47,10 +47,10 @@ package System.OS_Interface is
    with Import, Convention => C, External_Name => "__gnat_mux_try";
    function Core_ID return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_core_id";
-   function Mask_Interrupts return UBaseType_t
-   with Import, Convention => C, External_Name => "__gnat_mask_interrupts";
-   procedure Restore_Interrupts (Mask : UBaseType_t)
-   with Import, Convention => C, External_Name => "__gnat_restore_interrupts";
+   function Interrupt_Nesting return BaseType_t
+   with Import, Convention => C, External_Name => "__gnat_interrupt_nesting";
+   function Interrupt_Level return BaseType_t
+   with Import, Convention => C, External_Name => "__gnat_interrupt_level";
    function Give_From_ISR (CV : SemaphoreHandle_t) return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_give_from_isr";
 

@@ -1,7 +1,9 @@
 --  ESP-IDF embedded backend. Copyright (C) 2026 Vadim Godunko
 --  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
 
+with Ada.Exceptions;
 with Ada.Unchecked_Conversion;
+with System.Secondary_Stack;
 with Interfaces.C;
 with System.Tasking.Debug;
 
@@ -13,8 +15,25 @@ package body System.Task_Primitives.Operations is
    use type Multiprocessors.CPU_Range;
    use type System.Parameters.Size_Type;
 
-   Current_Task : aliased ST.Task_Id := null;
-   pragma Thread_Local_Storage (Current_Task);
+   --  The SDK C compiler uses native TLS, preallocated on every task stack.
+   --  The Ada compiler uses emutls, whose first access may allocate memory.
+   function Current_Task return ST.Task_Id
+     with Import, Convention => C, External_Name => "__gnat_get_current_atcb";
+   procedure Set_Current_Task (T : ST.Task_Id)
+     with Import, Convention => C, External_Name => "__gnat_set_current_atcb";
+
+   --  The SDK counts every ISR entry, including handlers with no Ada calls.
+   --  Masking interrupts inside an ISR does not change this nesting depth.
+   subtype ISR_Depth is Positive range
+     1 .. System.Interrupt_Priority'Last - System.Interrupt_Priority'First + 1;
+   ISR_Tasks : array (Multiprocessors.CPU, ISR_Depth) of
+     aliased ST.Ada_Task_Control_Block (0);
+   type ISR_Stack_Array is array (Multiprocessors.CPU) of
+     aliased System.Secondary_Stack.SS_Stack (4_096);
+   pragma Suppress_Initialization (ISR_Stack_Array);
+   --  Used only when the interrupted SDK task has no Ada secondary stack.
+   --  All nested handlers on that CPU share this stack in LIFO order.
+   ISR_Stacks : ISR_Stack_Array;
 
    RTS_Mutex_Storage : aliased OSI.StaticSemaphore_t;
    RTS_Mutex         : OSI.SemaphoreHandle_t :=
@@ -51,7 +70,18 @@ package body System.Task_Primitives.Operations is
       OSI.Set_Priority (Prio);
    end Set_Priority;
    function Get_Priority (T : ST.Task_Id) return ST.Extended_Priority is
-     (T.Common.LL.Current_Priority);
+   begin
+      if not OSI.Is_Task_Context
+        and then T = Self
+        and then T.Common.Protected_Action_Nesting = 1
+      then
+         --  Outside an Ada protected action, include masking done by SDK C
+         --  code. Inside one, retain the exact software ceiling priority.
+         return System.Interrupt_Priority'First
+           + Integer (OSI.Interrupt_Level) - 1;
+      end if;
+      return T.Common.LL.Current_Priority;
+   end Get_Priority;
    function Get_Affinity (T : ST.Task_Id) return Multiprocessors.CPU_Range is
      (T.Common.Base_CPU);
    function Get_CPU (T : ST.Task_Id) return Multiprocessors.CPU is
@@ -79,7 +109,10 @@ package body System.Task_Primitives.Operations is
       Result : OSI.BaseType_t;
       pragma Unreferenced (Reason, Result);
    begin
-      pragma Assert (OSI.Is_Task_Context);
+      if not OSI.Is_Task_Context then
+         Result := OSI.Give_From_ISR (T.Common.LL.CV);
+         return;
+      end if;
       --  Repeated wakeups coalesce when the binary event is already signaled.
       Result := OSI.xSemaphoreGive (T.Common.LL.CV);
    end Wakeup;
@@ -133,7 +166,7 @@ package body System.Task_Primitives.Operations is
 
    procedure Enter_Task (Self_ID : ST.Task_Id) is
    begin
-      Current_Task := Self_ID;
+      Set_Current_Task (Self_ID);
 
       Sleep (Self_ID, ST.Activator_Sleep);
       --  Wait for creator publication, or consume the environment's token.
@@ -157,6 +190,32 @@ package body System.Task_Primitives.Operations is
         Assert
           (OSI.Is_Task_Context
            and then RTS_Mutex = OSI.SemaphoreHandle_t (Null_Address));
+
+      for CPU in Multiprocessors.CPU loop
+         declare
+            Initial_Stack : aliased System.Secondary_Stack.SS_Stack (4_096);
+            Stack_Ptr : System.Secondary_Stack.SS_Stack_Ptr :=
+              Initial_Stack'Unchecked_Access;
+         begin
+            --  Supply the stored discriminant without package elaboration.
+            System.Secondary_Stack.SS_Init (Stack_Ptr, 4_096);
+            ISR_Stacks (CPU) := Initial_Stack;
+         end;
+         for Depth in ISR_Depth loop
+            ISR_Tasks (CPU, Depth).Common.State := ST.Runnable;
+            ISR_Tasks (CPU, Depth).Common.Base_CPU := CPU;
+            ISR_Tasks (CPU, Depth).Common.Base_Priority :=
+              System.Interrupt_Priority'First;
+            ISR_Tasks (CPU, Depth).Common.LL.Current_Priority :=
+              System.Interrupt_Priority'First;
+            ISR_Tasks (CPU, Depth).Common.Protected_Action_Nesting := 1;
+            ISR_Tasks (CPU, Depth).Common.Compiler_Data.Sec_Stack_Ptr :=
+              ISR_Stacks (CPU)'Access;
+            Ada.Exceptions.Save_Occurrence
+              (ISR_Tasks (CPU, Depth).Common.Compiler_Data.Current_Excep,
+               Ada.Exceptions.Null_Occurrence);
+         end loop;
+      end loop;
 
       --  Create the recursive mutex for task activate/sleep/wakeup operations.
       --  The environment has no activator; provide its startup token here.
@@ -210,6 +269,34 @@ package body System.Task_Primitives.Operations is
    -- Self --
    ----------
 
-   function Self return ST.Task_Id is (Current_Task);
+   function Self return ST.Task_Id is
+      Interrupted_Task : constant ST.Task_Id := Current_Task;
+   begin
+      if not OSI.Is_Task_Context then
+         declare
+            CPU : constant Multiprocessors.CPU :=
+              Multiprocessors.CPU (OSI.Core_ID + 1);
+            Context : constant ST.Task_Id :=
+              ISR_Tasks (CPU, ISR_Depth (OSI.Interrupt_Nesting))'Access;
+            use type System.Secondary_Stack.SS_Stack_Ptr;
+         begin
+            --  The SDK preserves THREADPTR across nested interrupt entry.
+            --  Do not reset the stack: each handler releases only its own
+            --  allocations, leaving the interrupted task/handler's data live.
+            if Interrupted_Task /= null
+              and then Interrupted_Task.Common.Compiler_Data.Sec_Stack_Ptr
+                /= null
+            then
+               Context.Common.Compiler_Data.Sec_Stack_Ptr :=
+                 Interrupted_Task.Common.Compiler_Data.Sec_Stack_Ptr;
+            else
+               Context.Common.Compiler_Data.Sec_Stack_Ptr :=
+                 ISR_Stacks (CPU)'Access;
+            end if;
+            return Context;
+         end;
+      end if;
+      return Interrupted_Task;
+   end Self;
 
 end System.Task_Primitives.Operations;
