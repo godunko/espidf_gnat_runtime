@@ -7,6 +7,7 @@ with Interfaces.C;
 with System.OS_Constants;
 with System.Secondary_Stack;
 with System.Tasking.Debug;
+with System.Task_Info;
 
 package body System.Task_Primitives.Operations is
    use type OSI.TaskHandle_t;
@@ -24,6 +25,13 @@ package body System.Task_Primitives.Operations is
 
    procedure Set_Current_Task (T : ST.Task_Id)
      with Pre => System.OS_Interface.Is_Task_Context;
+
+   function Register_Foreign_Thread return ST.Task_Id;
+
+   procedure Stop
+     with Import, Convention => C, External_Name => "__gnat_stop", No_Return;
+   --  System.Machine_Reset.Stop: import its standard entry point because this
+   --  preelaborated unit cannot depend on uncategorized Machine_Reset.
 
    subtype ESPIDF_Interrupt_Nesting_Level is Positive range
      1 .. System.Interrupt_Priority'Last - System.Interrupt_Priority'First + 1;
@@ -176,7 +184,8 @@ package body System.Task_Primitives.Operations is
       Set_Current_Task (Self_ID);
 
       Sleep (Self_ID, ST.Activator_Sleep);
-      --  Wait for creator publication, or consume the environment's token.
+      --  Wait for creator publication, or consume the environment/foreign
+      --  task's pre-issued startup token.
       --  An early signal is retained by the per-task wake event.
 
       Self_ID.Common.LL.Lwp := Address (Self_ID.Common.LL.Thread);
@@ -274,6 +283,77 @@ package body System.Task_Primitives.Operations is
         Self_ID.Common.LL.CV /= OSI.SemaphoreHandle_t (Null_Address);
    end Initialize_TCB;
 
+   -----------------------------
+   -- Register_Foreign_Thread --
+   -----------------------------
+
+   function Register_Foreign_Thread return ST.Task_Id is
+      Local_ATCB : aliased ST.Ada_Task_Control_Block (0);
+      Self_Id    : ST.Task_Id := null;
+      Success    : Boolean;
+
+      Current_Thread   : constant OSI.TaskHandle_t :=
+        OSI.xTaskGetCurrentTaskHandle;
+      Current_Priority : constant System.Priority :=
+        System.Priority (OSI.uxTaskPriorityGet (Current_Thread));
+
+   begin
+      --  Only exception handling needs Self before the permanent ATCB is
+      --  published. The allocator and RTS lock do not read task fields, and
+      --  registration does not use a secondary stack. Initialize just the
+      --  occurrence used if allocation or binder-stack assignment fails.
+
+      Ada.Exceptions.Save_Occurrence
+        (Local_ATCB.Common.Compiler_Data.Current_Excep,
+         Ada.Exceptions.Null_Occurrence);
+      Set_Current_Task (Local_ATCB'Unchecked_Access);
+
+      begin
+         Self_Id := new ST.Ada_Task_Control_Block (0);
+         ST.Initialize_ATCB
+           (null, Null_Address, Current_Priority, 0,
+            System.Task_Info.Unspecified_Task_Info, Null_Address, 0,
+            Self_Id, Success);
+
+         if not Success then
+            raise Storage_Error with "foreign task CV initialization failed";
+         end if;
+
+         Self_Id.Common.Activation_Link := null;
+         Self_Id.Entry_Call.Self := Self_Id;
+         Self_Id.Common.LL.Thread := Current_Thread;
+         Self_Id.Common.LL.Current_Priority := Current_Priority;
+         Self_Id.Common.Compiler_Data.Pri_Stack_Info.Size := 0;
+         --  Initialize_ATCB adjusts size zero to the minimum Ada task stack.
+         --  The existing native stack's size is unknown instead.
+         Self_Id.Common.Compiler_Data.Sec_Stack_Ptr := null;
+         Ada.Exceptions.Save_Occurrence
+           (Self_Id.Common.Compiler_Data.Current_Excep,
+            Ada.Exceptions.Null_Occurrence);
+         Self_Id.Common.State := ST.Runnable;
+
+         --  SS_Init assigns entries with a plain counter. Serialize foreign
+         --  first entries after partition elaboration, before publication.
+
+         RTS_Lock;
+         System.Secondary_Stack.SS_Init
+           (Self_Id.Common.Compiler_Data.Sec_Stack_Ptr);
+         RTS_Unlock;
+
+         --  There is no activator. Let Enter_Task consume a startup token,
+         --  publish TLS/Lwp and register the task in the debug list.
+
+         Wakeup (Self_Id, ST.Activator_Sleep);
+         Enter_Task (Self_Id);
+
+         return Self_Id;
+
+      exception
+         when others =>
+            Stop;
+      end;
+   end Register_Foreign_Thread;
+
    ---------------------
    -- Is_Task_Context --
    ---------------------
@@ -287,7 +367,13 @@ package body System.Task_Primitives.Operations is
    function Self return ST.Task_Id is
    begin
       if OSI.Is_Task_Context then
-         return Get_Current_Task;
+         declare
+            Self_Id : constant ST.Task_Id := Get_Current_Task;
+
+         begin
+            return
+              (if Self_Id = null then Register_Foreign_Thread else Self_Id);
+         end;
 
       else
          declare

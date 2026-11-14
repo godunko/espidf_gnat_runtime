@@ -167,6 +167,9 @@ package System.OS_Interface is
    procedure vTaskDelay (xTicksToDelay : TickType_t)
    with Import, Convention => C, External_Name => "vTaskDelay";
 
+   function uxTaskPriorityGet (xTask : TaskHandle_t) return UBaseType_t
+   with Import, Convention => C, External_Name => "uxTaskPriorityGet";
+
    procedure vTaskPrioritySet
      (xTask : TaskHandle_t; uxNewPriority : UBaseType_t)
    with Import, Convention => C, External_Name => "vTaskPrioritySet";

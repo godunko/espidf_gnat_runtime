@@ -65,7 +65,7 @@ results do not establish the same behavior on other SoCs or runtime backends.
   ticks (10 ms in the validated configuration), plus scheduling latency.
 
 See [stage4 documentation](tests/stage4/README.md) and
-[validation results](tests/stage4/RESTORED-ATCB-RESULTS.md) for tested scope and
+[validation results](tests/stage4/FINAL-RESULTS.md) for tested scope and
 configuration requirements.
 
 ---
@@ -114,7 +114,8 @@ its deletion callback increase `StaticTask_t` from 340 to 348 bytes. More slots
 require another ABI update. The Ada ATCB accessors call
 `pvTaskGetThreadLocalStoragePointer` / `vTaskSetThreadLocalStoragePointer` with
 a null task handle (the current task) and index 1. Access uses preallocated task
-storage and requires no allocation or deletion callback for the ATCB.
+storage; the accessors themselves do not allocate. First foreign-thread
+attachment allocates an ATCB as described below; no deletion callback is installed.
 
 Other relevant structure-layout settings currently use their SDK defaults:
 `CONFIG_FREERTOS_TLSP_DELETION_CALLBACKS=y`,
@@ -194,9 +195,51 @@ They are not reset on ISR entry.
 
 This light-tasking/embedded `SS_Init` does not fall back to the heap: exhaustion
 of a nonempty pool raises `Program_Error`. With no binder pool it leaves the
-pointer null, which the embedded initialization rejects with `Program_Error`.
+pointer null; this is outside the supported configuration, which requires the
+nonempty pool described above.
 The existing compiler/binder accounting for ordinary Ada tasks is unchanged;
 tasks with explicit `Secondary_Stack_Size` use compiler-provided storage.
+
+### Threads created outside Ada
+
+After Ada partition initialization/elaboration has completed, a FreeRTOS task
+created by C or ESP-IDF can call Ada without an application registration call.
+The first runtime request for task context (including exception or secondary-stack
+use) attaches a dynamically allocated full ATCB and its statically backed CV to
+TLS slot 1. It does not create a native task or run Ada task activation. Later
+calls on that native task reuse the same ATCB. A temporary primary-stack ATCB
+protects allocator/error handling from recursive attachment during bootstrap.
+Registration supplies a startup token and calls `Enter_Task`, sharing TLS/Lwp,
+debug-list and native-priority setup with ordinary Ada tasks.
+
+Secondary stacks **always come from the binder pool**, never the heap. For F
+foreign attachments on two CPUs, reserve `-Q(3+F)`, plus any other manual pool
+consumers; four foreign threads therefore use `-Q7`. This is a budget for total
+attachments over application lifetime, not just simultaneously live threads.
+ISR entry remains independent: it uses the existing ISR ATCB and CPU-owned stack
+without attaching the interrupted native task.
+
+The runtime captures the observed native priority at attachment and restores it
+after protected actions, including native priority 0. Task priorities map
+one-to-one between FreeRTOS and Ada. Independent C-side priority changes or
+native priority inheritance are not tracked by the Ada priority metadata.
+Primary native stack size is not discovered; the ATCB reports it as unknown (0).
+Validate native callback stack budgets for their Ada workload; the stage5 tests
+use 12 KiB native stacks and 4 KiB secondary stacks.
+
+Foreign threads are expected to be long-lived. There is no reaper, polling or
+termination hook. If a native task is deleted, its ATCB, CV and binder stack are
+retained until application shutdown; do not rely on Ada termination reporting
+or use its old task identity/handle after external deletion. Delete native tasks
+only after returning from Ada with no owned Ada locks or queued calls.
+
+First-attachment allocation/pool failure immediately calls
+`System.Machine_Reset.Stop` (`__gnat_stop`), which reaches ESP-IDF `abort`
+through `_exit`, without resource or TLS cleanup.
+It is a fail-stop initialization error, not a recoverable exception returned to
+an unregistered caller. Binder storage is never freed or recycled. These policies
+avoid lifecycle tracking costs and common bb-runtime changes.
+See [stage5 results](tests/stage5/RESULTS.md) for coverage and failure checks.
 
 ---
 
