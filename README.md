@@ -103,7 +103,7 @@ Set the target with
 
 The backend embeds opaque SDK structures in Ada-owned storage. The current
 `System.OS_Constants` expects `StaticTask_t` = 348 bytes, `StaticSemaphore_t` =
-84 bytes and `portMUX_TYPE` = 8 bytes, all aligned to 4 bytes. `embedded.c` has
+84 bytes and `portMUX_TYPE` = 8 bytes, all aligned to 4 bytes. `ada-freertos.c` has
 static assertions for these sizes/alignments and for the SDK's fixed
 `configMAX_PRIORITIES = 25`. A configuration or SDK change that trips an assertion
 requires checking the ABI, updating the Ada constants and matching C checks,

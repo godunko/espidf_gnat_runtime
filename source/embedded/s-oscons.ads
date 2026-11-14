@@ -12,7 +12,8 @@ package System.OS_Constants is
    configTICK_RATE_HZ   : constant := 100;
 
    --  Byte sizes and alignments for the tested ESP32-S3 / ESP-IDF 6.1
-   --  configuration with Newlib. Keep the C assertions in embedded.c in sync.
+   --  configuration with Newlib. Keep the C assertions in ada-freertos.c
+   --  in sync.
    portMUX_TYPE_Size           : constant := 8;
    portMUX_TYPE_Alignment      : constant := 4;
    StaticTask_t_Size           : constant := 348;

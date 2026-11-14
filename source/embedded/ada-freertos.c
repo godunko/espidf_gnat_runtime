@@ -5,7 +5,6 @@
  */
 
 #include <stdint.h>
-#include <sys/time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -20,8 +19,10 @@ _Static_assert(configTICK_RATE_HZ == 100,
 _Static_assert(configMAX_PRIORITIES == 25,
                "configMAX_PRIORITIES differs from System.OS_Constants");
 
-_Static_assert(sizeof(portMUX_TYPE) == 8 && _Alignof(portMUX_TYPE) == 4,
-               "portMUX_TYPE differs from System.OS_Constants");
+_Static_assert(sizeof(portMUX_TYPE) == 8,
+               "portMUX_TYPE size differs from System.OS_Constants");
+_Static_assert(_Alignof(portMUX_TYPE) == 4,
+               "portMUX_TYPE alignment differs from System.OS_Constants");
 _Static_assert(sizeof(StaticTask_t) == 348,
                "StaticTask_t size differs from System.OS_Constants");
 _Static_assert(_Alignof(StaticTask_t) == 4,
@@ -113,15 +114,6 @@ BaseType_t __gnat_xSemaphoreTakeRecursive(SemaphoreHandle_t mutex, TickType_t ti
 {
     configASSERT(!xPortInIsrContext() && mutex);
     return xSemaphoreTakeRecursive(mutex, ticks);
-}
-
-/* Keep the SDK's timeval/time_t ABI at the C boundary. */
-int64_t __gnat_calendar_clock_usec(void)
-{
-    struct timeval now;
-    int result = gettimeofday(&now, NULL);
-    configASSERT(result == 0);
-    return (int64_t)now.tv_sec * 1000000 + now.tv_usec;
 }
 
 /* Macro/inline ABI bridges; storage and runtime policy are owned by Ada. */
