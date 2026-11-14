@@ -1,0 +1,338 @@
+{
+  "dt:&cpu0:compatible": "espressif,xtensa-lx7",
+  "dt:&cpu0:clock-frequency": "240_000_000",
+  "runtime": {
+    "languages": [
+      "ada",
+      "c"
+    ],
+    "common_required_switches": [
+      "-mlongcalls"
+    ],
+    "linker_required_switches": [
+      "-nostartfiles",
+      "-nolibc"
+    ],
+    "system": {
+      "parameters": {
+        "Preallocated_Stacks": true,
+        "Suppress_Standard_Library": false
+      },
+      "restrictions": {
+        "No_Finalization": false,
+        "No_Exception_Propagation": false,
+        "No_Implicit_Dynamic_Code": false
+      },
+      "priority_values": 25,
+      "interrupt_priority_values": 3
+    },
+    "files": {
+      "a-textio.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/system_io/a-textio.adb"
+      },
+      "s-atopri.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/atomics/32/s-atopri.ads"
+      },
+      "s-macres.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/s-macres.adb"
+      },
+      "s-textio.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/s-textio.adb"
+      },
+      "s-lidosq.adb": {},
+      "s-lidosq.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/s-lidosq.ads"
+      },
+      "s-lisisq.adb": {},
+      "s-lisisq.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/s-lisisq.ads"
+      },
+      "a-calclo.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/a-calclo.adb"
+      },
+      "a-nllefu.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/math/long_long_64bit/a-nllefu.ads"
+      },
+      "s-excmac.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/full/zcx-dw2/s-excmac.adb"
+      },
+      "s-excmac.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/full/zcx-dw2/s-excmac.ads"
+      },
+      "s-memory.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/gcc-16/libgnat/s-memory.adb"
+      },
+      "s-crtl.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/s-crtl.ads"
+      },
+      "s-crtl.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/gcc-16/libgnat/s-crtl.adb"
+      },
+      "s-oscons.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-oscons.ads"
+      },
+      "s-init.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-init.adb"
+      },
+      "s-soflin.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-soflin.adb"
+      },
+      "s-traceb.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/gcc-16/libgnat/s-traceb.ads"
+      },
+      "s-traceb.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/s-traceb.adb"
+      },
+      "s-multip.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/s-multip.ads"
+      },
+      "s-multip.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/s-multip.adb"
+      },
+      "a-reatim.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-reatim.ads"
+      },
+      "a-reatim.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-reatim.adb"
+      },
+      "s-parame.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-parame.ads"
+      },
+      "s-parame.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-parame.adb"
+      }
+    }
+  },
+  "tasking": {
+    "kernel": "custom",
+    "files": {
+      "s-taspri.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-taspri.ads"
+      },
+      "s-taprop.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-taprop.ads"
+      },
+      "s-tasdeb.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-tasdeb.ads"
+      },
+      "s-tasdeb.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-tasdeb.adb"
+      },
+      "s-tasres.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-tasres.ads"
+      },
+      "s-tarest.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-tarest.ads"
+      },
+      "s-tasinf.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-tasinf.ads"
+      },
+      "a-taside.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-taside.ads"
+      },
+      "a-taside.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-taside.adb"
+      },
+      "s-taskin.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/full/s-taskin.ads"
+      },
+      "s-taskin.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common-no-cheri/s-taskin.adb"
+      },
+      "s-osinte.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-osinte.ads"
+      },
+      "s-osinte.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-osinte.adb"
+      },
+      "s-taprop.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-taprop.adb"
+      },
+      "s-tarest.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-tarest.adb"
+      },
+      "s-tasinf.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-tasinf.adb"
+      },
+      "s-mufalo.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-mufalo.ads"
+      },
+      "s-mufalo.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-mufalo.adb"
+      },
+      "s-taprob.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-taprob.ads"
+      },
+      "s-taprob.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-taprob.adb"
+      },
+      "s-tpobmu.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-tpobmu.adb"
+      },
+      "s-tpobmu.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-tpobmu.ads"
+      },
+      "a-sytaco.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-sytaco.ads"
+      },
+      "a-sytaco.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-sytaco.adb"
+      },
+      "s-tpoben.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/full/extended/s-tpoben.ads"
+      },
+      "s-tpoben.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/full/extended/s-tpoben.adb"
+      },
+      "s-tpobop.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/full/extended/s-tpobop.ads"
+      },
+      "s-tpobop.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/full/extended/s-tpobop.adb"
+      },
+      "s-tasque.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/full/extended/s-tasque.ads"
+      },
+      "s-tasque.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/full/extended/s-tasque.adb"
+      },
+      "s-tposen.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/full/s-tposen.ads"
+      },
+      "s-tposen.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/full/s-tposen.adb"
+      },
+      "a-caldel.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/a-caldel.ads"
+      },
+      "a-caldel.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/a-caldel.adb"
+      },
+      "s-reldel.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-reldel.adb"
+      },
+      "a-retide.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-retide.ads"
+      },
+      "a-retide.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-retide.adb"
+      },
+      "s-reldel.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/full/extended/s-reldel.ads"
+      },
+      "s-interr.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-interr.ads"
+      },
+      "a-interr.ads": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-interr.ads"
+      },
+      "a-interr.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-interr.adb"
+      },
+      "s-interr.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-interr.adb"
+      },
+      "a-intnam.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/a-intnam__esp32s3.ads"
+      }
+    }
+  },
+  "scenarios": {
+    "RTS_Profile": "embedded",
+    "Compiler_Backend": "gcc",
+    "Add_Arith64": "yes",
+    "Add_Case_Util": "yes",
+    "Add_Complex_Type_Support": "yes",
+    "Add_Exponent_Float": "yes",
+    "Add_Exponent_Int": "yes",
+    "Add_Exponent_LL_Int": "yes",
+    "Add_Exponent_Modular": "yes",
+    "Add_Float_Util": "yes",
+    "Add_Image_Char": "yes",
+    "Add_Image_Decimal": "yes",
+    "Add_Image_Fixed": "yes",
+    "Add_Image_Float": "yes",
+    "Add_Image_LL_Fixed": "yes",
+    "Add_Image_Util": "yes",
+    "Add_Image_Wide_Char": "yes",
+    "Add_IO_Exceptions": "yes",
+    "Add_Streams": "yes",
+    "Add_Value_Bool": "yes",
+    "Add_Value_Char": "yes",
+    "Add_Value_Enum": "yes",
+    "Add_Value_Int": "yes",
+    "Add_Value_LL_Int": "yes",
+    "Add_Value_LL_Spec": "yes",
+    "Add_Value_Spec": "yes",
+    "Add_Value_Utils": "yes",
+    "Add_Value_Wide_Char": "yes",
+    "Add_Math_Lib": "hardfloat"
+  }
+}
