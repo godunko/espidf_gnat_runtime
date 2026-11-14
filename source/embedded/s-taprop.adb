@@ -1,5 +1,8 @@
---  ESP-IDF embedded backend. Copyright (C) 2026 Vadim Godunko
+--
+--  ESP-IDF GNAT Runtime. Copyright (C) 2026 Vadim Godunko
+--
 --  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
+--
 
 with Ada.Exceptions;
 with Ada.Unchecked_Conversion;
@@ -94,11 +97,6 @@ package body System.Task_Primitives.Operations is
       end if;
       return T.Common.LL.Current_Priority;
    end Get_Priority;
-   function Get_Affinity (T : ST.Task_Id) return Multiprocessors.CPU_Range is
-     (T.Common.Base_CPU);
-   function Get_CPU (T : ST.Task_Id) return Multiprocessors.CPU is
-     (if Get_Affinity (T) = 0 then Multiprocessors.CPU'First
-      else Multiprocessors.CPU (Get_Affinity (T)));
    function Get_Thread_Id (T : ST.Task_Id) return OSI.Thread_Id is
      (T.Common.LL.Thread);
    function Monotonic_Clock return Time is (Time (OSI.Clock));
@@ -194,6 +192,22 @@ package body System.Task_Primitives.Operations is
       RTS_Unlock;
       System.OS_Interface.Set_Priority (Self_ID.Common.Base_Priority);
    end Enter_Task;
+
+   ------------------
+   -- Get_Affinity --
+   ------------------
+
+   function Get_Affinity
+     (T : ST.Task_Id) return System.Multiprocessors.CPU_Range
+   is (T.Common.Base_CPU);
+
+   -------------
+   -- Get_CPU --
+   -------------
+
+   function Get_CPU (T : ST.Task_Id) return System.Multiprocessors.CPU
+   is (System.Multiprocessors.CPU'Max
+         (System.Multiprocessors.CPU'First, Get_Affinity (T)));
 
    ----------------------
    -- Get_Current_Task --
@@ -378,7 +392,8 @@ package body System.Task_Primitives.Operations is
       else
          declare
             CPU : constant System.Multiprocessors.CPU :=
-              System.Multiprocessors.CPU (OSI.Core_ID + 1);
+              System.Multiprocessors.CPU
+                (System.OS_Interface.xPortGetCoreID + 1);
 
          begin
             --  Select the ISR pseudo-task for this CPU and nesting depth.

@@ -1,5 +1,8 @@
---  ESP-IDF embedded backend. Copyright (C) 2026 Vadim Godunko
+--
+--  ESP-IDF GNAT Runtime. Copyright (C) 2026 Vadim Godunko
+--
 --  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
+--
 
 with Interfaces;
 with Interfaces.C;
@@ -43,8 +46,6 @@ package System.OS_Interface is
    Null_Thread_Id : constant Thread_Id := TaskHandle_t (Null_Address);
 
    subtype Interrupt_Range is Integer range 0 .. 98;
-   function Core_ID return BaseType_t
-   with Import, Convention => C, External_Name => "__gnat_core_id";
    function Interrupt_Level return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_interrupt_level";
 
@@ -85,6 +86,9 @@ package System.OS_Interface is
    function xPortEnterCriticalTimeout
      (Mux : in out portMUX_TYPE; Timeout : BaseType_t) return BaseType_t
    with Import, Convention => C, External_Name => "xPortEnterCriticalTimeout";
+
+   function xPortGetCoreID return BaseType_t
+   with Import, Convention => C, External_Name => "__gnat_xPortGetCoreID";
 
    function xPortInIsrContext return BaseType_t
    with Import, Convention => C, External_Name => "xPortInIsrContext";

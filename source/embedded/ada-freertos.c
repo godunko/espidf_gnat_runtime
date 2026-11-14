@@ -122,6 +122,11 @@ void __gnat_portYIELD_FROM_ISR(BaseType_t xHigherPriorityTaskWoken)
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
+BaseType_t __gnat_xPortGetCoreID(void)
+{
+    return xPortGetCoreID();
+}
+
 SemaphoreHandle_t __gnat_xSemaphoreCreateBinaryStatic(StaticSemaphore_t *storage)
 {
     configASSERT(storage);
@@ -175,6 +180,3 @@ BaseType_t __gnat_xSemaphoreTakeRecursive(SemaphoreHandle_t mutex, TickType_t ti
     configASSERT(!xPortInIsrContext() && mutex);
     return xSemaphoreTakeRecursive(mutex, ticks);
 }
-
-/* Macro/inline ABI bridges; storage and runtime policy are owned by Ada. */
-BaseType_t __gnat_core_id(void) { return xPortGetCoreID(); }
