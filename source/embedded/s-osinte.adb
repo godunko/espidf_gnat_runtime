@@ -54,13 +54,14 @@ package body System.OS_Interface is
 
    function To_Priority (Priority : System.Any_Priority) return UBaseType_t is
    begin
-      --  Reserve priority zero for idle tasks. Higher Ada ceilings map to
-      --  the highest kernel priority; protected interrupt ceilings mask IRQs.
+      --  Ada task priorities map directly to kernel priorities, including
+      --  zero. Higher Ada ceilings map to the highest kernel priority;
+      --  protected interrupt ceilings mask IRQs.
 
       return
-        (if Priority < System.OS_Constants.configMAX_PRIORITIES - 1
-         then UBaseType_t (Priority + 1)
-         else UBaseType_t (System.OS_Constants.configMAX_PRIORITIES - 1));
+        UBaseType_t'Min
+          (UBaseType_t (Priority),
+           System.OS_Constants.configMAX_PRIORITIES - 1);
    end To_Priority;
 
 end System.OS_Interface;

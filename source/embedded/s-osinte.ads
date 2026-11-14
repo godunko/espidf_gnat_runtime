@@ -59,8 +59,8 @@ package System.OS_Interface is
    function Is_Task_Context return Boolean;
 
    function To_Priority (Priority : System.Any_Priority) return UBaseType_t;
-   --  Convert an Ada priority to the corresponding FreeRTOS priority. Value
-   --  is saturated to the valid FreeRTOS priority range.
+   --  Map an Ada priority directly to the same FreeRTOS priority. Value
+   --  is saturated to the valid FreeRTOS task priority range.
 
    function Interrupt_Nesting return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_interrupt_nesting";
