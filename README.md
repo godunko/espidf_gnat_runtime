@@ -69,6 +69,85 @@ configuration requirements.
 
 ---
 
+## Required ESP-IDF configuration
+
+This section applies to the **ESP32-S3 embedded backend with the installed
+ESP-IDF 6.1 GCC toolchain**. Defaults below are taken from that SDK's Kconfig
+sources; they can change between releases. The default Picolibc choice described
+below does not apply to the Clang toolchain.
+
+Configure the application with `idf.py menuconfig`, or record settings in its
+`sdkconfig.defaults`. ESP-IDF writes the effective configuration to `sdkconfig`.
+Defaults files supply values for settings not already present in `sdkconfig`;
+editing a defaults file does not override an existing configured value. Build
+through `idf.py build`, which invokes the integrated Alire build.
+
+### Required selections and ABI compatibility
+
+| Setting | Required/current value | ESP-IDF 6.1 default | Reason |
+| --- | --- | --- | --- |
+| `CONFIG_COMPILER_CXX_EXCEPTIONS` | `y` | `n` — **change required** | Enables SDK startup registration of `.eh_frame` and retains the unwinder needed for Ada exception propagation, even in applications with no C++ code. |
+| `CONFIG_LIBC_NEWLIB` | `y` | Picolibc with GCC — **change required** | The current runtime ABI and static FreeRTOS storage sizes are validated with Newlib; Picolibc is not validated. Select Newlib in the LibC choice. |
+| `CONFIG_FREERTOS_HZ` | `100` | `100` — unchanged | Must match `System.OS_Constants.configTICK_RATE_HZ`; the C bridge checks it at compile time. |
+| `CONFIG_FREERTOS_UNICORE` | disabled | disabled on ESP32-S3 — unchanged | The current descriptor and tests use both CPUs; a single-core configuration requires a matching runtime configuration and separate validation. |
+
+Menu locations: **Compiler options → Enable C++ exceptions**, **Component config
+→ LibC → LibC to build application with**, and **Component config → FreeRTOS →
+Kernel** for the tick rate and single-core selection. Set the target with
+`idf.py set-target esp32s3` when creating/configuring an ESP32-S3 project.
+
+The backend embeds opaque SDK structures in Ada-owned storage. The current
+`System.OS_Constants` expects `StaticTask_t` = 340 bytes, `StaticSemaphore_t` =
+84 bytes and `portMUX_TYPE` = 8 bytes, all aligned to 4 bytes. `embedded.c` has
+static assertions for these sizes/alignments and for the SDK's fixed
+`configMAX_PRIORITIES = 25`. A configuration or SDK change that trips an assertion
+requires checking the ABI, updating the Ada constants and matching C checks,
+and rebuilding/revalidating the runtime; increasing the buffers blindly is not
+sufficient.
+
+Relevant structure-layout settings currently use their SDK defaults:
+`CONFIG_FREERTOS_THREAD_LOCAL_STORAGE_POINTERS=1`,
+`CONFIG_FREERTOS_TLSP_DELETION_CALLBACKS=y`,
+`CONFIG_FREERTOS_MAX_TASK_NAME_LEN=16`,
+`CONFIG_FREERTOS_TASK_NOTIFICATION_ARRAY_ENTRIES=1`,
+`CONFIG_FREERTOS_USE_TRACE_FACILITY=n`, and
+`CONFIG_FREERTOS_USE_APPLICATION_TASK_TAG=n`. These are ABI inputs, not a
+requirement for the runtime to use those features. The ATCB association uses
+native C TLS; it needs neither an extra FreeRTOS TLS pointer slot nor task tags.
+Static allocation, mutexes and recursive mutexes are enabled by this SDK's
+`FreeRTOSConfig.h`; no additional menuconfig switch is needed for them.
+
+### Stack sizes and test-project choices
+
+| Setting | Validated value | ESP-IDF 6.1 default | Scope |
+| --- | --- | --- | --- |
+| `CONFIG_ESP_MAIN_TASK_STACK_SIZE` | `16384` bytes | `3584` bytes — increased | Runtime initialization currently creates a temporary 4 KiB secondary-stack object on the calling task's stack. The SDK default is not a validated stack budget for this initialization path. |
+| `CONFIG_FREERTOS_ISR_STACKSIZE` | `8192` bytes **per CPU** | `1536` bytes (2096 with core dumps enabled) — increased | Tested with nested levels 1–3, live secondary-stack data and exception handling. Smaller sizes are unvalidated. This primary ISR stack is separate from the shared Ada secondary stack. |
+| `CONFIG_ESP_TASK_WDT_EN` | disabled in tests | `y` — test-only change | The stress harness disables the task watchdog. Runtime use does not require disabling it; configure watchdog monitoring/timeouts for the application's task behavior. |
+| `CONFIG_ESPTOOLPY_FLASHSIZE_16MB` | selected in tests | Board/configuration dependent | Describes the test board's flash. Use the actual device size; 16 MiB is not a runtime requirement. |
+
+The validated stack sizes are tested budgets, not proven minimums or universal
+bounds. Account for application code and nesting, and size Ada-created task
+stacks separately with Ada task storage settings. If Ada startup runs in a task
+other than `app_main`, that task needs the initialization stack budget instead.
+
+For an ESP32-S3 project, the required non-default selections and validated stack
+budgets can be recorded as:
+
+```ini
+CONFIG_COMPILER_CXX_EXCEPTIONS=y
+CONFIG_LIBC_NEWLIB=y
+CONFIG_ESP_MAIN_TASK_STACK_SIZE=16384
+CONFIG_FREERTOS_ISR_STACKSIZE=8192
+```
+
+See the [test project's defaults](tests/stage1/sdkconfig.defaults) for the complete
+harness configuration. Including `cmake/embedded-unwind.cmake` for ISR exception
+support is an additional build integration requirement; menuconfig alone does
+not provide that adaptation.
+
+---
+
 ## Requirements
 
 This project is managed exclusively via **Alire**. To use this runtime, you must have the following:
