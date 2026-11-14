@@ -261,6 +261,31 @@ To use this runtime, you must have the following:
 
 ## Getting Started
 
+### Connecting an Alire application to ESP-IDF
+
+After registering the application component and requiring `espidf_gnat_runtime`,
+include the helper by the runtime's component directory:
+
+```cmake
+idf_component_get_property(runtime_dir espidf_gnat_runtime COMPONENT_DIR)
+include("${runtime_dir}/cmake/ada-application.cmake")
+
+espidf_add_ada_application(
+    TARGET "${COMPONENT_LIB}"
+    PROJECT_DIR "${PROJECT_DIR}"
+    OBJECT ".objs/app_main.o")
+```
+
+`PROJECT_DIR` identifies the Alire application directory. `OBJECT` is the
+relocatable object produced by its GPR project, relative to that directory or
+absolute. The application remains responsible for runtime generation, GPR and
+binder settings, and producing the requested object. The helper invokes
+`alr -n build` on every ESP-IDF build; GPRbuild handles incremental compilation.
+It declares the object as a build byproduct and attaches both the link input
+and build dependency to `TARGET`. ExternalProject bookkeeping stays under the
+caller's CMake binary directory, in `ada/<target>_ada_build/`; generated Ada
+runtime and object files stay in the Alire application directory.
+
 Because this runtime requires specific toolchain, linker, and build system configurations, projects **must** be initialized using one of the following validated methods:
 
 ### 1. Using SoC-Specific Templates
