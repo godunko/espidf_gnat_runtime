@@ -10,6 +10,18 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
+#if CONFIG_IDF_TARGET_ARCH_XTENSA
+#include "xt_instr_macros.h"
+#include "xtensa/corebits.h"
+#elif CONFIG_IDF_TARGET_ARCH_RISCV
+#include "soc/soc.h"
+#include "soc/interrupt_reg.h"
+#include "soc/soc_caps.h"
+#if SOC_INT_CLIC_SUPPORTED
+#include "esp_private/interrupt_clic.h"
+#endif
+#endif
+
 /* Keep in sync with System.OS_Constants for this ESP32-S3 configuration. */
 _Static_assert(CONFIG_FREERTOS_THREAD_LOCAL_STORAGE_POINTERS == 2,
                "ATCB uses TLS slot 1; configure exactly 2 slots for this ABI");
@@ -60,6 +72,33 @@ BaseType_t __gnat_interrupt_nesting(void)
     /* Also an array with CONFIG_FREERTOS_UNICORE, including single-core SoCs. */
     return port_uxInterruptNesting[xPortGetCoreID()];
 #endif
+#endif
+}
+
+BaseType_t __gnat_interrupt_level(void)
+{
+#if CONFIG_IDF_TARGET_ARCH_XTENSA
+    unsigned ps;
+    RSR(XT_REG_PS, ps);
+    return ps & PS_INTLEVEL_MASK;
+#elif CONFIG_IDF_TARGET_ARCH_RISCV
+#if SOC_INT_CLIC_SUPPORTED
+    /* CLIC tracks the active ISR level in hardware. The masking threshold
+     * can be higher inside a critical section; both masks are inclusive.
+     */
+    uint32_t level = rv_utils_get_interrupt_level();
+    uint32_t threshold = rv_utils_get_interrupt_threshold();
+    return level > threshold ? level : threshold;
+#else
+    /* INTC/PLIC mask priorities strictly below the threshold. ESP-IDF's
+     * ISR entry sets it to the active priority + 1. Threshold 0 or 1
+     * therefore means that no interrupt priority is masked.
+     */
+    uint32_t threshold = REG_READ(INTERRUPT_CURRENT_CORE_INT_THRESH_REG);
+    return threshold > 0 ? threshold - 1 : 0;
+#endif
+#else
+#error "Interrupt level is not implemented for this ESP-IDF architecture"
 #endif
 }
 
@@ -141,9 +180,3 @@ BaseType_t __gnat_xSemaphoreTakeRecursive(SemaphoreHandle_t mutex, TickType_t ti
 BaseType_t __gnat_mux_try(portMUX_TYPE *mux)
 { return xPortEnterCriticalTimeout(mux, 0); }
 BaseType_t __gnat_core_id(void) { return xPortGetCoreID(); }
-BaseType_t __gnat_interrupt_level(void)
-{
-    unsigned ps;
-    __asm__ volatile ("rsr.ps %0" : "=a" (ps));
-    return ps & 0xf;
-}
