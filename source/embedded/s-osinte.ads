@@ -43,8 +43,6 @@ package System.OS_Interface is
    Null_Thread_Id : constant Thread_Id := TaskHandle_t (Null_Address);
 
    subtype Interrupt_Range is Integer range 0 .. 98;
-   function Try_Critical (Mux : in out portMUX_TYPE) return BaseType_t
-   with Import, Convention => C, External_Name => "__gnat_mux_try";
    function Core_ID return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_core_id";
    function Interrupt_Level return BaseType_t
@@ -83,6 +81,10 @@ package System.OS_Interface is
    procedure portYIELD_FROM_ISR (xHigherPriorityTaskWoken : BaseType_t)
    with Import, Convention => C,
         External_Name => "__gnat_portYIELD_FROM_ISR";
+
+   function xPortEnterCriticalTimeout
+     (Mux : in out portMUX_TYPE; Timeout : BaseType_t) return BaseType_t
+   with Import, Convention => C, External_Name => "xPortEnterCriticalTimeout";
 
    function xPortInIsrContext return BaseType_t
    with Import, Convention => C, External_Name => "xPortInIsrContext";

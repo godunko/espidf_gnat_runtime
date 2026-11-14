@@ -177,6 +177,4 @@ BaseType_t __gnat_xSemaphoreTakeRecursive(SemaphoreHandle_t mutex, TickType_t ti
 }
 
 /* Macro/inline ABI bridges; storage and runtime policy are owned by Ada. */
-BaseType_t __gnat_mux_try(portMUX_TYPE *mux)
-{ return xPortEnterCriticalTimeout(mux, 0); }
 BaseType_t __gnat_core_id(void) { return xPortGetCoreID(); }

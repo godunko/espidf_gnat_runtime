@@ -68,7 +68,7 @@ package body System.Multiprocessors.Fair_Locks is
    begin
       if Flock.Interrupt_Lock then
          Succeeded :=
-           System.OS_Interface.Try_Critical (Flock.Mux)
+           System.OS_Interface.xPortEnterCriticalTimeout (Flock.Mux, 0)
            = System.OS_Interface.pdTRUE;
 
       elsif System.OS_Interface.Is_Task_Context then
