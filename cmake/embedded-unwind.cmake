@@ -20,7 +20,13 @@ execute_process(COMMAND ${CMAKE_OBJCOPY}
     --redefine-sym pthread_cancel=__gnat_unwind_active
     ${_fde} COMMAND_ERROR_IS_FATAL ANY)
 # An explicit object before libgcc prevents extraction of its original FDE member.
-target_link_options(${COMPONENT_LIB} INTERFACE ${_fde})
+# Weak gthread references do not extract ada-unwind.c from the component archive.
+# Force all three bindings into the link and retain their sections with --gc-sections.
+target_link_options(${COMPONENT_LIB} INTERFACE
+    "-Wl,--undefined=__gnat_unwind_active"
+    "-Wl,--undefined=__gnat_unwind_lock"
+    "-Wl,--undefined=__gnat_unwind_unlock"
+    ${_fde})
 execute_process(COMMAND ${CMAKE_NM} --undefined-only ${_fde}
     OUTPUT_VARIABLE _adapted_refs COMMAND_ERROR_IS_FATAL ANY)
 if(_adapted_refs MATCHES "pthread_")

@@ -1,6 +1,9 @@
-/* ESP-IDF embedded backend. Copyright (C) 2026 Vadim Godunko
- * SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
+/*
+ *  ESP-IDF GNAT Runtime. Copyright (C) 2026 Vadim Godunko
+ *
+ *  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
  */
+
 #include <stdint.h>
 #include <sys/time.h>
 #include "freertos/FreeRTOS.h"
@@ -130,22 +133,4 @@ BaseType_t __gnat_interrupt_level(void)
     unsigned ps;
     __asm__ volatile ("rsr.ps %0" : "=a" (ps));
     return ps & 0xf;
-}
-/* Private gthread bindings for the SDK's FDE registry object. Other pthread
- * mutexes retain their SDK implementation. All registry operations use this
- * critical section, including first-use cache initialization.
- */
-static portMUX_TYPE unwind_mux = portMUX_INITIALIZER_UNLOCKED;
-int __gnat_unwind_active(void) { return 0; } /* Address is the gthread probe. */
-int __gnat_unwind_lock(void *unused)
-{
-    (void)unused;
-    portENTER_CRITICAL_SAFE(&unwind_mux);
-    return 0;
-}
-int __gnat_unwind_unlock(void *unused)
-{
-    (void)unused;
-    portEXIT_CRITICAL_SAFE(&unwind_mux);
-    return 0;
 }
