@@ -50,8 +50,9 @@ results do not establish the same behavior on other SoCs or runtime backends.
   `ESP_INTR_FLAG_IRAM`; the runtime and exception paths have not been audited for
   cache-safe execution. No worst-case interrupt latency is guaranteed.
 * **ISR exception handling requires the unwinder integration.** Applications using
-  this backend must include `cmake/embedded-unwind.cmake`, as the stage4 harness
-  does. It adapts the selected SDK unwinder's blocking mutex references in a
+  this backend must require the `espidf_gnat_runtime` ESP-IDF component, which
+  includes `cmake/embedded-unwind.cmake` automatically. It adapts the selected
+  SDK unwinder's blocking mutex references in a
   build-local object; revalidation is required when changing the toolchain.
 
 ### Scheduling and time
@@ -153,9 +154,9 @@ CONFIG_FREERTOS_ISR_STACKSIZE=8192
 ```
 
 See the [test project's defaults](tests/stage1/sdkconfig.defaults) for the complete
-harness configuration. Including `cmake/embedded-unwind.cmake` for ISR exception
-support is an additional build integration requirement; menuconfig alone does
-not provide that adaptation.
+harness configuration. Requiring the `espidf_gnat_runtime` component also enables
+the unwinder adaptation for ISR exception support; menuconfig alone does not
+provide that adaptation.
 
 ### Binder secondary-stack pool
 
@@ -245,7 +246,12 @@ See [stage5 results](tests/stage5/RESULTS.md) for coverage and failure checks.
 
 ## Requirements
 
-This project is managed exclusively via **Alire**. To use this runtime, you must have the following:
+This repository is both an **Alire crate** and an **ESP-IDF component**.
+ESP-IDF builds the embedded C bridge and integrates the SDK unwinder; Alire
+generates and builds the Ada runtime. Use the same checkout for both systems.
+The component manifest requires ESP-IDF >=6.0; the embedded backend has been
+validated on ESP32-S3 with ESP-IDF 6.1.
+To use this runtime, you must have the following:
 
 1.  **[Alire](https://alire.ada.dev/):** The Ada Package Manager.
 2.  **ESP-IDF SDK:** Installed and configured in your environment path.
