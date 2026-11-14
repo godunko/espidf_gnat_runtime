@@ -38,10 +38,11 @@ results do not establish the same behavior on other SoCs or runtime backends.
   No Ada-specific entry adapter or prior registration of the interrupted FreeRTOS
   task is required. ISR code must use nonblocking, ISR-compatible operations.
 * **Interrupt contexts have separate exception state.** Six static ISR ATCBs
-  provide three nesting contexts per CPU. Secondary stacks are shared with the
-  interrupted Ada task; if it has no Ada secondary stack, nested handlers share
-  one 4 KiB fallback stack per CPU. Stack capacity must cover all live allocations
-  across the interrupted task and nested handlers.
+  provide three nesting contexts per CPU. Each CPU owns one secondary stack
+  obtained from the binder pool during initialization. Nested handlers share
+  that CPU's stack in LIFO order, independently of the interrupted task.
+  Stack capacity must cover all live allocations across nested handlers.
+  ISR entry does not read the interrupted task's FreeRTOS TLS.
 * **Exceptions must remain inside the callback boundary.** The runtime contains
   exceptions escaping protected `Attach_Handler` handlers. Ordinary callbacks
   exported to C must catch escaping exceptions before returning to ESP-IDF.
@@ -129,7 +130,7 @@ Static allocation, mutexes and recursive mutexes are enabled by this SDK's
 
 | Setting | Validated value | ESP-IDF 6.1 default | Scope |
 | --- | --- | --- | --- |
-| `CONFIG_ESP_MAIN_TASK_STACK_SIZE` | `16384` bytes | `3584` bytes — increased | Runtime initialization currently creates a temporary 4 KiB secondary-stack object on the calling task's stack. The SDK default is not a validated stack budget for this initialization path. |
+| `CONFIG_ESP_MAIN_TASK_STACK_SIZE` | `16384` bytes | `3584` bytes — increased | Retained test startup stack budget. The SDK default has not been revalidated after removal of the temporary 4 KiB ISR secondary-stack initialization object. |
 | `CONFIG_FREERTOS_ISR_STACKSIZE` | `8192` bytes **per CPU** | `1536` bytes (2096 with core dumps enabled) — increased | Tested with nested levels 1–3, live secondary-stack data and exception handling. Smaller sizes are unvalidated. This primary ISR stack is separate from the shared Ada secondary stack. |
 | `CONFIG_ESP_TASK_WDT_EN` | disabled in tests | `y` — test-only change | The stress harness disables the task watchdog. Runtime use does not require disabling it; configure watchdog monitoring/timeouts for the application's task behavior. |
 | `CONFIG_ESPTOOLPY_FLASHSIZE_16MB` | selected in tests | Board/configuration dependent | Describes the test board's flash. Use the actual device size; 16 MiB is not a runtime requirement. |
@@ -154,6 +155,48 @@ See the [test project's defaults](tests/stage1/sdkconfig.defaults) for the compl
 harness configuration. Including `cmake/embedded-unwind.cmake` for ISR exception
 support is an additional build integration requirement; menuconfig alone does
 not provide that adaptation.
+
+### Binder secondary-stack pool
+
+The embedded backend requires **one additional default-sized secondary stack
+per CPU for interrupt handlers**: two on the supported dual-core ESP32-S3.
+Each foreign thread that is given an Ada secondary stack also needs one
+additional pool entry. These contexts are not compiler-declared Ada tasks, so
+the compiler/binder does not count them automatically. Set `-Qnnn` to **one
+for the environment task, plus the number of CPUs, plus the number of additional
+foreign threads requiring a pool-backed secondary stack, plus any other manual
+pool consumers**. A C thread that only gets
+interrupted does not need its own Ada stack: its handlers use the CPU's stack.
+`-Q3` is the example for two CPUs and no additional foreign-thread consumers.
+If `-Q` already reserves stacks for foreign threads or other consumers,
+increase its existing count by the number of CPUs instead.
+For example, in the application's GPR file:
+
+```ada
+package Binder is
+   for Switches ("Ada") use ("-D4k", "-Q3");
+end Binder;
+```
+
+Preserve any other application binder switches. In the installed GNAT 16 binder,
+`-Qnnn` sets the initial pool count, replacing the implicit count of one for the
+environment task; the binder then adds the stacks counted for ordinary Ada
+tasks. Thus `-Q2` would leave the dual-core configuration one stack short.
+This behavior is implemented in `Gen_Output_File` in
+[GCC's bindgen.adb](https://github.com/gcc-mirror/gcc/blob/master/gcc/ada/bindgen.adb)
+and confirmed by the generated binder file and the harness run.
+`-D4k` sets the default secondary-stack size to
+4096 bytes for both pool-backed tasks and interrupt contexts. Size this budget
+for the maximum live allocations across nested handlers on one CPU; the two
+CPUs use different stacks. The runtime obtains the stacks with `SS_Init` before
+Ada interrupt attachment and keeps them for the lifetime of the application.
+They are not reset on ISR entry.
+
+This light-tasking/embedded `SS_Init` does not fall back to the heap: exhaustion
+of a nonempty pool raises `Program_Error`. With no binder pool it leaves the
+pointer null, which the embedded initialization rejects with `Program_Error`.
+The existing compiler/binder accounting for ordinary Ada tasks is unchanged;
+tasks with explicit `Secondary_Stack_Size` use compiler-provided storage.
 
 ---
 

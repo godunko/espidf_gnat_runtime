@@ -28,6 +28,16 @@ _Static_assert(sizeof(StaticSemaphore_t) == 84,
 _Static_assert(_Alignof(StaticSemaphore_t) == 4,
                "StaticSemaphore_t alignment differs from System.OS_Constants");
 
+extern unsigned port_interruptNesting[portNUM_PROCESSORS];
+//  Note, it is Xtensa-specific, for RISC-V, most probably,
+//  `uxInterruptNesting` should be used instead, as `CONFIG_FREERTOS_UNICORE`
+//  may be cosidered for single-core RISC-V. Need to be investigated further.
+
+BaseType_t __gnat_interrupt_nesting(void)
+{
+    return port_interruptNesting[xPortGetCoreID()];
+}
+
 void __gnat_portENTER_CRITICAL_SAFE(portMUX_TYPE *mux)
 {
     portENTER_CRITICAL_SAFE(mux);
@@ -115,11 +125,6 @@ int64_t __gnat_calendar_clock_usec(void)
 BaseType_t __gnat_mux_try(portMUX_TYPE *mux)
 { return xPortEnterCriticalTimeout(mux, 0); }
 BaseType_t __gnat_core_id(void) { return xPortGetCoreID(); }
-/* SDK/ISA boundary. Nesting, unlike PS.INTLEVEL, stays stable in critical
- * sections. Levels 1..3 are the C-callable Xtensa ISR levels on ESP32-S3. */
-extern unsigned port_interruptNesting[portNUM_PROCESSORS];
-BaseType_t __gnat_interrupt_nesting(void)
-{ return port_interruptNesting[xPortGetCoreID()]; }
 BaseType_t __gnat_interrupt_level(void)
 {
     unsigned ps;

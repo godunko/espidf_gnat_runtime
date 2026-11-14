@@ -47,8 +47,6 @@ package System.OS_Interface is
    with Import, Convention => C, External_Name => "__gnat_mux_try";
    function Core_ID return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_core_id";
-   function Interrupt_Nesting return BaseType_t
-   with Import, Convention => C, External_Name => "__gnat_interrupt_nesting";
    function Interrupt_Level return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_interrupt_level";
 
@@ -63,6 +61,9 @@ package System.OS_Interface is
    function To_Priority (Priority : System.Any_Priority) return UBaseType_t;
    --  Convert an Ada priority to the corresponding FreeRTOS priority. Value
    --  is saturated to the valid FreeRTOS priority range.
+
+   function Interrupt_Nesting return BaseType_t
+   with Import, Convention => C, External_Name => "__gnat_interrupt_nesting";
 
    procedure portENTER_CRITICAL_SAFE (Mux : in out portMUX_TYPE)
    with

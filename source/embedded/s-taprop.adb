@@ -19,24 +19,26 @@ package body System.Task_Primitives.Operations is
    function To_Address is new Ada.Unchecked_Conversion (ST.Task_Id, Address);
    function To_Task_Id is new Ada.Unchecked_Conversion (Address, ST.Task_Id);
 
-   function Get_Current_Task return ST.Task_Id;
-   --  Also used by Self in ISR context to read the interrupted task's ATCB.
+   function Get_Current_Task return ST.Task_Id
+     with Pre => System.OS_Interface.Is_Task_Context;
 
    procedure Set_Current_Task (T : ST.Task_Id)
      with Pre => System.OS_Interface.Is_Task_Context;
 
-   --  The SDK counts every ISR entry, including handlers with no Ada calls.
-   --  Masking interrupts inside an ISR does not change this nesting depth.
-   subtype ISR_Depth is Positive range
+   subtype ESPIDF_Interrupt_Nesting_Level is Positive range
      1 .. System.Interrupt_Priority'Last - System.Interrupt_Priority'First + 1;
-   ISR_Tasks : array (Multiprocessors.CPU, ISR_Depth) of
-     aliased ST.Ada_Task_Control_Block (0);
-   type ISR_Stack_Array is array (Multiprocessors.CPU) of
-     aliased System.Secondary_Stack.SS_Stack (4_096);
-   pragma Suppress_Initialization (ISR_Stack_Array);
-   --  Used only when the interrupted SDK task has no Ada secondary stack.
+   --  Maximum nesting depth of ISRs in ESP-IDF. By convention, higher
+   --  priorities, which can't use FreeRTOS API, and doesn't mapped to Ada.
+
+   ISR_Pseudo_Tasks :
+     array (System.Multiprocessors.CPU, ESPIDF_Interrupt_Nesting_Level)
+     of aliased ST.Ada_Task_Control_Block (0);
+
+   ISR_Secondary_Stacks :
+     array (System.Multiprocessors.CPU) of System.Secondary_Stack.SS_Stack_Ptr
+   with Suppress_Initialization;
+   --  Allocated from the binder pool during initialization, one per CPU.
    --  All nested handlers on that CPU share this stack in LIFO order.
-   ISR_Stacks : ISR_Stack_Array;
 
    RTS_Mutex_Storage : aliased OSI.StaticSemaphore_t;
    RTS_Mutex         : OSI.SemaphoreHandle_t :=
@@ -206,28 +208,26 @@ package body System.Task_Primitives.Operations is
           (OSI.Is_Task_Context
            and then RTS_Mutex = OSI.SemaphoreHandle_t (Null_Address));
 
-      for CPU in Multiprocessors.CPU loop
-         declare
-            Initial_Stack : aliased System.Secondary_Stack.SS_Stack (4_096);
-            Stack_Ptr : System.Secondary_Stack.SS_Stack_Ptr :=
-              Initial_Stack'Unchecked_Access;
-         begin
-            --  Supply the stored discriminant without package elaboration.
-            System.Secondary_Stack.SS_Init (Stack_Ptr, 4_096);
-            ISR_Stacks (CPU) := Initial_Stack;
-         end;
-         for Depth in ISR_Depth loop
-            ISR_Tasks (CPU, Depth).Common.State := ST.Runnable;
-            ISR_Tasks (CPU, Depth).Common.Base_CPU := CPU;
-            ISR_Tasks (CPU, Depth).Common.Base_Priority :=
+      --  For each CPU, initialize the secondary stack and ATCS for
+      --  pseudo-tasks per each interrupt priority.
+
+      for CPU in System.Multiprocessors.CPU loop
+         ISR_Secondary_Stacks (CPU) := null;
+         System.Secondary_Stack.SS_Init (ISR_Secondary_Stacks (CPU));
+
+         for P in ESPIDF_Interrupt_Nesting_Level loop
+            ISR_Pseudo_Tasks (CPU, P).Common.State := ST.Runnable;
+            ISR_Pseudo_Tasks (CPU, P).Common.Base_CPU := CPU;
+            ISR_Pseudo_Tasks (CPU, P).Common.Base_Priority :=
               System.Interrupt_Priority'First;
-            ISR_Tasks (CPU, Depth).Common.LL.Current_Priority :=
+            ISR_Pseudo_Tasks (CPU, P).Common.LL.Current_Priority :=
               System.Interrupt_Priority'First;
-            ISR_Tasks (CPU, Depth).Common.Protected_Action_Nesting := 1;
-            ISR_Tasks (CPU, Depth).Common.Compiler_Data.Sec_Stack_Ptr :=
-              ISR_Stacks (CPU)'Access;
+            ISR_Pseudo_Tasks (CPU, P).Common.Protected_Action_Nesting := 1;
+            ISR_Pseudo_Tasks (CPU, P).Common.Compiler_Data.Sec_Stack_Ptr :=
+              ISR_Secondary_Stacks (CPU);
+
             Ada.Exceptions.Save_Occurrence
-              (ISR_Tasks (CPU, Depth).Common.Compiler_Data.Current_Excep,
+              (ISR_Pseudo_Tasks (CPU, P).Common.Compiler_Data.Current_Excep,
                Ada.Exceptions.Null_Occurrence);
          end loop;
       end loop;
@@ -285,35 +285,26 @@ package body System.Task_Primitives.Operations is
    ----------
 
    function Self return ST.Task_Id is
-      Interrupted_Task : constant ST.Task_Id := Get_Current_Task;
-
    begin
-      if not OSI.Is_Task_Context then
+      if OSI.Is_Task_Context then
+         return Get_Current_Task;
+
+      else
          declare
-            CPU : constant Multiprocessors.CPU :=
-              Multiprocessors.CPU (OSI.Core_ID + 1);
-            Context : constant ST.Task_Id :=
-              ISR_Tasks (CPU, ISR_Depth (OSI.Interrupt_Nesting))'Access;
-            use type System.Secondary_Stack.SS_Stack_Ptr;
+            CPU : constant System.Multiprocessors.CPU :=
+              System.Multiprocessors.CPU (OSI.Core_ID + 1);
+
          begin
-            --  The current FreeRTOS task remains the interrupted task
-            --  throughout nested interrupt handling.
-            --  Do not reset the stack: each handler releases only its own
-            --  allocations, leaving the interrupted task/handler's data live.
-            if Interrupted_Task /= null
-              and then Interrupted_Task.Common.Compiler_Data.Sec_Stack_Ptr
-                /= null
-            then
-               Context.Common.Compiler_Data.Sec_Stack_Ptr :=
-                 Interrupted_Task.Common.Compiler_Data.Sec_Stack_Ptr;
-            else
-               Context.Common.Compiler_Data.Sec_Stack_Ptr :=
-                 ISR_Stacks (CPU)'Access;
-            end if;
-            return Context;
+            --  Select the ISR pseudo-task for this CPU and nesting depth.
+            --  All ISR pseudo-tasks on this CPU share one secondary stack.
+
+            return
+              ISR_Pseudo_Tasks
+                (CPU,
+                 ESPIDF_Interrupt_Nesting_Level
+                   (OSI.Interrupt_Nesting))'Access;
          end;
       end if;
-      return Interrupted_Task;
    end Self;
 
    ----------------------
