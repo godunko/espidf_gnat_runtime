@@ -88,16 +88,19 @@ through `idf.py build`, which invokes the integrated Alire build.
 | --- | --- | --- | --- |
 | `CONFIG_COMPILER_CXX_EXCEPTIONS` | `y` | `n` — **change required** | Enables SDK startup registration of `.eh_frame` and retains the unwinder needed for Ada exception propagation, even in applications with no C++ code. |
 | `CONFIG_LIBC_NEWLIB` | `y` | Picolibc with GCC — **change required** | The current runtime ABI and static FreeRTOS storage sizes are validated with Newlib; Picolibc is not validated. Select Newlib in the LibC choice. |
+| `CONFIG_FREERTOS_THREAD_LOCAL_STORAGE_POINTERS` | `2` | `1` — **change required** | ATCB uses FreeRTOS TLS pointer slot 1; slot 0 is reserved by ESP-IDF for pthread TLS. The current static task storage ABI requires exactly two slots. |
 | `CONFIG_FREERTOS_HZ` | `100` | `100` — unchanged | Must match `System.OS_Constants.configTICK_RATE_HZ`; the C bridge checks it at compile time. |
 | `CONFIG_FREERTOS_UNICORE` | disabled | disabled on ESP32-S3 — unchanged | The current descriptor and tests use both CPUs; a single-core configuration requires a matching runtime configuration and separate validation. |
 
 Menu locations: **Compiler options → Enable C++ exceptions**, **Component config
 → LibC → LibC to build application with**, and **Component config → FreeRTOS →
-Kernel** for the tick rate and single-core selection. Set the target with
+Kernel** for the tick rate, single-core selection and
+**configNUM_THREAD_LOCAL_STORAGE_POINTERS**. Increase the latter from 1 to 2.
+Set the target with
 `idf.py set-target esp32s3` when creating/configuring an ESP32-S3 project.
 
 The backend embeds opaque SDK structures in Ada-owned storage. The current
-`System.OS_Constants` expects `StaticTask_t` = 340 bytes, `StaticSemaphore_t` =
+`System.OS_Constants` expects `StaticTask_t` = 348 bytes, `StaticSemaphore_t` =
 84 bytes and `portMUX_TYPE` = 8 bytes, all aligned to 4 bytes. `embedded.c` has
 static assertions for these sizes/alignments and for the SDK's fixed
 `configMAX_PRIORITIES = 25`. A configuration or SDK change that trips an assertion
@@ -105,15 +108,20 @@ requires checking the ABI, updating the Ada constants and matching C checks,
 and rebuilding/revalidating the runtime; increasing the buffers blindly is not
 sufficient.
 
-Relevant structure-layout settings currently use their SDK defaults:
-`CONFIG_FREERTOS_THREAD_LOCAL_STORAGE_POINTERS=1`,
+With `CONFIG_FREERTOS_THREAD_LOCAL_STORAGE_POINTERS=2`, the extra pointer and
+its deletion callback increase `StaticTask_t` from 340 to 348 bytes. More slots
+require another ABI update. The Ada ATCB accessors call
+`pvTaskGetThreadLocalStoragePointer` / `vTaskSetThreadLocalStoragePointer` with
+a null task handle (the current task) and index 1. Access uses preallocated task
+storage and requires no allocation or deletion callback for the ATCB.
+
+Other relevant structure-layout settings currently use their SDK defaults:
 `CONFIG_FREERTOS_TLSP_DELETION_CALLBACKS=y`,
 `CONFIG_FREERTOS_MAX_TASK_NAME_LEN=16`,
 `CONFIG_FREERTOS_TASK_NOTIFICATION_ARRAY_ENTRIES=1`,
 `CONFIG_FREERTOS_USE_TRACE_FACILITY=n`, and
 `CONFIG_FREERTOS_USE_APPLICATION_TASK_TAG=n`. These are ABI inputs, not a
-requirement for the runtime to use those features. The ATCB association uses
-native C TLS; it needs neither an extra FreeRTOS TLS pointer slot nor task tags.
+requirement for the runtime to use those features.
 Static allocation, mutexes and recursive mutexes are enabled by this SDK's
 `FreeRTOSConfig.h`; no additional menuconfig switch is needed for them.
 
@@ -137,6 +145,7 @@ budgets can be recorded as:
 ```ini
 CONFIG_COMPILER_CXX_EXCEPTIONS=y
 CONFIG_LIBC_NEWLIB=y
+CONFIG_FREERTOS_THREAD_LOCAL_STORAGE_POINTERS=2
 CONFIG_ESP_MAIN_TASK_STACK_SIZE=16384
 CONFIG_FREERTOS_ISR_STACKSIZE=8192
 ```

@@ -15,9 +15,12 @@ package System.OS_Constants is
    --  configuration with Newlib. Keep the C assertions in embedded.c in sync.
    portMUX_TYPE_Size           : constant := 8;
    portMUX_TYPE_Alignment      : constant := 4;
-   StaticTask_t_Size           : constant := 340;
+   StaticTask_t_Size           : constant := 348;
    StaticTask_t_Alignment      : constant := 4;
    StaticSemaphore_t_Size      : constant := 84;
    StaticSemaphore_t_Alignment : constant := 4;
+
+   ATCB_Slot : constant := 1;
+   --  Slot 0 is reserved by ESP-IDF for pthread TLS.
 
 end System.OS_Constants;

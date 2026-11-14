@@ -156,12 +156,26 @@ package System.OS_Interface is
    function xTaskGetCurrentTaskHandle return TaskHandle_t
    with Import, Convention => C, External_Name => "xTaskGetCurrentTaskHandle";
 
+   function pvTaskGetThreadLocalStoragePointer
+     (xTaskToQuery : TaskHandle_t; xIndex : BaseType_t) return System.Address
+   with
+     Import,
+     Convention    => C,
+     External_Name => "pvTaskGetThreadLocalStoragePointer";
+
    procedure vTaskDelay (xTicksToDelay : TickType_t)
    with Import, Convention => C, External_Name => "vTaskDelay";
 
    procedure vTaskPrioritySet
      (xTask : TaskHandle_t; uxNewPriority : UBaseType_t)
    with Import, Convention => C, External_Name => "vTaskPrioritySet";
+
+   procedure vTaskSetThreadLocalStoragePointer
+     (xTaskToSet : TaskHandle_t; xIndex : BaseType_t; pvValue : System.Address)
+   with
+     Import,
+     Convention    => C,
+     External_Name => "vTaskSetThreadLocalStoragePointer";
 
 private
 

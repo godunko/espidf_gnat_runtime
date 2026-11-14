@@ -7,15 +7,9 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 
-/* Native SDK TLS is preallocated/zeroed by uxInitialiseStackTLS. Reading
- * it from an ISR cannot invoke emutls allocation or pthread synchronization.
- * THREADPTR still identifies the interrupted task, including nested ISRs.
- */
-static _Thread_local void *current_atcb;
-void *__gnat_get_current_atcb(void) { return current_atcb; }
-void __gnat_set_current_atcb(void *atcb) { current_atcb = atcb; }
-
 /* Keep in sync with System.OS_Constants for this ESP32-S3 configuration. */
+_Static_assert(CONFIG_FREERTOS_THREAD_LOCAL_STORAGE_POINTERS == 2,
+               "ATCB uses TLS slot 1; configure exactly 2 slots for this ABI");
 _Static_assert(tskNO_AFFINITY == 0x7FFFFFFF,
                "tskNO_AFFINITY differs from System.OS_Interface");
 _Static_assert(configTICK_RATE_HZ == 100,
@@ -25,7 +19,7 @@ _Static_assert(configMAX_PRIORITIES == 25,
 
 _Static_assert(sizeof(portMUX_TYPE) == 8 && _Alignof(portMUX_TYPE) == 4,
                "portMUX_TYPE differs from System.OS_Constants");
-_Static_assert(sizeof(StaticTask_t) == 340,
+_Static_assert(sizeof(StaticTask_t) == 348,
                "StaticTask_t size differs from System.OS_Constants");
 _Static_assert(_Alignof(StaticTask_t) == 4,
                "StaticTask_t alignment differs from System.OS_Constants");

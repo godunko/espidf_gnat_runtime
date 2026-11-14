@@ -3,8 +3,9 @@
 
 with Ada.Exceptions;
 with Ada.Unchecked_Conversion;
-with System.Secondary_Stack;
 with Interfaces.C;
+with System.OS_Constants;
+with System.Secondary_Stack;
 with System.Tasking.Debug;
 
 package body System.Task_Primitives.Operations is
@@ -15,12 +16,14 @@ package body System.Task_Primitives.Operations is
    use type Multiprocessors.CPU_Range;
    use type System.Parameters.Size_Type;
 
-   --  The SDK C compiler uses native TLS, preallocated on every task stack.
-   --  The Ada compiler uses emutls, whose first access may allocate memory.
-   function Current_Task return ST.Task_Id
-     with Import, Convention => C, External_Name => "__gnat_get_current_atcb";
+   function To_Address is new Ada.Unchecked_Conversion (ST.Task_Id, Address);
+   function To_Task_Id is new Ada.Unchecked_Conversion (Address, ST.Task_Id);
+
+   function Get_Current_Task return ST.Task_Id;
+   --  Also used by Self in ISR context to read the interrupted task's ATCB.
+
    procedure Set_Current_Task (T : ST.Task_Id)
-     with Import, Convention => C, External_Name => "__gnat_set_current_atcb";
+     with Pre => System.OS_Interface.Is_Task_Context;
 
    --  The SDK counts every ISR entry, including handlers with no Ada calls.
    --  Masking interrupts inside an ISR does not change this nesting depth.
@@ -39,7 +42,6 @@ package body System.Task_Primitives.Operations is
    RTS_Mutex         : OSI.SemaphoreHandle_t :=
      OSI.SemaphoreHandle_t (Null_Address);
 
-   function To_Address is new Ada.Unchecked_Conversion (ST.Task_Id, Address);
    --  Keep the soft-links entry points while owning the lock in Ada.
    procedure RTS_Lock
      with Export, Convention => C, External_Name => "__gnat_embedded_rts_lock";
@@ -182,13 +184,23 @@ package body System.Task_Primitives.Operations is
       System.OS_Interface.Set_Priority (Self_ID.Common.Base_Priority);
    end Enter_Task;
 
+   ----------------------
+   -- Get_Current_Task --
+   ----------------------
+
+   function Get_Current_Task return ST.Task_Id
+   is (To_Task_Id
+         (System.OS_Interface.pvTaskGetThreadLocalStoragePointer
+            (System.OS_Interface.Null_TaskHandle_t,
+             System.OS_Constants.ATCB_Slot)));
+
    ----------------
    -- Initialize --
    ----------------
 
    procedure Initialize (Environment_Task : ST.Task_Id) is
    begin
-      pragma Assert (Current_Task = ST.Null_Task);
+      pragma Assert (Get_Current_Task = ST.Null_Task);
       pragma
         Assert
           (OSI.Is_Task_Context
@@ -273,7 +285,8 @@ package body System.Task_Primitives.Operations is
    ----------
 
    function Self return ST.Task_Id is
-      Interrupted_Task : constant ST.Task_Id := Current_Task;
+      Interrupted_Task : constant ST.Task_Id := Get_Current_Task;
+
    begin
       if not OSI.Is_Task_Context then
          declare
@@ -283,7 +296,8 @@ package body System.Task_Primitives.Operations is
               ISR_Tasks (CPU, ISR_Depth (OSI.Interrupt_Nesting))'Access;
             use type System.Secondary_Stack.SS_Stack_Ptr;
          begin
-            --  The SDK preserves THREADPTR across nested interrupt entry.
+            --  The current FreeRTOS task remains the interrupted task
+            --  throughout nested interrupt handling.
             --  Do not reset the stack: each handler releases only its own
             --  allocations, leaving the interrupted task/handler's data live.
             if Interrupted_Task /= null
@@ -301,5 +315,17 @@ package body System.Task_Primitives.Operations is
       end if;
       return Interrupted_Task;
    end Self;
+
+   ----------------------
+   -- Set_Current_Task --
+   ----------------------
+
+   procedure Set_Current_Task (T : ST.Task_Id) is
+   begin
+      System.OS_Interface.vTaskSetThreadLocalStoragePointer
+        (System.OS_Interface.Null_TaskHandle_t,
+         System.OS_Constants.ATCB_Slot,
+         To_Address (T));
+   end Set_Current_Task;
 
 end System.Task_Primitives.Operations;
