@@ -5,6 +5,7 @@
  */
 
 #include <stdint.h>
+#include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
@@ -32,14 +33,34 @@ _Static_assert(sizeof(StaticSemaphore_t) == 84,
 _Static_assert(_Alignof(StaticSemaphore_t) == 4,
                "StaticSemaphore_t alignment differs from System.OS_Constants");
 
+/* Read the exact depth for Ada ISR pseudo-tasks, not an in-ISR boolean.
+ * These counters belong to the ESP-IDF FreeRTOS ports. CONFIG_FREERTOS_SMP
+ * selects the alternative kernel; the default kernel also supports multicore.
+ */
+#if CONFIG_IDF_TARGET_ARCH_XTENSA
 extern unsigned port_interruptNesting[portNUM_PROCESSORS];
-//  Note, it is Xtensa-specific, for RISC-V, most probably,
-//  `uxInterruptNesting` should be used instead, as `CONFIG_FREERTOS_UNICORE`
-//  may be cosidered for single-core RISC-V. Need to be investigated further.
+#elif CONFIG_IDF_TARGET_ARCH_RISCV
+#if CONFIG_FREERTOS_SMP
+extern volatile UBaseType_t uxInterruptNesting;
+#else
+extern volatile UBaseType_t port_uxInterruptNesting[portNUM_PROCESSORS];
+#endif
+#else
+#error "Interrupt nesting is not implemented for this ESP-IDF architecture"
+#endif
 
 BaseType_t __gnat_interrupt_nesting(void)
 {
+#if CONFIG_IDF_TARGET_ARCH_XTENSA
     return port_interruptNesting[xPortGetCoreID()];
+#elif CONFIG_IDF_TARGET_ARCH_RISCV
+#if CONFIG_FREERTOS_SMP
+    return uxInterruptNesting;
+#else
+    /* Also an array with CONFIG_FREERTOS_UNICORE, including single-core SoCs. */
+    return port_uxInterruptNesting[xPortGetCoreID()];
+#endif
+#endif
 }
 
 void __gnat_portENTER_CRITICAL_SAFE(portMUX_TYPE *mux)
