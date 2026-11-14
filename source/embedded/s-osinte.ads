@@ -51,8 +51,6 @@ package System.OS_Interface is
    with Import, Convention => C, External_Name => "__gnat_interrupt_nesting";
    function Interrupt_Level return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_interrupt_level";
-   function Give_From_ISR (CV : SemaphoreHandle_t) return BaseType_t
-   with Import, Convention => C, External_Name => "__gnat_give_from_isr";
 
    subtype Time is Interfaces.Unsigned_64;
    subtype Time_Span is Interfaces.Integer_64;
@@ -80,6 +78,10 @@ package System.OS_Interface is
 
    procedure portMUX_INITIALIZE (Mux : out portMUX_TYPE)
    with Import, Convention => C, External_Name => "__gnat_portMUX_INITIALIZE";
+
+   procedure portYIELD_FROM_ISR (xHigherPriorityTaskWoken : BaseType_t)
+   with Import, Convention => C,
+        External_Name => "__gnat_portYIELD_FROM_ISR";
 
    function xPortInIsrContext return BaseType_t
    with Import, Convention => C, External_Name => "xPortInIsrContext";
@@ -111,6 +113,12 @@ package System.OS_Interface is
 
    function xSemaphoreGive (xSemaphore : SemaphoreHandle_t) return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_xSemaphoreGive";
+
+   function xSemaphoreGiveFromISR
+     (xSemaphore                : SemaphoreHandle_t;
+      pxHigherPriorityTaskWoken : out BaseType_t) return BaseType_t
+   with Import, Convention => C,
+        External_Name => "__gnat_xSemaphoreGiveFromISR";
 
    function xSemaphoreGiveRecursive
      (xMutex : SemaphoreHandle_t) return BaseType_t

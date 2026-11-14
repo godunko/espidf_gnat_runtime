@@ -2,7 +2,6 @@
  * SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
  */
 #include <stdint.h>
-#include <stdatomic.h>
 #include <sys/time.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -35,13 +34,6 @@ _Static_assert(sizeof(StaticSemaphore_t) == 84,
 _Static_assert(_Alignof(StaticSemaphore_t) == 4,
                "StaticSemaphore_t alignment differs from System.OS_Constants");
 
-#ifdef GNAT_EMBEDDED_TESTING
-_Atomic unsigned __gnat_embedded_test_wakeups;
-_Atomic unsigned __gnat_embedded_isr_yields[portNUM_PROCESSORS];
-_Atomic unsigned __gnat_embedded_nested_yields[portNUM_PROCESSORS][3];
-_Atomic unsigned __gnat_embedded_nested_gives[portNUM_PROCESSORS][3];
-#endif
-
 void __gnat_portENTER_CRITICAL_SAFE(portMUX_TYPE *mux)
 {
     portENTER_CRITICAL_SAFE(mux);
@@ -59,7 +51,7 @@ void __gnat_portMUX_INITIALIZE(portMUX_TYPE *mux)
 
 void __gnat_portYIELD_FROM_ISR(BaseType_t xHigherPriorityTaskWoken)
 {
-  portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
 SemaphoreHandle_t __gnat_xSemaphoreCreateBinaryStatic(StaticSemaphore_t *storage)
@@ -90,9 +82,6 @@ UBaseType_t __gnat_uxSemaphoreGetCount(SemaphoreHandle_t semaphore)
 BaseType_t __gnat_xSemaphoreGive(SemaphoreHandle_t cv)
 {
     configASSERT(!xPortInIsrContext());
-#ifdef GNAT_EMBEDDED_TESTING
-    atomic_fetch_add(&__gnat_embedded_test_wakeups, 1);
-#endif
     return xSemaphoreGive(cv);
 }
 
@@ -143,27 +132,6 @@ BaseType_t __gnat_interrupt_level(void)
     __asm__ volatile ("rsr.ps %0" : "=a" (ps));
     return ps & 0xf;
 }
-BaseType_t __gnat_give_from_isr(SemaphoreHandle_t cv)
-{
-#ifdef GNAT_EMBEDDED_TESTING
-    unsigned entry_depth = port_interruptNesting[xPortGetCoreID()];
-    configASSERT(entry_depth >= 1 && entry_depth <= 3);
-    atomic_fetch_add(&__gnat_embedded_nested_gives[xPortGetCoreID()][entry_depth - 1], 1);
-#endif
-    BaseType_t woken = pdFALSE;
-    BaseType_t result = xSemaphoreGiveFromISR(cv, &woken);
-    if (woken) {
-#ifdef GNAT_EMBEDDED_TESTING
-        atomic_fetch_add(&__gnat_embedded_isr_yields[xPortGetCoreID()], 1);
-        unsigned depth = port_interruptNesting[xPortGetCoreID()];
-        configASSERT(depth >= 1 && depth <= 3);
-        atomic_fetch_add(&__gnat_embedded_nested_yields[xPortGetCoreID()][depth - 1], 1);
-#endif
-        portYIELD_FROM_ISR();
-    }
-    return result;
-}
-
 /* Private gthread bindings for the SDK's FDE registry object. Other pthread
  * mutexes retain their SDK implementation. All registry operations use this
  * critical section, including first-use cache initialization.

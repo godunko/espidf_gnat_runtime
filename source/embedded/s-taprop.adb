@@ -107,10 +107,13 @@ package body System.Task_Primitives.Operations is
    end Sleep;
    procedure Wakeup (T : ST.Task_Id; Reason : ST.Task_States) is
       Result : OSI.BaseType_t;
+      Higher_Priority_Task_Woken : OSI.BaseType_t := OSI.pdFALSE;
       pragma Unreferenced (Reason, Result);
    begin
       if not OSI.Is_Task_Context then
-         Result := OSI.Give_From_ISR (T.Common.LL.CV);
+         Result := OSI.xSemaphoreGiveFromISR
+           (T.Common.LL.CV, Higher_Priority_Task_Woken);
+         OSI.portYIELD_FROM_ISR (Higher_Priority_Task_Woken);
          return;
       end if;
       --  Repeated wakeups coalesce when the binary event is already signaled.
