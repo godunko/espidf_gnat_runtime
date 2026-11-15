@@ -117,6 +117,14 @@
         "crate": "bb_runtimes",
         "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-reatim.adb"
       },
+      "s-stchop.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-stchop.ads"
+      },
+      "s-stchop.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-stchop.adb"
+      },
       "s-parame.ads": {
         "crate": "espidf_gnat_runtime",
         "path": "source/embedded/s-parame.ads"

@@ -158,6 +158,45 @@ harness configuration. Requiring the `espidf_gnat_runtime` component also enable
 the unwinder adaptation for ISR exception support; menuconfig alone does not
 provide that adaptation.
 
+### Primary stack checking
+
+The embedded ESP32-S3 runtime supports compiler-generated `-fstack-check`
+calls through `System.Stack_Checking.Operations` (`__gnat_stack_check`). Enable
+the switch in the application's GPR compiler switches for each Ada unit that
+needs checking; it is not enabled by default. Keep the runtime and exception
+machinery compiled without it, as in the generated runtime projects.
+
+The checker validates GCC's prospective low address before the stack is
+extended and raises `Storage_Error` on failure. `Stack_Check` is a function
+returning null on success; it does not provide the complete GCC cache API.
+The context selection, bound comparisons and frame-address wrap check are
+implemented in Ada. In task context it obtains the
+physical bottom through a direct import of ESP-IDF's `xTaskGetStackStart()`, independently of whether
+the native task has registered an Ada ATCB. In ISR context it uses the current
+CPU's `port_IntStack` bounds. The ISR bounds are shared by nested handlers on
+that CPU; the C adapter only exposes those port-owned bounds. Addresses above
+the checker's current frame are rejected too, to
+detect address subtraction wrapping upward. Checking uses no historical
+high-water scan, allocation, locks or task registration; raising an exception
+uses the existing runtime exception machinery. With no current FreeRTOS task
+and outside ISR context, checks are skipped because task bounds are unavailable.
+
+The stock GNAT 16 check allowance is retained: in the current Xtensa build its
+12,284-byte offset includes exception recovery and unchecked fixed-frame
+growth. Therefore the SDK default 1536-byte ISR stack, and the 8192-byte ISR
+budget above, do **not** support executing compiler-instrumented handlers.
+Size every instrumented task/ISR stack for that allowance plus its application
+workload. No compiler constants or recovery offsets are reduced by this port.
+
+The [stack-check regression](tests/stack-check/README.md) passes in QEMU with
+a 32 KiB main stack and 24 KiB Ada/native/per-CPU ISR stacks. It covers both
+CPUs, native tasks before ATCB registration, nested level-1/level-3 ISRs,
+oversized arrays and recursive exhaustion. Unmodified ACATS C52103X compiled
+with `-fstack-check` reports PASSED. These are tested budgets, not proven
+minimums; the separate [unwind measurements](tests/unwind-stack/README.md)
+do not justify reducing the compiler's default allowance. Code compiled
+without checks and asynchronous stack consumption still need their own budgets.
+
 ### Binder secondary-stack pool
 
 The embedded backend requires **one additional default-sized secondary stack

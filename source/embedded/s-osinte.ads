@@ -61,6 +61,13 @@ package System.OS_Interface is
    --  Map an Ada priority directly to the same FreeRTOS priority. Value
    --  is saturated to the valid FreeRTOS task priority range.
 
+   procedure Get_Interrupt_Stack_Bounds
+     (Bottom, Top : out System.Address)
+   with Import, Convention => C,
+        External_Name => "__gnat_get_interrupt_stack_bounds";
+   --  Physical bounds of this CPU's downward-growing ISR stack; Top is
+   --  exclusive. Nested handlers on the same CPU share these bounds.
+
    function Interrupt_Nesting return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_interrupt_nesting";
 
@@ -163,15 +170,19 @@ package System.OS_Interface is
    function xTaskGetCurrentTaskHandle return TaskHandle_t
    with Import, Convention => C, External_Name => "xTaskGetCurrentTaskHandle";
 
+   procedure vTaskDelay (xTicksToDelay : TickType_t)
+   with Import, Convention => C, External_Name => "vTaskDelay";
+
+   function xTaskGetStackStart (xTask : TaskHandle_t) return System.Address
+   with Import, Convention => C, External_Name => "xTaskGetStackStart";
+   --  Physical bottom, not the historical stack high-water mark.
+
    function pvTaskGetThreadLocalStoragePointer
      (xTaskToQuery : TaskHandle_t; xIndex : BaseType_t) return System.Address
    with
      Import,
      Convention    => C,
      External_Name => "pvTaskGetThreadLocalStoragePointer";
-
-   procedure vTaskDelay (xTicksToDelay : TickType_t)
-   with Import, Convention => C, External_Name => "vTaskDelay";
 
    function uxTaskPriorityGet (xTask : TaskHandle_t) return UBaseType_t
    with Import, Convention => C, External_Name => "uxTaskPriorityGet";

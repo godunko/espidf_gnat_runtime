@@ -45,6 +45,40 @@ _Static_assert(sizeof(StaticSemaphore_t) == 84,
 _Static_assert(_Alignof(StaticSemaphore_t) == 4,
                "StaticSemaphore_t alignment differs from System.OS_Constants");
 
+/* ESP-IDF owns one downward-growing interrupt stack per CPU. These are the
+ * same arrays selected by the port's interrupt-entry assembly (both kernels).
+ */
+#if CONFIG_IDF_TARGET_ARCH_XTENSA
+extern volatile StackType_t port_IntStack[portNUM_PROCESSORS][configISR_STACK_SIZE];
+#elif CONFIG_IDF_TARGET_ARCH_RISCV
+#if CONFIG_FREERTOS_SMP
+extern StackType_t xIsrStack[configISR_STACK_SIZE];
+#else
+extern StackType_t xIsrStack[portNUM_PROCESSORS][configISR_STACK_SIZE];
+#endif
+#endif
+
+_Static_assert(portSTACK_GROWTH < 0, "Stack checking requires downward stacks");
+
+/* Expose port-owned ISR storage; all checking and context selection is Ada. */
+void __gnat_get_interrupt_stack_bounds(void **bottom, void **top)
+{
+#if CONFIG_IDF_TARGET_ARCH_XTENSA
+    const unsigned core = xPortGetCoreID();
+    *bottom = (void *)&port_IntStack[core][0];
+    *top = (void *)&port_IntStack[core][configISR_STACK_SIZE];
+#elif CONFIG_IDF_TARGET_ARCH_RISCV
+#if CONFIG_FREERTOS_SMP
+    *bottom = (void *)&xIsrStack[0];
+    *top = (void *)&xIsrStack[configISR_STACK_SIZE];
+#else
+    const unsigned core = xPortGetCoreID();
+    *bottom = (void *)&xIsrStack[core][0];
+    *top = (void *)&xIsrStack[core][configISR_STACK_SIZE];
+#endif
+#endif
+}
+
 /* Read the exact depth for Ada ISR pseudo-tasks, not an in-ISR boolean.
  * These counters belong to the ESP-IDF FreeRTOS ports. CONFIG_FREERTOS_SMP
  * selects the alternative kernel; the default kernel also supports multicore.
