@@ -10,7 +10,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        esp32_mcu: [esp32, esp32c3, esp32s3]
+        esp32_mcu: [esp32s3]
+        bundle: [bundle_a, bundle_c2, bundle_c3, bundle_c4, bundle_c5, bundle_c6, bundle_c7, bundle_c8, bundle_c9, bundle_ca]
     steps:
     - name: Display environment
       run: |
@@ -19,11 +20,13 @@ jobs:
 
     - name: Checkout repo
       uses: actions/checkout@v4
+      with:
+        path: components/espidf_gnat_runtime
     - name: Checkout GNAT Runtime ACATS Testsuite repo
       uses: actions/checkout@v4
       with:
         repository: godunko/espidf_gnat_runtime_acats
-        path: test_apps/acats
+        path: crates/espidf_gnat_runtime_acats
     - name: Checkout A0B Tools
       uses: actions/checkout@v4
       with:
@@ -49,39 +52,26 @@ jobs:
       run: |
         alr -C crates/a0b-tools --non-interactive with --solve
         alr -C crates/a0b-tools build
-    - name: Pin Alire crates and update `bb-runtimes` path
+    - name: Select Alire toolchain
       run: |
-        cp test_apps/acats/bundle_1/${{ matrix.esp32_mcu }}/alire.toml test_apps/acats/bundle_1
         alr toolchain --select gnat_xtensa_esp32_elf
-        sed -i 's/bb-runtimes=..\/..\//bb-runtimes=/' alire.toml
-        sed -i '/\[\[pins\]\]/q' alire.toml
-        alr pin xtensa_dynconfig --use crates/xtensa-dynconfig
-        alr pin a0b_tools --use crates/a0b-tools
-        cat alire.toml
-        alr --non-interactive with --solve
 
     - name: Build and Run tests
+      shell: bash
       run: |
         . $IDF_PATH/export.sh
-        cd test_apps/acats/bundle_1
+        cd crates/espidf_gnat_runtime_acats/${{ matrix.bundle }}
         idf.py set-target ${{ matrix.esp32_mcu }}
         idf.py qemu --qemu-extra-args --no-reboot | tee log
         ../support/report.sh log ${{ matrix.esp32_mcu }}
 
-#    - name: Run tests
-#      run: |
-#        . $IDF_PATH/export.sh
-#        cd test_apps/acats/bundle_1
-#        idf.py qemu --qemu-extra-args --no-reboot | tee log
-#        ../support/report.sh log
-
     - name: Publish Test Report
       uses: ctrf-io/github-test-reporter@v1
       with:
-        report-path: 'test_apps/acats/bundle_1/*.json'
+        report-path: 'crates/espidf_gnat_runtime_acats/${{ matrix.bundle }}/*.json'
         github-report: true
         upload-artifact: true
-        artifact-name: 'ctrf-report-${{ matrix.esp32_mcu }}'
+        artifact-name: 'ctrf-report-${{ matrix.esp32_mcu }}-${{ matrix.bundle }}'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       if: always()
