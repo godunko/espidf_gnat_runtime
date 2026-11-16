@@ -22,28 +22,8 @@
 #endif
 #endif
 
-/* Keep in sync with System.OS_Constants for this ESP32-S3 configuration. */
-_Static_assert(CONFIG_FREERTOS_THREAD_LOCAL_STORAGE_POINTERS == 2,
-               "ATCB uses TLS slot 1; configure exactly 2 slots for this ABI");
 _Static_assert(tskNO_AFFINITY == 0x7FFFFFFF,
                "tskNO_AFFINITY differs from System.OS_Interface");
-_Static_assert(configTICK_RATE_HZ == 100,
-               "configTICK_RATE_HZ differs from System.OS_Constants");
-_Static_assert(configMAX_PRIORITIES == 25,
-               "configMAX_PRIORITIES differs from System.OS_Constants");
-
-_Static_assert(sizeof(portMUX_TYPE) == 8,
-               "portMUX_TYPE size differs from System.OS_Constants");
-_Static_assert(_Alignof(portMUX_TYPE) == 4,
-               "portMUX_TYPE alignment differs from System.OS_Constants");
-_Static_assert(sizeof(StaticTask_t) == 348,
-               "StaticTask_t size differs from System.OS_Constants");
-_Static_assert(_Alignof(StaticTask_t) == 4,
-               "StaticTask_t alignment differs from System.OS_Constants");
-_Static_assert(sizeof(StaticSemaphore_t) == 84,
-               "StaticSemaphore_t size differs from System.OS_Constants");
-_Static_assert(_Alignof(StaticSemaphore_t) == 4,
-               "StaticSemaphore_t alignment differs from System.OS_Constants");
 
 /* ESP-IDF owns one downward-growing interrupt stack per CPU. These are the
  * same arrays selected by the port's interrupt-entry assembly (both kernels).

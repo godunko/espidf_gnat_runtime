@@ -22,6 +22,7 @@ function(espidf_add_ada_application)
 
     set(_build_target "${ADA_TARGET}_ada_build")
     ExternalProject_Add("${_build_target}"
+        DEPENDS gnat_system_os_constants
         PREFIX "${CMAKE_CURRENT_BINARY_DIR}/ada/${_build_target}"
         SOURCE_DIR "${_project_dir}"
         BUILD_IN_SOURCE 1

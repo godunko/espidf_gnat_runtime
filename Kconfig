@@ -1,0 +1,13 @@
+menu "GNAT Runtime"
+
+    config GNAT_RUNTIME_ATCB_TLS_SLOT
+        int "TLS slot for Ada Task Control Block"
+        range 1 255
+        default 1
+        help
+            FreeRTOS TLS slot reserved for the Ada runtime. Slot 0 belongs
+            to pthread. FREERTOS_THREAD_LOCAL_STORAGE_POINTERS must be greater
+            than this index; otherwise configuration fails with an error.
+            Other components must not use this slot.
+
+endmenu

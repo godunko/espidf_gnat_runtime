@@ -27,6 +27,24 @@ The following describes the experimental **embedded backend on ESP32-S3**
 (`runtime-embedded-esp32s3.json`), validated with ESP-IDF 6.1. Its validation
 results do not establish the same behavior on other SoCs or runtime backends.
 
+### Generated OS constants and TLS
+
+The ESP-IDF build generates `.gens/s-oscons.ads` inside this component before
+building the Ada application. The embedded runtime descriptor uses that file.
+The target C compiler determines FreeRTOS constants, storage sizes and
+alignments from the current SDK headers and `sdkconfig`; no target code runs.
+For generation alone, run `idf.py gnat_system_os_constants`.
+
+In `menuconfig`, **Component config > GNAT Runtime** selects
+`CONFIG_GNAT_RUNTIME_ATCB_TLS_SLOT` (default 1). Slot 0 is reserved for
+pthread. `CONFIG_FREERTOS_THREAD_LOCAL_STORAGE_POINTERS` must exceed the chosen
+slot index; CMake rejects an invalid configuration. With the FreeRTOS default
+of one slot, increase this count to at least 2. Other components must not use
+the selected Ada slot.
+
+The `.gens/` directory is ignored by Git.
+Run the ESP-IDF generation target before a standalone `alr build`.
+
 ### Interrupts
 
 * **Only hardware interrupt levels 1–3 support Ada handlers and callbacks.**

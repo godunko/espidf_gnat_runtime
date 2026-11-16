@@ -6,3 +6,4 @@ idf_component_register(
     PRIV_REQUIRES freertos)
 
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/embedded-unwind.cmake")
+include("${CMAKE_CURRENT_LIST_DIR}/cmake/system-os_constants.cmake")

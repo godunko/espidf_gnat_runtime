@@ -83,7 +83,7 @@
       },
       "s-oscons.ads": {
         "crate": "espidf_gnat_runtime",
-        "path": "source/embedded/s-oscons.ads"
+        "path": ".gens/s-oscons.ads"
       },
       "s-init.adb": {
         "crate": "espidf_gnat_runtime",
