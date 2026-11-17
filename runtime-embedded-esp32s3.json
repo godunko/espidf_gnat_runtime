@@ -127,7 +127,7 @@
     "Add_IO_Exceptions": "yes",
     "Add_Streams": "yes",
     "Add_Value_Bool": "yes",
-//    "Add_Value_Char": "yes",
+    "Add_Value_Char": "yes",
     "Add_Value_Enum": "yes",
     "Add_Value_Int": "yes",
     "Add_Value_LL_Int": "yes",
