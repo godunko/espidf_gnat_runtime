@@ -94,6 +94,7 @@
       "s-multip.adb": { "crate": "espidf_gnat_runtime", "path": "source/s-multip.adb" },
       "s-osines.ads": { "crate": "espidf_gnat_runtime", "path": "source/embedded/s-osines.ads" },
       "s-osines.adb": { "crate": "espidf_gnat_runtime", "path": "source/embedded/s-osines.adb" },
+      "s-osinfr.ads": { "crate": "espidf_gnat_runtime", "path": "source/embedded/s-osinfr.ads" },
       "s-osinte.ads": { "crate": "espidf_gnat_runtime", "path": "source/embedded/s-osinte.ads" },
       "s-osinte.adb": { "crate": "espidf_gnat_runtime", "path": "source/embedded/s-osinte.adb" },
       "s-taprob.ads": { "crate": "espidf_gnat_runtime", "path": "source/embedded/s-taprob.ads" },

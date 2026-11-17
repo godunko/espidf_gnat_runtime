@@ -42,6 +42,9 @@ package System.OS_Interface.ESPIDF with Preelaborate is
    function Clock_Usec return int64_t
    with Import, Convention => C, External_Name => "__gnat_calendar_clock_usec";
 
+   function esp_timer_get_time return int64_t
+     with Import, Convention => C, External_Name => "esp_timer_get_time";
+
 private
 
    type intr_handle_data_t is null record with Convention => C;

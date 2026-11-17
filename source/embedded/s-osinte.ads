@@ -62,11 +62,26 @@ is
    function Interrupt_Level return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_interrupt_level";
 
+   ----------
+   -- Time --
+   ----------
+
    subtype Time is Interfaces.Unsigned_64;
+   --  Representation of the time in the underlying tasking system
+
    subtype Time_Span is Interfaces.Integer_64;
+   --  Represents the length of time intervals in the underlying tasking
+   --  system.
+
    Ticks_Per_Second : constant := 1_000_000;
+   --  Number of clock ticks per second
+
    function Clock return Time;
+   --  Get the number of ticks elapsed since startup
+
    procedure Delay_Until (T : Time);
+   --  Suspend the calling task until the absolute time specified by T
+
    procedure Set_Priority (Priority : System.Any_Priority);
    function Is_Task_Context return Boolean;
 
@@ -182,9 +197,6 @@ is
 
    function xTaskGetCurrentTaskHandle return TaskHandle_t
    with Import, Convention => C, External_Name => "xTaskGetCurrentTaskHandle";
-
-   procedure vTaskDelay (xTicksToDelay : TickType_t)
-   with Import, Convention => C, External_Name => "vTaskDelay";
 
    function xTaskGetStackStart (xTask : TaskHandle_t) return System.Address
    with Import, Convention => C, External_Name => "xTaskGetStackStart";
