@@ -11,7 +11,8 @@ jobs:
       fail-fast: false
       matrix:
         esp32_mcu: [esp32s3]
-        bundle: [bundle_a, bundle_c2, bundle_c3, bundle_c4, bundle_c5, bundle_c6, bundle_c7, bundle_c8, bundle_c9, bundle_ca]
+#        bundle: [bundle_a, bundle_c2, bundle_c3, bundle_c4, bundle_c5, bundle_c6, bundle_c7, bundle_c8, bundle_c9, bundle_ca]
+        bundle: [bundle_a, bundle_c2, bundle_c3, bundle_c4, bundle_c5, bundle_c6, bundle_c7, bundle_c8, bundle_ca]
     steps:
     - name: Display environment
       run: |
