@@ -39,6 +39,9 @@ package System.OS_Interface.ESPIDF with Preelaborate is
    function To_Flags (Priority : Interrupt_Priority) return int;
    --  Convert an interrupt priority into the corresponding ESP-IDF flag value
 
+   function Clock_Usec return int64_t
+   with Import, Convention => C, External_Name => "__gnat_calendar_clock_usec";
+
 private
 
    type intr_handle_data_t is null record with Convention => C;

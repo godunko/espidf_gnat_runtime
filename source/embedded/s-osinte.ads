@@ -15,6 +15,7 @@ package System.OS_Interface
 is
 
    subtype int is Interfaces.C.int;
+   subtype int64_t is Interfaces.Integer_64;
    subtype uint32_t is Interfaces.Unsigned_32;
 
    type BaseType_t is new Interfaces.C.int;
