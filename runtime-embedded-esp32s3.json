@@ -34,6 +34,9 @@
       "s-excmac.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/full/zcx-dw2/s-excmac.adb" },
 
       "a-calclo.adb": { "crate": "espidf_gnat_runtime", "path": "source/embedded/a-calclo.adb" },
+      "a-caldel.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/libgnat/a-caldel.ads" },
+      "a-caldel.adb": { "crate": "espidf_gnat_runtime", "path": "source/embedded/a-caldel.adb" },
+
       "s-init.adb": { "crate": "espidf_gnat_runtime", "path": "source/embedded/s-init.adb" },
       "s-lidosq.ads": { "crate": "espidf_gnat_runtime", "path": "source/s-lidosq.ads" },
       "s-lidosq.adb": {},
@@ -84,8 +87,6 @@
       "s-tposen.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/full/s-tposen.adb" },
       "s-tasque.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/full/extended/s-tasque.ads" },
 
-      "a-caldel.ads": { "crate": "espidf_gnat_runtime", "path": "source/gcc-16/a-caldel.ads" },
-      "a-caldel.adb": { "crate": "espidf_gnat_runtime", "path": "source/embedded/a-caldel.adb" },
       "a-intnam.ads": { "crate": "espidf_gnat_runtime", "path": "source/a-intnam__esp32s3.ads" },
 
       "s-mufalo.ads": { "crate": "espidf_gnat_runtime", "path": "source/embedded/s-mufalo.ads" },
