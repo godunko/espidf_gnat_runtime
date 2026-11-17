@@ -1,5 +1,10 @@
---  ESP-IDF embedded backend. Copyright (C) 2026 Vadim Godunko
+--
+--  ESP-IDF GNAT Runtime. Copyright (C) 2026 Vadim Godunko
+--
 --  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
+--
+
+with System.OS_Interface.ESPIDF;
 
 package body System.OS_Interface is
    use type Time;
@@ -41,6 +46,80 @@ package body System.OS_Interface is
       end if;
       vTaskPrioritySet (Null_TaskHandle_t, To_Priority (Priority));
    end Set_Priority;
+
+   type Handler_Entry is record
+      Handler : Interrupt_Handler;
+      --  The protected subprogram
+
+      Handle  : System.OS_Interface.ESPIDF.intr_handle_t;
+      --  ESP-IDF handle for the interrupt
+   end record with Suppress_Initialization;
+
+   type Handles_Table is array (Interrupt_ID) of Handler_Entry
+   with Suppress_Initialization;
+   --  Type used to represent the ESP-IDF handles used for interrupt management
+
+   Interrupt_Handlers_Table : Handles_Table := (others => (null, null));
+   --  Table containing handles attached to the different external interrupts
+
+   procedure Dispatch_Interrupt (Arg : Address) with Convention => C;
+   --  Dispatch an interrupt to the appropriate handler.
+
+   --------------------
+   -- Attach_Handler --
+   --------------------
+
+   procedure Attach_Handler
+     (Handler : not null Interrupt_Handler;
+      Id      : Interrupt_ID;
+      Prio    : Interrupt_Priority)
+   is
+      use type System.OS_Interface.ESPIDF.esp_err_t;
+      use type System.OS_Interface.ESPIDF.intr_handle_t;
+
+      Result : System.OS_Interface.ESPIDF.esp_err_t;
+
+   begin
+      --  Check that we are attaching to a real interrupt
+
+      pragma Assert (Id /= No_Interrupt);
+
+      --  Check that no previous interrupt handler has been registered
+
+      if Interrupt_Handlers_Table (Id).Handle /= null then
+         raise Program_Error;
+      end if;
+
+      --  Copy the user's handler to the appropriate place within the table,
+      --  and allocate the interrupt with the ESP-IDF.
+
+      Interrupt_Handlers_Table (Id).Handler := Handler;
+      Result :=
+        System.OS_Interface.ESPIDF.esp_intr_alloc
+          (Interfaces.C.int (Id),
+           System.OS_Interface.ESPIDF.To_Flags (Prio),
+           Dispatch_Interrupt'Access,
+           Storage_Elements.To_Address (Storage_Elements.Integer_Address (Id)),
+           Interrupt_Handlers_Table (Id).Handle);
+
+      if Result /= System.OS_Interface.ESPIDF.ESP_OK then
+         Interrupt_Handlers_Table (Id) := (null, null);
+
+         raise Program_Error with "ESP-IDF interrupt allocation failed";
+      end if;
+   end Attach_Handler;
+
+   ------------------------
+   -- Dispatch_Interrupt --
+   ------------------------
+
+   procedure Dispatch_Interrupt (Arg : Address) is
+      Id : constant Interrupt_ID :=
+        Interrupt_ID (Storage_Elements.To_Integer (Arg));
+
+   begin
+      Interrupt_Handlers_Table (Id).Handler.all (Id);
+   end Dispatch_Interrupt;
 
    ---------------------
    -- Is_Task_Context --

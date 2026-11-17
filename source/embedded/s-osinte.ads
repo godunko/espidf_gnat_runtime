@@ -4,15 +4,17 @@
 --  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
 --
 
-with Interfaces;
+--  This is an ESP-IDF/FreeRTOS implementation of this package.
+
 with Interfaces.C;
 with System.OS_Constants;
 with System.Storage_Elements;
 
-package System.OS_Interface is
+package System.OS_Interface
+  with Preelaborate
+is
 
-   pragma Preelaborate;
-
+   subtype int is Interfaces.C.int;
    subtype uint32_t is Interfaces.Unsigned_32;
 
    type BaseType_t is new Interfaces.C.int;
@@ -46,6 +48,16 @@ package System.OS_Interface is
    Null_Thread_Id : constant Thread_Id := TaskHandle_t (Null_Address);
 
    subtype Interrupt_Range is Integer range 0 .. 98;
+   subtype Interrupt_ID is Integer range 0 .. 98;
+
+   subtype Any_Interrupt_ID is Integer
+     range Interrupt_ID'First .. Interrupt_ID'Last + 1;
+
+   No_Interrupt : constant Any_Interrupt_ID := Any_Interrupt_ID'Last;
+   --  Special value indicating no interrupt
+
+   type Interrupt_Handler is access procedure (Id : Interrupt_ID);
+
    function Interrupt_Level return BaseType_t
    with Import, Convention => C, External_Name => "__gnat_interrupt_level";
 
@@ -197,6 +209,15 @@ package System.OS_Interface is
      Import,
      Convention    => C,
      External_Name => "vTaskSetThreadLocalStoragePointer";
+
+   procedure Attach_Handler
+     (Handler : not null Interrupt_Handler;
+      Id      : Interrupt_ID;
+      Prio    : Interrupt_Priority);
+   pragma Inline (Attach_Handler);
+   --  Attach the procedure Handler as handler of the interrupt Id. Prio is
+   --  the priority of the associated protected object. This priority could be
+   --  used to program the hardware priority of the interrupt.
 
 private
 

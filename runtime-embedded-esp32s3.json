@@ -182,6 +182,14 @@
         "crate": "bb_runtimes",
         "path": "gnat_rts_sources/include/rts-sources/gnarl/common-no-cheri/s-taskin.adb"
       },
+      "s-osines.ads": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-osines.ads"
+      },
+      "s-osines.adb": {
+        "crate": "espidf_gnat_runtime",
+        "path": "source/embedded/s-osines.adb"
+      },
       "s-osinte.ads": {
         "crate": "espidf_gnat_runtime",
         "path": "source/embedded/s-osinte.ads"
@@ -294,6 +302,10 @@
         "crate": "bb_runtimes",
         "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-interr.ads"
       },
+      "s-interr.adb": {
+        "crate": "bb_runtimes",
+        "path": "gnat_rts_sources/include/rts-sources/gnarl/common/s-interr.adb"
+      },
       "a-interr.ads": {
         "crate": "bb_runtimes",
         "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-interr.ads"
@@ -301,10 +313,6 @@
       "a-interr.adb": {
         "crate": "bb_runtimes",
         "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-interr.adb"
-      },
-      "s-interr.adb": {
-        "crate": "espidf_gnat_runtime",
-        "path": "source/embedded/s-interr.adb"
       },
       "a-intnam.ads": {
         "crate": "espidf_gnat_runtime",
