@@ -1,4 +1,4 @@
-# C bridge for the embedded backend. Ada is built through Alire.
+# C bridge for the GNAT runtime. Ada is built through Alire.
 idf_component_register(
     SRCS "source/embedded/ada-espidf.c"
          "source/embedded/ada-freertos.c"
