@@ -1,5 +1,5 @@
 --
---  ESP-IDF embedded backend. Copyright (C) 2026 Vadim Godunko
+--  ESP-IDF GNAT Runtime. Copyright (C) 2026 Vadim Godunko
 --
 --  SPDX-License-Identifier: GPL-3.0-or-later WITH GCC-exception-3.1
 --
