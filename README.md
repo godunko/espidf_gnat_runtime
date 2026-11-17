@@ -1,7 +1,7 @@
 # ESP-IDF GNAT Runtime
 
 [![ACATS](https://github.com/godunko/espidf_gnat_runtime/actions/workflows/acats.yaml/badge.svg)](https://github.com/godunko/espidf_gnat_runtime/actions/workflows/acats.yaml)
-[![Alire](https://img.shields.io/badge/Alire-Crate-blue)](https://alire.ada.dev)
+[![Alire](https://img.shields.io/badge/Alire-Crate-blue)](https://alire.ada.dev/crates/espidf_gnat_runtime)
 [![License: GPL-3.0-or-later WITH GCC-exception-3.1](https://img.shields.io/badge/License-GPL--3.0--or--later_with_GCC--exception--3.1-blue.svg)](https://spdx.org/licenses/GCC-exception-3.1.html)
 
 `espidf_gnat_runtime` is a GNAT runtime library for developing **Ada** and
