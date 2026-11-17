@@ -29,9 +29,10 @@
 --                                                                          --
 ------------------------------------------------------------------------------
 
---  This is a bare board implementation of this package
-
+--  This is an ESP-IDF/FreeRTOS implementation of this package.
+--
 --  ESP-IDF installs CPU exception handlers and owns startup.
+
 with System.Tasking;
 
 package body System.Init is
@@ -101,4 +102,5 @@ package body System.Init is
    begin
       null;
    end Runtime_Finalize;
+
 end System.Init;
