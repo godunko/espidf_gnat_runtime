@@ -53,6 +53,8 @@
   "tasking": {
     "kernel": "custom",
     "files": {
+      "s-putaim.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/full/s-putaim.ads" },
+      "s-putaim.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/full/s-putaim.adb" },
       "a-interr.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-interr.ads" },
       "a-interr.adb": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-interr.adb" },
       "a-reatim.ads": { "crate": "bb_runtimes", "path": "gnat_rts_sources/include/rts-sources/gnarl/common/a-reatim.ads" },
